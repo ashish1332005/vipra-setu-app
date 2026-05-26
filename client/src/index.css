@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    /* Scale the base font-size up by 10% to mimic 110% browser zoom */
+    font-size: 110%; 
+  }
+
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .site-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-space {
+    @apply py-14 md:py-16 lg:py-20;
+  }
+
+  .section-heading {
+    @apply flex flex-col gap-3 md:flex-row md:items-end md:justify-between;
+  }
+
+  .section-copy {
+    @apply max-w-2xl;
+  }
+
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_rgba(0,0,0,0.04)];
+  }
+  
+  .glass-button {
+    @apply relative overflow-hidden bg-white/20 backdrop-blur-md border border-white/40 text-white font-medium transition-all duration-300 hover:bg-white/30;
+  }
+
+  .rainbow-logo {
+    background-image: linear-gradient(
+      90deg,
+      #ef4444 0%,
+      #f97316 18%,
+      #facc15 36%,
+      #22c55e 54%,
+      #3b82f6 72%,
+      #a855f7 90%,
+      #ef4444 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: rainbow-shift 6s linear infinite;
+  }
+}
+
+@keyframes rainbow-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 200% 50%;
+  }
+}

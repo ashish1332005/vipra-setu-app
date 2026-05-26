@@ -1,0 +1,68 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build outputs
+dist/
+build/
+client/dist/
+client/node_modules/
+server/dist/
+server/build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+client/.env
+client/.env.local
+client/.env.*.local
+server/.env
+server/.env.local
+server/.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor and IDE
+.vscode/
+*.code-workspace
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Dependency directories for package managers
+.pnpm-store/
+
+# Vite / client assets
+client/.vite/
+
+# Misc
+coverage/
+.nyc_output/
+
+# Service worker / PWA artifacts
+service-worker.js
+workbox-config.js
+
+# Lockfiles (optional if you prefer not to track these)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
