@@ -14,14 +14,18 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const adRoutes = require('./routes/adRoutes');
 
 const app = express();
+const allowedOrigins = new Set([
+  env.clientUrl,
+  ...env.clientUrls,
+  'https://vipra-setu-1.onrender.com',
+]);
 
 app.use(cors({
   origin(origin, callback) {
     if (
       !origin ||
       env.nodeEnv !== 'production' ||
-      env.clientUrls.includes(origin) ||
-      origin === env.clientUrl
+      allowedOrigins.has(origin)
     ) {
       callback(null, true);
       return;

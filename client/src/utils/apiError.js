@@ -1,3 +1,5 @@
+const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://vipra-setu.onrender.com/api';
+
 export const getApiErrorMessage = (error, fallback = 'Something went wrong') => {
   if (error.response?.data?.message) {
     return error.response.data.message;
@@ -8,7 +10,7 @@ export const getApiErrorMessage = (error, fallback = 'Something went wrong') => 
   }
 
   if (error.request) {
-    return 'Backend is not reachable. Please start the server on http://localhost:5000.';
+    return `Backend is not reachable. Please check ${apiBaseUrl}.`;
   }
 
   return error.message || fallback;
