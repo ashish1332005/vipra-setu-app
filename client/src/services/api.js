@@ -5,7 +5,7 @@ const getBaseURL = () => {
     return import.meta.env.VITE_API_URL;
   }
 
-  return 'https://vipra-setu.onrender.com/api';
+  return 'https://vipra-setu.onrender.com/api/';
 };
 
 const api = axios.create({
