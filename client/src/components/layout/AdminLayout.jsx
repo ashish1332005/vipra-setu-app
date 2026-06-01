@@ -67,6 +67,9 @@ const AdminLayout = () => {
               >
                 <Menu size={21} />
               </button>
+              <Link to="/" className="shrink-0" aria-label="Vipra Sewa Setu home">
+                <img src={logo} alt="Vipra Sewa Setu" className="h-11 w-11 rounded-2xl object-cover ring-1 ring-amber-100 shadow-sm" />
+              </Link>
               <div className="min-w-0">
                 <p className="text-[11px] font-black uppercase tracking-[0.18em] text-red-800">Admin Control</p>
                 <h1 className="truncate text-lg font-black text-slate-950 sm:text-xl">Vipra Sewa Setu</h1>
