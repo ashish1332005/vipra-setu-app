@@ -32,6 +32,11 @@ const adSchema = new mongoose.Schema(
       trim: true,
       default: 'all',
     },
+    targetCategory: {
+      type: String,
+      trim: true,
+      default: 'all',
+    },
     audienceRole: {
       type: String,
       enum: ['all', 'service_taker', 'service_provider'],

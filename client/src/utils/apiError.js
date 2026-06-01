@@ -1,4 +1,4 @@
-const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://vipra-setu.onrender.com/api/';
+const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://vipra-setu.onrender.com/api';
 
 export const getApiErrorMessage = (error, fallback = 'Something went wrong') => {
   if (error.response?.data?.message) {

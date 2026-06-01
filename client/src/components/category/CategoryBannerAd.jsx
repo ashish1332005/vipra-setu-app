@@ -3,14 +3,22 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGlobalContext } from '../../context/GlobalContext';
 import { getMediaUrl } from '../../utils/media';
 
-const CategoryBannerAd = () => {
+const CategoryBannerAd = ({ categoryName = '' }) => {
   const { ads } = useGlobalContext();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Only show active banner ads
   const activeAds = useMemo(
-    () => ads.filter(ad => ad.status === 'Active' && ad.type === 'Category Banner'),
-    [ads]
+    () => ads.filter((ad) => {
+      const targetCategory = (ad.targetCategory || 'all').toLowerCase();
+      const currentCategory = categoryName.toLowerCase();
+      const placement = (ad.placement || 'all').toLowerCase();
+      const matchesCategory = targetCategory === 'all' || targetCategory === currentCategory;
+      const matchesPlacement = ['all', 'category'].includes(placement);
+
+      return ad.status === 'Active' && ad.type === 'Category Banner' && matchesPlacement && matchesCategory;
+    }),
+    [ads, categoryName]
   );
 
   const nextAd = useCallback(() => {

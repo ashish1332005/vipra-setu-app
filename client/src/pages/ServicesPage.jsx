@@ -2,29 +2,30 @@ import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight,
-  CheckCircle2,
+  BriefcaseBusiness,
   Flame,
+  HandHeart,
   MapPin,
-  Rocket,
   Search,
   ShieldCheck,
-  Sparkles,
-  Star,
+  SlidersHorizontal,
+  UsersRound,
+  X,
 } from 'lucide-react';
-import { SERVICES } from '../components/CategoriesSection';
-import TopAdCarousel from '../components/TopAdCarousel';
-import { useGlobalContext } from '../context/GlobalContext';
 
-const TRUST_BADGES = [
-  { icon: ShieldCheck, title: 'Verified', text: 'Trusted providers' },
-  { icon: MapPin, title: 'Bhilwara', text: 'Local support' },
-  { icon: Star, title: 'Rated', text: 'Easy comparison' },
-];
+import { SERVICES } from '../components/CategoriesSection';
+import { useGlobalContext } from '../context/GlobalContext';
+import logo from '../assets/logo.jpeg';
+import parshuramHero from '../assets/parshuram-hero.png';
+
+const ALL_FILTER = 'All';
 
 const ServicesPage = () => {
   const navigate = useNavigate();
   const { providers, marketplaceLoading, marketplaceError } = useGlobalContext();
   const [query, setQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState(ALL_FILTER);
+
   const providerCountByCategory = useMemo(() => providers.reduce((counts, provider) => {
     counts[provider.category] = (counts[provider.category] || 0) + 1;
     return counts;
@@ -33,235 +34,225 @@ const ServicesPage = () => {
   const filteredServices = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    if (!normalizedQuery) {
-      return SERVICES;
-    }
-
-    return SERVICES.filter((service) =>
-      [
+    return SERVICES.filter((service) => {
+      const matchesCategory = activeCategory === ALL_FILTER || service.name === activeCategory;
+      const searchableText = [
         service.name,
         service.desc,
         service.description,
         ...(service.workTypes || []),
-      ]
-        .join(' ')
-        .toLowerCase()
-        .includes(normalizedQuery)
-    );
-  }, [query]);
+      ].join(' ').toLowerCase();
+      const matchesQuery = !normalizedQuery || searchableText.includes(normalizedQuery);
 
-  const totalProfessionals = providers.length;
+      return matchesCategory && matchesQuery;
+    });
+  }, [activeCategory, query]);
 
-  const featuredService = SERVICES[0];
-  const FeaturedIcon = featuredService.icon;
+  const totalWorkTypes = SERVICES.reduce((total, service) => total + service.workTypes.length, 0);
+  const hasSearch = query.trim().length > 0 || activeCategory !== ALL_FILTER;
+
+  const clearFilters = () => {
+    setQuery('');
+    setActiveCategory(ALL_FILTER);
+  };
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fff7ed_0%,#f8fafc_42%,#ffffff_100%)] pb-10 pt-4 text-slate-950 sm:pt-8 lg:py-14">
-      <TopAdCarousel placement="services" />
-      <div className="site-shell max-w-7xl">
-        <section className="relative overflow-hidden rounded-[1.6rem] border border-orange-100 bg-white shadow-[0_18px_60px_rgba(127,29,29,0.10)] sm:rounded-3xl">
-          <div className="absolute inset-x-0 top-0 h-44 bg-[linear-gradient(135deg,#7f1d1d_0%,#f59e0b_120%)] lg:inset-y-0 lg:right-0 lg:left-auto lg:h-auto lg:w-[46%]" />
-          <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_1px_1px,#431407_1px,transparent_0)] [background-size:18px_18px]" />
-          <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="relative px-4 pb-6 pt-5 sm:px-8 sm:py-10 lg:px-12 lg:py-14">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/85 px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-red-900 shadow-sm backdrop-blur lg:border-orange-100 lg:bg-amber-50">
-                <Sparkles size={14} />
-                Seva Categories
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-500 opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+    <div className="min-h-screen bg-[#fffaf2] pb-10 text-slate-950">
+      <section className="relative overflow-hidden border-b border-amber-100 bg-[#fffaf2]">
+        <div className="absolute inset-x-0 top-0 h-[78%] bg-[radial-gradient(circle_at_16%_8%,rgba(251,191,36,0.3),transparent_28%),linear-gradient(135deg,#3b0b07_0%,#7f1d1d_48%,#111827_116%)]" />
+        <div className="culture-pattern absolute inset-x-0 top-0 h-[78%] opacity-60" />
+
+        <div className="site-shell relative py-6 sm:py-10">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-stretch">
+            <div className="flex min-h-[430px] flex-col justify-between rounded-2xl border border-white/15 bg-white/10 p-4 text-white shadow-[0_28px_80px_rgba(67,20,7,0.22)] backdrop-blur sm:p-6 lg:p-7">
+              <div>
+                <span className="inline-flex max-w-full items-center gap-3 rounded-full border border-white/15 bg-white/12 py-1.5 pl-1.5 pr-4 shadow-sm backdrop-blur">
+                  <img src={logo} alt="Vipra Sewa Setu" className="h-9 w-9 rounded-full object-cover" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-black leading-tight">Vipra Sewa Setu</span>
+                    <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-amber-200">
+                      Service | Community | Trust
+                    </span>
+                  </span>
                 </span>
-              </span>
 
-              <h1 className="mt-5 max-w-3xl text-3xl font-black leading-[1.06] tracking-tight text-white drop-shadow-sm sm:text-6xl lg:text-slate-950 lg:drop-shadow-none">
-                सेवा, रोजगार और भरोसेमंद मदद एक ही जगह
-              </h1>
-
-              <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/86 sm:mt-4 sm:text-lg sm:leading-8 lg:text-slate-600">
-                Home, event, education, health, property, food aur business support ke verified local providers ko fast discover karein.
-              </p>
-
-              <div className="sticky top-[74px] z-20 mt-5 flex items-center gap-3 rounded-2xl border border-white/40 bg-white px-4 py-3 shadow-[0_14px_35px_rgba(67,20,7,0.16)] sm:static sm:mt-6 lg:border-slate-200 lg:bg-slate-50 lg:shadow-none">
-                <Search size={19} className="shrink-0 text-slate-400" />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search plumber, catering, coaching..."
-                  className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400"
-                />
+                <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight text-white sm:text-5xl lg:text-[3.45rem]">
+                  भरोसेमंद सेवा, simple booking.
+                </h1>
+                <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-white/78 sm:text-base">
+                  Discover verified providers for home, event, education, health, property, food, and professional support.
+                </p>
               </div>
 
-              <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-2xl border border-orange-100 bg-white text-center shadow-sm sm:mt-6">
-                <div className="border-r border-orange-100 px-2 py-4">
-                  <span className="block text-xl font-black text-red-900">{SERVICES.length}</span>
-                  <span className="mt-1 block text-[10px] font-bold uppercase tracking-wide text-slate-500">Categories</span>
-                </div>
-                <div className="border-r border-orange-100 px-2 py-4">
-                  <span className="block text-xl font-black text-red-900">{marketplaceLoading ? '...' : totalProfessionals}</span>
-                  <span className="mt-1 block text-[10px] font-bold uppercase tracking-wide text-slate-500">Providers</span>
-                </div>
-                <div className="px-2 py-4">
-                  <span className="block text-xl font-black text-red-900">Local</span>
-                  <span className="mt-1 block text-[10px] font-bold uppercase tracking-wide text-slate-500">Support</span>
-                </div>
+              <div className="mt-6 grid gap-2 sm:grid-cols-3">
+                {[
+                  [HandHeart, 'Service', 'Community first'],
+                  [ShieldCheck, 'Trust', 'Verified support'],
+                  [MapPin, 'Local', 'Bhilwara focused'],
+                ].map(([Icon, title, text]) => (
+                  <div key={title} className="rounded-xl border border-white/12 bg-white/10 p-3 backdrop-blur">
+                    <Icon size={18} className="text-amber-200" />
+                    <p className="mt-2 text-sm font-black text-white">{title}</p>
+                    <p className="text-xs font-semibold text-white/58">{text}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="relative p-4 pt-0 text-white sm:p-8 lg:p-10">
-              <div className="flex h-full flex-col justify-between overflow-hidden rounded-[1.4rem] border border-white/15 bg-[linear-gradient(145deg,#431407_0%,#7f1d1d_52%,#0f172a_100%)] p-5 shadow-[0_22px_55px_rgba(67,20,7,0.28)] sm:rounded-3xl">
-                <div className="absolute right-8 top-8 h-20 w-20 rounded-full border border-amber-300/25" />
-                <div className="absolute right-14 top-14 h-28 w-28 rounded-full border border-amber-300/15" />
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-white ${featuredService.iconColor}`}>
-                      <FeaturedIcon size={31} strokeWidth={2.1} />
-                    </div>
-                    <span className="rounded-full bg-amber-300 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-red-950">
-                      Featured
-                    </span>
-                  </div>
-
-                  <h2 className="mt-7 text-2xl font-black leading-tight sm:text-3xl">
-                    Start with {featuredService.name}
-                  </h2>
-                  <p className="mt-3 text-sm font-medium leading-6 text-amber-50/82">
-                    {featuredService.description}
-                  </p>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {featuredService.workTypes.slice(0, 5).map((workType) => (
-                      <span key={workType} className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-100">
-                        {workType}
-                      </span>
+            <div className="relative min-h-[430px] overflow-hidden rounded-2xl border border-white/15 bg-slate-950 shadow-[0_28px_80px_rgba(15,23,42,0.34)]">
+              <img
+                src={parshuramHero}
+                alt="Vipra Sewa Setu cultural service platform"
+                className="absolute inset-0 h-full w-full object-cover object-top"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.02)_0%,rgba(67,20,7,0.18)_34%,rgba(15,23,42,0.92)_100%)]" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                <div className="rounded-2xl border border-white/15 bg-slate-950/68 p-4 text-white backdrop-blur-md">
+                  <p className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-200">सेवा Directory</p>
+                  <div className="mt-3 grid grid-cols-3 gap-2">
+                    {[
+                      [SERVICES.length, 'Categories', BriefcaseBusiness],
+                      [marketplaceLoading ? '...' : providers.length, 'Providers', UsersRound],
+                      [totalWorkTypes, 'Services', ShieldCheck],
+                    ].map(([value, label, Icon]) => (
+                      <div key={label} className="rounded-xl bg-white/10 p-2 text-center">
+                        <Icon size={16} className="mx-auto text-amber-200" />
+                        <p className="mt-1 text-lg font-black">{value}</p>
+                        <p className="text-[9px] font-black uppercase tracking-[0.08em] text-white/55">{label}</p>
+                      </div>
                     ))}
                   </div>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => navigate(`/category/${encodeURIComponent(featuredService.name)}`)}
-                  className="relative mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-red-950 transition-colors hover:bg-amber-50"
-                >
-                  Explore featured service
-                  <ArrowRight size={17} />
-                </button>
               </div>
             </div>
           </div>
-        </section>
 
-        <section className="mt-5 flex snap-x gap-3 overflow-x-auto pb-1 sm:mt-8 sm:grid sm:grid-cols-3 sm:overflow-visible sm:pb-0">
-          {TRUST_BADGES.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="flex min-w-[78%] snap-start items-center gap-4 rounded-2xl border border-orange-100 bg-white p-4 shadow-sm sm:min-w-0">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-red-900">
-                <Icon size={21} />
+          <div className="mt-5 rounded-2xl border border-amber-100 bg-white p-3 shadow-[0_20px_55px_rgba(67,20,7,0.12)]">
+            <label className="flex min-h-12 items-center gap-3 rounded-xl bg-slate-50 px-4 ring-1 ring-slate-100 focus-within:bg-white focus-within:ring-amber-300">
+              <Search size={20} className="shrink-0 text-red-900" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search plumber, catering, coaching, property..."
+                className="min-w-0 flex-1 bg-transparent text-sm font-bold text-slate-900 outline-none placeholder:text-slate-400"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-200 hover:text-slate-950"
+                  aria-label="Clear search"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </label>
+
+            <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-amber-300">
+                <SlidersHorizontal size={16} />
               </span>
-              <span>
-                <span className="block font-black text-slate-950">{title}</span>
-                <span className="mt-0.5 block text-sm font-medium text-slate-500">{text}</span>
-              </span>
+              {[ALL_FILTER, ...SERVICES.map((service) => service.name)].map((category) => {
+                const isActive = activeCategory === category;
+
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => setActiveCategory(category)}
+                    className={`min-h-9 shrink-0 rounded-xl px-3 text-xs font-black transition ${
+                      isActive
+                        ? 'bg-red-900 text-white shadow-sm'
+                        : 'bg-amber-50 text-slate-700 ring-1 ring-amber-100 hover:bg-amber-100 hover:text-slate-950'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
             </div>
-          ))}
-        </section>
+          </div>
+        </div>
+      </section>
 
-        <section className="mt-6 grid gap-4 rounded-3xl border border-slate-200 bg-slate-950 p-5 text-white shadow-sm sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center">
-          <div className="flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-sky-400 text-slate-950">
-              <Rocket size={23} />
-            </span>
+      <main className="site-shell">
+        <section className="mt-6">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-sky-200">For professionals</p>
-              <h2 className="mt-1 text-2xl font-black">List your service and start receiving local leads.</h2>
-              <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-300">
-                Create provider account, complete profile, publish services, and claim matching customer requests from your dashboard.
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-red-800">Service directory</p>
+              <h2 className="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">What service do you need?</h2>
+              <p className="mt-1 text-sm font-semibold text-slate-500">
+                Search, filter, and open a category to view providers.
               </p>
             </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigate('/login')}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-950 hover:bg-sky-50"
-          >
-            Become a Provider
-            <ArrowRight size={17} />
-          </button>
-        </section>
-
-        <section className="mt-6 sm:mt-10">
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <div>
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-red-800">Categories</span>
-              <h2 className="mt-1 text-2xl font-black text-slate-950 sm:text-3xl">Choose a service</h2>
-            </div>
-            <span className="hidden rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-500 ring-1 ring-slate-200 sm:inline-flex">
-              {filteredServices.length} results
-            </span>
-          </div>
-
-          <div className="mb-4 flex snap-x gap-2 overflow-x-auto pb-1 sm:hidden">
-            {SERVICES.map((service) => {
-              const Icon = service.icon;
-
-              return (
+            <div className="flex items-center gap-2">
+              <span className="rounded-xl bg-white px-3 py-2 text-sm font-black text-slate-600 ring-1 ring-slate-200">
+                {filteredServices.length} results
+              </span>
+              {hasSearch && (
                 <button
-                  key={service.id}
                   type="button"
-                  onClick={() => navigate(`/category/${encodeURIComponent(service.name)}`)}
-                  className="flex min-w-max snap-start items-center gap-2 rounded-full border border-orange-100 bg-white px-3 py-2 text-xs font-black text-slate-700 shadow-sm"
+                  onClick={clearFilters}
+                  className="rounded-xl bg-slate-950 px-3 py-2 text-sm font-black text-white transition hover:bg-red-900"
                 >
-                  <Icon size={15} className={service.iconColor} />
-                  {service.name}
+                  Reset
                 </button>
-              );
-            })}
+              )}
+            </div>
           </div>
 
           {filteredServices.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 xl:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {filteredServices.map((service) => {
                 const Icon = service.icon;
+                const providerCount = providerCountByCategory[service.name] || 0;
+                const firstWorkTypes = service.workTypes.slice(0, 4);
+                const remainingCount = Math.max(service.workTypes.length - firstWorkTypes.length, 0);
 
                 return (
                   <article
                     key={service.id}
                     onClick={() => navigate(`/category/${encodeURIComponent(service.name)}`)}
-                    className="group relative cursor-pointer overflow-hidden rounded-[1.35rem] border border-orange-100 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-amber-200 hover:shadow-[0_18px_45px_rgba(127,29,29,0.12)] sm:rounded-3xl"
+                    className="group flex min-h-[310px] cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)] transition hover:-translate-y-0.5 hover:border-amber-200 hover:shadow-[0_22px_55px_rgba(67,20,7,0.12)]"
                   >
-                    <div className={`relative bg-gradient-to-br ${service.accent} p-4 sm:p-5`}>
-                      <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full ${service.glow} opacity-10 blur-2xl transition duration-500 group-hover:scale-125 group-hover:opacity-20`} />
-                      <div className="flex items-start justify-between gap-4">
-                        <div className={`relative flex h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14 ${service.iconColor}`}>
-                          <Icon size={25} strokeWidth={2.1} />
-                        </div>
-                        <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-black uppercase tracking-[0.16em] text-slate-500 shadow-sm">
-                          {providerCountByCategory[service.name] || 0} providers
+                    <div className="relative border-b border-slate-100 bg-[linear-gradient(135deg,#fff7ed_0%,#ffffff_55%,#f8fafc_100%)] p-4">
+                      <div className={`absolute inset-y-0 left-0 w-1.5 bg-gradient-to-b ${service.panel}`} />
+                      <div className="flex items-start gap-4 pl-2">
+                        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${service.tint} ring-1 ring-white`}>
+                          <Icon size={23} strokeWidth={2.1} />
                         </span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <h3 className="text-xl font-black leading-tight text-slate-950">{service.name}</h3>
+                            <span className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-red-900 ring-1 ring-amber-100">
+                              {providerCount} pros
+                            </span>
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-sm font-semibold leading-6 text-slate-500">
+                            {service.description}
+                          </p>
+                        </div>
                       </div>
-
-                      <h3 className="relative mt-5 text-xl font-black text-slate-950 sm:mt-6 sm:text-2xl">
-                        {service.name}
-                      </h3>
-                      <p className="relative mt-2 text-sm font-medium leading-6 text-slate-600">
-                        {service.desc}
-                      </p>
                     </div>
 
-                    <div className="p-4 sm:p-5">
+                    <div className="flex flex-1 flex-col p-4">
                       <div className="flex flex-wrap gap-2">
-                        {service.workTypes.slice(0, 4).map((workType) => (
-                          <span key={workType} className="rounded-full bg-orange-50 px-3 py-1.5 text-xs font-bold text-slate-600">
+                        {firstWorkTypes.map((workType) => (
+                          <span key={workType} className="rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700 ring-1 ring-slate-100">
                             {workType}
                           </span>
                         ))}
+                        {remainingCount > 0 && (
+                          <span className="rounded-lg bg-amber-50 px-2.5 py-1.5 text-xs font-black text-red-900 ring-1 ring-amber-100">
+                            +{remainingCount} more
+                          </span>
+                        )}
                       </div>
 
-                      <div className="mt-5 flex items-center justify-between border-t border-orange-100 pt-4">
-                        <span className="inline-flex items-center gap-2 text-sm font-black text-slate-700">
-                          <CheckCircle2 size={16} className="text-red-800" />
-                          Explore category
-                        </span>
-                        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white transition-all group-hover:translate-x-1 group-hover:bg-red-900">
-                          <ArrowRight size={19} />
+                      <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-4">
+                        <span className="text-sm font-black text-red-900">View providers</span>
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white transition group-hover:translate-x-1 group-hover:bg-red-900">
+                          <ArrowRight size={18} />
                         </span>
                       </div>
                     </div>
@@ -270,28 +261,29 @@ const ServicesPage = () => {
               })}
             </div>
           ) : (
-            <div className="rounded-3xl border border-orange-100 bg-white px-5 py-10 text-center shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white px-5 py-12 text-center shadow-sm">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-red-900">
                 <Flame size={24} />
               </div>
-              <p className="text-lg font-black text-slate-950">No services found</p>
-              <p className="mt-2 text-sm text-slate-500">Try searching a broader service name.</p>
+              <p className="mt-4 text-lg font-black text-slate-950">No service found</p>
+              <p className="mt-2 text-sm font-semibold text-slate-500">Try a broader service name or clear the selected filter.</p>
               <button
                 type="button"
-                onClick={() => setQuery('')}
-                className="mt-5 rounded-full bg-red-900 px-5 py-2.5 text-sm font-black text-white"
+                onClick={clearFilters}
+                className="mt-5 rounded-xl bg-red-900 px-5 py-2.5 text-sm font-black text-white transition hover:bg-slate-950"
               >
-                Clear search
+                Clear filters
               </button>
             </div>
           )}
+
           {marketplaceError && (
             <p className="mt-4 rounded-2xl border border-amber-100 bg-white px-4 py-3 text-sm font-bold text-amber-800">
               {marketplaceError}
             </p>
           )}
         </section>
-      </div>
+      </main>
     </div>
   );
 };

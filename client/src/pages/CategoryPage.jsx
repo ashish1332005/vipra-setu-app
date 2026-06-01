@@ -133,8 +133,6 @@ const CategoryPage = () => {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#fbf7f0] font-sans text-slate-950">
-      <CategoryBannerAd />
-
       <div className="site-shell py-4 sm:py-6">
         <nav className="mb-3 flex items-center gap-2 overflow-x-auto whitespace-nowrap text-xs font-semibold text-slate-500">
           <Link to="/" className="hover:text-red-900">Bhilwara</Link>
@@ -143,6 +141,8 @@ const CategoryPage = () => {
           <ChevronRight size={12} />
           <span>{marketplaceLoading ? 'Loading listings' : `${categoryWorkers.length} Listings`}</span>
         </nav>
+
+        <CategoryBannerAd categoryName={displayCategory} />
 
         <motion.section
           initial="hidden"

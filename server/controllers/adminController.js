@@ -355,6 +355,7 @@ const createAd = asyncHandler(async (req, res) => {
     targetUrl = '',
     status = 'Active',
     placement = 'all',
+    targetCategory = 'all',
     imageFile,
     audienceRole = 'all',
     providerProfile = '',
@@ -390,6 +391,7 @@ const createAd = asyncHandler(async (req, res) => {
     targetUrl,
     status,
     placement,
+    targetCategory,
     audienceRole,
     providerProfile: providerProfile || undefined,
     providerUser,
@@ -440,7 +442,7 @@ const saveAdImage = (userId, imageFile) => {
 };
 
 const updateAd = asyncHandler(async (req, res) => {
-  const allowedFields = ['title', 'type', 'imageUrl', 'targetUrl', 'status', 'placement', 'audienceRole', 'providerProfile', 'providerUser', 'subtitle', 'ctaLabel'];
+  const allowedFields = ['title', 'type', 'imageUrl', 'targetUrl', 'status', 'placement', 'targetCategory', 'audienceRole', 'providerProfile', 'providerUser', 'subtitle', 'ctaLabel'];
   const updates = allowedFields.reduce((data, field) => {
     if (req.body[field] !== undefined) data[field] = req.body[field];
     return data;

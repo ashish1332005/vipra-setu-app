@@ -32,9 +32,8 @@ const register = asyncHandler(async (req, res) => {
     password,
     role,
     status: role === 'service_provider' ? 'pending' : 'active',
+    emailVerifiedAt: new Date(),
   });
-
-  const verificationToken = await issueEmailVerification(user);
 
   if (role === 'service_provider') {
     await ProviderProfile.create({
@@ -53,7 +52,7 @@ const register = asyncHandler(async (req, res) => {
   res.status(201).json({
     user: sanitizeUser(user),
     token: generateToken(user),
-    verificationToken: env.nodeEnv === 'production' ? undefined : verificationToken,
+    message: 'Account created successfully.',
   });
 });
 
@@ -128,14 +127,12 @@ const resendVerification = asyncHandler(async (req, res) => {
   }
 
   if (user.emailVerifiedAt) {
-    res.json({ message: 'Email is already verified' });
+    res.json({ message: 'Email verification is currently disabled' });
     return;
   }
 
-  const verificationToken = await issueEmailVerification(user);
   res.json({
-    message: 'Verification email sent',
-    verificationToken: env.nodeEnv === 'production' ? undefined : verificationToken,
+    message: 'Email verification is currently disabled',
   });
 });
 
@@ -157,15 +154,47 @@ const issueEmailVerification = async (user) => {
   await user.save();
 
   const verifyUrl = `${env.clientUrl}/login?verifyToken=${token}`;
+  const safeName = escapeHtml(user.name);
+  const safeVerifyUrl = escapeHtml(verifyUrl);
   await sendEmail({
     to: user.email,
     subject: 'Verify your Vipra Sewa Setu account',
-    text: `Namaste ${user.name}, verify your account using this link: ${verifyUrl}`,
+    text: [
+      `Namaste ${user.name},`,
+      '',
+      'Please verify your Vipra Sewa Setu account using this secure link:',
+      verifyUrl,
+      '',
+      'This link will expire in 24 hours. If you did not create this account, you can ignore this email.',
+    ].join('\n'),
+    html: `
+      <div style="margin:0;padding:28px;background:#f8fafc;font-family:Arial,sans-serif;color:#0f172a;">
+        <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;">
+          <div style="padding:24px 26px;background:#7f1d1d;color:#ffffff;">
+            <div style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#fde68a;">Dharma | Seva | Samaj</div>
+            <h1 style="margin:10px 0 0;font-size:26px;line-height:1.25;">Verify your Vipra Sewa Setu account</h1>
+          </div>
+          <div style="padding:26px;">
+            <p style="margin:0 0 14px;font-size:16px;line-height:1.7;">Namaste ${safeName},</p>
+            <p style="margin:0 0 22px;font-size:15px;line-height:1.7;color:#475569;">Click the button below to verify your email and activate your account. This keeps community requests, providers, and dashboards trusted.</p>
+            <a href="${safeVerifyUrl}" style="display:inline-block;background:#facc15;color:#111827;text-decoration:none;font-weight:800;border-radius:12px;padding:14px 20px;">Verify Email</a>
+            <p style="margin:22px 0 0;font-size:13px;line-height:1.6;color:#64748b;">This link expires in 24 hours. If the button does not work, copy this link into your browser:<br>${safeVerifyUrl}</p>
+          </div>
+        </div>
+      </div>
+    `,
   });
 
   return token;
 };
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
+
+const escapeHtml = (value = '') => String(value)
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#039;');
 
 module.exports = { register, login, getMe, verifyEmail, resendVerification };

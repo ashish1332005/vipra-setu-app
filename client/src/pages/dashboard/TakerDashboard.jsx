@@ -56,11 +56,11 @@ const TakerDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-sm">
-        <div className="bg-[linear-gradient(135deg,#111827,#312e81_46%,#0891b2)] px-6 py-8 text-white">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-indigo-100">Customer Service Desk</p>
-          <h2 className="mt-3 text-3xl font-black">Track every booking like a premium service app.</h2>
-          <p className="mt-3 max-w-2xl text-sm font-medium text-indigo-50">
+      <motion.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm">
+        <div className="bg-gradient-to-br from-[#3b0b07] via-[#7f1d1d] to-slate-950 px-6 py-8 text-white">
+          <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-200">Customer Service Desk</p>
+          <h2 className="mt-3 text-3xl font-black">Your services, requests, and providers in one place.</h2>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/78">
             Book service, compare providers, approve quotes, save trusted professionals and follow every request timeline.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -124,7 +124,7 @@ const TakerDashboard = () => {
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h3 className="text-lg font-black text-slate-950">Active Booking Tracker</h3>
+          <h3 className="text-lg font-black text-slate-950">Active Booking Tracker</h3>
               <p className="mt-1 text-sm font-medium text-slate-500">Latest request status, quote and schedule details.</p>
             </div>
             <Link to="/taker/requests" className="text-sm font-black text-indigo-700">View all</Link>
@@ -135,7 +135,7 @@ const TakerDashboard = () => {
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h4 className="font-black text-slate-950">{request.title}</h4>
-                    <p className="mt-1 text-sm font-bold text-indigo-700">{request.category} | {request.city}</p>
+                    <p className="mt-1 text-sm font-bold text-red-900">{request.category} | {request.city}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       <Badge icon={CalendarClock} text={request.preferredDate ? new Date(request.preferredDate).toLocaleDateString() : 'Flexible date'} />
                       <Badge icon={BriefcaseBusiness} text={request.provider?.name || 'Open request'} />
@@ -211,7 +211,7 @@ const ActionCard = ({ icon: Icon, title, text, to, action, tone }) => {
           <Icon size={20} />
         </span>
         <div>
-          <h3 className="text-base font-black text-slate-950">{title}</h3>
+      <h3 className="text-base font-black text-slate-950">{title}</h3>
           <p className="mt-1 text-sm font-medium leading-6 text-slate-500">{text}</p>
           <span className="mt-3 inline-flex items-center gap-1 text-sm font-black text-slate-900">
             {action}
@@ -227,7 +227,7 @@ const Panel = ({ title, action, children }) => (
   <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
     <div className="flex items-center justify-between gap-4">
       <h3 className="text-lg font-black text-slate-950">{title}</h3>
-      <Link to={action.to} className="text-sm font-black text-indigo-700">{action.label}</Link>
+      <Link to={action.to} className="text-sm font-black text-red-900">{action.label}</Link>
     </div>
     <div className="mt-4 space-y-3">{children}</div>
   </section>

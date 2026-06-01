@@ -33,6 +33,7 @@ const LoginPage = () => {
     role: 'service_taker',
   });
   const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('info');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login, register, verifyEmail, resendVerification, authLoading, authError } = useGlobalContext();
@@ -52,14 +53,17 @@ const LoginPage = () => {
     if (!token || hasVerifiedLink.current) return;
 
     hasVerifiedLink.current = true;
+    setMessageType('info');
     setMessage('Verifying your email...');
 
     verifyEmail(token)
       .then((user) => {
+        setMessageType('success');
         setMessage('Email verified successfully.');
         navigateByRole(user);
       })
       .catch((error) => {
+        setMessageType('error');
         setMessage(error.message);
       });
   }, [navigateByRole, searchParams, verifyEmail]);
@@ -71,11 +75,23 @@ const LoginPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setMessage('');
+    setMessageType('info');
 
     try {
-      const user = isLogin ? await login(formData) : await register(formData);
-      navigateByRole(user);
+      if (isLogin) {
+        const user = await login(formData);
+        navigateByRole(user);
+        return;
+      }
+
+      const data = await register(formData);
+      if (data.user) {
+        setMessageType('success');
+        setMessage(data.message || 'Account created successfully.');
+        navigateByRole(data.user);
+      }
     } catch (error) {
+      setMessageType('error');
       setMessage(error.message);
     }
   };
@@ -83,29 +99,35 @@ const LoginPage = () => {
   const handleVerifyFromLink = async () => {
     const token = searchParams.get('verifyToken');
     if (!token) {
+      setMessageType('error');
       setMessage('Verification token not found in URL.');
       return;
     }
 
     try {
       const user = await verifyEmail(token);
+      setMessageType('success');
       setMessage('Email verified successfully.');
       navigateByRole(user);
     } catch (error) {
+      setMessageType('error');
       setMessage(error.message);
     }
   };
 
   const handleResend = async () => {
     if (!formData.email) {
+      setMessageType('error');
       setMessage('Enter your email first, then resend verification.');
       return;
     }
 
     try {
       const data = await resendVerification(formData.email);
+      setMessageType('success');
       setMessage(data.verificationToken ? `Verification sent. Dev token: ${data.verificationToken}` : data.message);
     } catch (error) {
+      setMessageType('error');
       setMessage(error.message);
     }
   };
@@ -232,6 +254,7 @@ const LoginPage = () => {
                     type="button"
                     onClick={() => {
                       setMessage('');
+                      setMessageType('info');
                       setIsLogin(false);
                     }}
                     className={`rounded-lg px-3 py-2.5 text-sm font-black transition sm:py-3 ${
@@ -244,6 +267,7 @@ const LoginPage = () => {
                     type="button"
                     onClick={() => {
                       setMessage('');
+                      setMessageType('info');
                       setIsLogin(true);
                     }}
                     className={`rounded-lg px-3 py-2.5 text-sm font-black transition sm:py-3 ${
@@ -365,7 +389,13 @@ const LoginPage = () => {
                   </div>
 
                   {(message || authError) && (
-                    <p className="rounded-xl bg-red-50 px-4 py-3 text-sm font-bold text-red-700">
+                    <p className={`rounded-xl px-4 py-3 text-sm font-bold ${
+                      authError || messageType === 'error'
+                        ? 'bg-red-50 text-red-700'
+                        : messageType === 'success'
+                          ? 'bg-emerald-50 text-emerald-700'
+                          : 'bg-amber-50 text-amber-800'
+                    }`}>
                       {message || authError}
                     </p>
                   )}
@@ -384,6 +414,7 @@ const LoginPage = () => {
                     type="button"
                     onClick={() => {
                       setMessage('');
+                      setMessageType('info');
                       setIsLogin(!isLogin);
                     }}
                     className="text-sm font-bold text-slate-500 transition hover:text-sky-700"

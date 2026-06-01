@@ -40,11 +40,22 @@ const ProviderRequests = () => {
   };
 
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
+    <div className="space-y-5">
+      <section className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm">
+        <div className="bg-gradient-to-br from-[#3b0b07] via-[#7f1d1d] to-slate-950 px-5 py-6 text-white">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">Request Pipeline</p>
+          <h1 className="mt-2 text-3xl font-black">Claim leads and finish work clearly.</h1>
+          <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-white/72">
+            Open leads are new opportunities. Assigned work is your active customer pipeline.
+          </p>
+        </div>
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-2">
       <RequestColumn title="Open Leads" subtitle="Requests matching your city and category.">
         {open.map((request) => (
           <RequestCard key={request._id} request={request}>
-            <button onClick={() => claim(request._id)} className="inline-flex items-center gap-2 rounded-full bg-orange-600 px-4 py-2 text-sm font-black text-white hover:bg-orange-700">
+            <button onClick={() => claim(request._id)} className="inline-flex items-center gap-2 rounded-full bg-red-900 px-4 py-2 text-sm font-black text-white hover:bg-slate-950">
               <PlusCircle size={16} />
               Claim
             </button>
@@ -54,7 +65,7 @@ const ProviderRequests = () => {
       </RequestColumn>
 
       <RequestColumn title="Assigned Work" subtitle="Move requests from assigned to completed.">
-        {message && <p className="rounded-xl bg-orange-50 px-4 py-3 text-sm font-bold text-orange-700">{message}</p>}
+        {message && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-bold text-red-900">{message}</p>}
         {assigned.map((request) => (
           <RequestCard key={request._id} request={request}>
             <div className="flex flex-wrap gap-2">
@@ -67,6 +78,7 @@ const ProviderRequests = () => {
         ))}
         {assigned.length === 0 && <Empty text="No assigned work yet." />}
       </RequestColumn>
+      </div>
     </div>
   );
 };
@@ -84,7 +96,7 @@ const RequestCard = ({ request, children }) => (
     <div className="flex items-start justify-between gap-4">
       <div>
         <h3 className="font-black text-slate-950">{request.title}</h3>
-        <p className="mt-1 text-sm font-bold text-orange-700">{request.category} · {request.city}</p>
+        <p className="mt-1 text-sm font-bold text-red-900">{request.category} | {request.city}</p>
         <p className="mt-2 text-sm font-medium text-slate-600">{request.description}</p>
         <p className="mt-3 text-xs font-bold text-slate-500">
           By {request.serviceTaker?.name || 'Service taker'} · {request.serviceTaker?.phone || 'Phone hidden'}
@@ -113,7 +125,7 @@ const RequestCard = ({ request, children }) => (
 );
 
 const Action = ({ onClick, icon: Icon, label, danger }) => (
-  <button onClick={onClick} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black ${danger ? 'bg-red-50 text-red-700 hover:bg-red-100' : 'bg-slate-950 text-white hover:bg-orange-700'}`}>
+  <button onClick={onClick} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-black ${danger ? 'bg-red-50 text-red-700 hover:bg-red-100' : 'bg-slate-950 text-white hover:bg-red-900'}`}>
     <Icon size={15} />
     {label}
   </button>

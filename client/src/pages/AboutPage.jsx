@@ -11,9 +11,18 @@ import {
   UsersRound,
 } from 'lucide-react';
 
+import logo from '../assets/logo.jpeg';
 import parshuramHero from '../assets/parshuram-hero.png';
 
-const VALUES = ['धर्म', 'सेवा', 'संस्कार', 'सहयोग'];
+const HINDI = {
+  values: ['\u0927\u0930\u094d\u092e', '\u0938\u0947\u0935\u093e', '\u0938\u0902\u0938\u094d\u0915\u093e\u0930', '\u0938\u0939\u092f\u094b\u0917'],
+  brandLine: '\u0927\u0930\u094d\u092e | \u0938\u0947\u0935\u093e | \u0938\u092e\u093e\u091c',
+  heroTitle: '\u0938\u092e\u093e\u091c \u0915\u094b \u091c\u094b\u0921\u093c\u0928\u0947 \u0935\u093e\u0932\u093e \u0935\u093f\u0936\u094d\u0935\u0938\u0928\u0940\u092f \u0921\u093f\u091c\u093f\u091f\u0932 \u092e\u0902\u091a',
+  visualTitle: '\u092a\u0930\u0902\u092a\u0930\u093e \u0915\u0940 \u091c\u0921\u093c\u0947\u0902, \u0921\u093f\u091c\u093f\u091f\u0932 \u0938\u0941\u0935\u093f\u0927\u093e \u0915\u0947 \u0938\u093e\u0925',
+  missionTitle: '\u0935\u093f\u0936\u094d\u0935\u093e\u0938 \u0938\u0947 \u0935\u093f\u0915\u093e\u0938 \u0924\u0915',
+  missionOne: 'Vipra Sewa Setu \u0938\u092e\u093e\u091c \u0915\u094b \u0921\u093f\u091c\u093f\u091f\u0932 \u0930\u0942\u092a \u0938\u0947 \u091c\u094b\u0921\u093c\u0928\u0947 \u0915\u0940 \u092a\u0939\u0932 \u0939\u0948, \u091c\u0939\u093e\u0902 \u0930\u094b\u091c\u0917\u093e\u0930, \u0938\u0947\u0935\u093e, \u0935\u094d\u092f\u0935\u0938\u093e\u092f \u0914\u0930 \u0938\u093e\u092e\u093e\u091c\u093f\u0915 \u0938\u0939\u092f\u094b\u0917 \u090f\u0915 \u0939\u0940 \u092e\u0902\u091a \u092a\u0930 \u092e\u093f\u0932\u0924\u0947 \u0939\u0948\u0902.',
+  missionTwo: '\u0939\u092e\u093e\u0930\u093e \u0909\u0926\u094d\u0926\u0947\u0936\u094d\u092f \u0938\u094d\u0925\u093e\u0928\u0940\u092f \u0932\u094b\u0917\u094b\u0902 \u0915\u094b \u092d\u0930\u094b\u0938\u0947\u092e\u0902\u0926 \u092a\u0939\u091a\u093e\u0928 \u0926\u0947\u0928\u093e, \u092f\u0941\u0935\u093e\u0913\u0902 \u0915\u094b \u0905\u0935\u0938\u0930\u094b\u0902 \u0938\u0947 \u091c\u094b\u0921\u093c\u0928\u093e \u0914\u0930 \u092a\u0930\u093f\u0935\u093e\u0930\u094b\u0902 \u0924\u0915 \u0938\u0939\u0940 \u0938\u0939\u093e\u092f\u0924\u093e \u092a\u0939\u0941\u0902\u091a\u093e\u0928\u093e \u0939\u0948.',
+};
 
 const STATS = [
   ['100%', 'Trust'],
@@ -41,18 +50,18 @@ const TRUST_CARDS = [
 
 const PURPOSE = [
   {
-    title: 'रोजगार और अवसर',
-    text: 'युवाओं को काम, सेवा और व्यवसायिक अवसरों से जोड़ना.',
+    title: '\u0930\u094b\u091c\u0917\u093e\u0930 \u0914\u0930 \u0905\u0935\u0938\u0930',
+    text: '\u092f\u0941\u0935\u093e\u0913\u0902 \u0915\u094b \u0915\u093e\u092e, \u0938\u0947\u0935\u093e \u0914\u0930 \u0935\u094d\u092f\u093e\u0935\u0938\u093e\u092f\u093f\u0915 \u0905\u0935\u0938\u0930\u094b\u0902 \u0938\u0947 \u091c\u094b\u0921\u093c\u0928\u093e.',
     icon: BriefcaseBusiness,
   },
   {
-    title: 'स्थानीय पहचान',
-    text: 'हुनरमंद लोगों और सेवा प्रदाताओं को डिजिटल पहचान देना.',
+    title: '\u0938\u094d\u0925\u093e\u0928\u0940\u092f \u092a\u0939\u091a\u093e\u0928',
+    text: '\u0939\u0941\u0928\u0930\u092e\u0902\u0926 \u0932\u094b\u0917\u094b\u0902 \u0914\u0930 \u0938\u0947\u0935\u093e \u092a\u094d\u0930\u0926\u093e\u0924\u093e\u0913\u0902 \u0915\u094b \u0921\u093f\u091c\u093f\u091f\u0932 \u092a\u0939\u091a\u093e\u0928 \u0926\u0947\u0928\u093e.',
     icon: UsersRound,
   },
   {
-    title: 'सामाजिक सहयोग',
-    text: 'जरूरतमंद परिवारों तक सही समय पर भरोसेमंद सहायता पहुंचाना.',
+    title: '\u0938\u093e\u092e\u093e\u091c\u093f\u0915 \u0938\u0939\u092f\u094b\u0917',
+    text: '\u091c\u0930\u0942\u0930\u0924\u092e\u0902\u0926 \u092a\u0930\u093f\u0935\u093e\u0930\u094b\u0902 \u0924\u0915 \u0938\u0939\u0940 \u0938\u092e\u092f \u092a\u0930 \u092d\u0930\u094b\u0938\u0947\u092e\u0902\u0926 \u0938\u0939\u093e\u092f\u0924\u093e \u092a\u0939\u0941\u0902\u091a\u093e\u0928\u093e.',
     icon: HandHeart,
   },
 ];
@@ -70,55 +79,59 @@ const fadeUp = {
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-[#fbf7f0] pb-10 pt-4 text-slate-950 sm:pt-8 lg:py-14">
-      <div className="site-shell max-w-6xl">
+    <div className="min-h-screen bg-[#fffaf2] pb-10 text-slate-950">
+      <div className="site-shell py-5 sm:py-10">
         <motion.section
           initial="hidden"
           animate="show"
           variants={fadeUp}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
-          className="overflow-hidden rounded-[1.6rem] border border-[#ead8c0] bg-[#fffdf8] shadow-[0_24px_70px_rgba(67,20,7,0.10)] sm:rounded-3xl"
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-[0_24px_70px_rgba(67,20,7,0.10)]"
         >
-          <div className="grid lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="bg-[linear-gradient(135deg,#fffdf8_0%,#fff7ed_100%)] px-4 py-5 sm:px-8 sm:py-10 lg:px-12 lg:py-14">
+          <div className="grid lg:grid-cols-[1fr_430px]">
+            <div className="relative overflow-hidden bg-gradient-to-br from-[#3b0b07] via-[#7f1d1d] to-slate-950 p-5 text-white sm:p-8 lg:p-10">
+              <div className="culture-pattern absolute inset-0 opacity-50" />
+
               <motion.div
                 variants={fadeUp}
                 transition={{ delay: 0.05, duration: 0.45 }}
-                className="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-white px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-red-900 shadow-sm"
+                className="relative inline-flex max-w-full items-center gap-3 rounded-full border border-white/15 bg-white/12 py-1.5 pl-1.5 pr-4"
               >
-                <Sparkles size={14} />
-                Vipra Sewa Setu
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-500 opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+                <img src={logo} alt="Vipra Sewa Setu" className="h-10 w-10 rounded-full object-cover" />
+                <span className="min-w-0">
+                  <span className="block text-sm font-black leading-tight">Vipra Sewa Setu</span>
+                  <span className="block text-[10px] font-black uppercase tracking-[0.16em] text-amber-200">
+                    {HINDI.brandLine}
+                  </span>
                 </span>
               </motion.div>
 
-              <motion.h1
+              <motion.div
                 variants={fadeUp}
-                transition={{ delay: 0.1, duration: 0.5 }}
-                className="mt-5 max-w-3xl text-3xl font-black leading-[1.08] tracking-tight text-slate-950 sm:text-6xl"
+                transition={{ delay: 0.1, duration: 0.45 }}
+                className="relative mt-7"
               >
-                समाज को जोड़ने वाला विश्वसनीय डिजिटल मंच
-              </motion.h1>
-
-              <motion.p
-                variants={fadeUp}
-                transition={{ delay: 0.16, duration: 0.5 }}
-                className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-slate-600 sm:text-lg sm:leading-8"
-              >
-                A premium community platform for trusted services, employment, business visibility, and social support.
-              </motion.p>
+                <span className="inline-flex items-center gap-2 rounded-full bg-amber-300 px-3 py-1.5 text-xs font-black uppercase tracking-[0.14em] text-red-950">
+                  <Sparkles size={14} />
+                  About the platform
+                </span>
+                <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight sm:text-5xl">
+                  {HINDI.heroTitle}
+                </h1>
+                <p className="mt-4 max-w-2xl text-sm font-semibold leading-7 text-white/82 sm:text-base">
+                  A premium community platform for trusted services, employment, business visibility, and social support.
+                </p>
+              </motion.div>
 
               <motion.div
                 variants={fadeUp}
-                transition={{ delay: 0.22, duration: 0.45 }}
-                className="mt-5 flex snap-x gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
+                transition={{ delay: 0.16, duration: 0.45 }}
+                className="relative mt-6 flex snap-x gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0"
               >
-                {VALUES.map((value) => (
+                {HINDI.values.map((value) => (
                   <span
                     key={value}
-                    className="min-w-max snap-start rounded-full border border-amber-200 bg-white px-4 py-2 text-sm font-black text-red-950 shadow-sm"
+                    className="min-w-max snap-start rounded-full border border-white/15 bg-white/12 px-4 py-2 text-sm font-black text-amber-100"
                   >
                     {value}
                   </span>
@@ -127,21 +140,21 @@ const AboutPage = () => {
 
               <motion.div
                 variants={fadeUp}
-                transition={{ delay: 0.28, duration: 0.45 }}
-                className="mt-6 grid grid-cols-3 overflow-hidden rounded-2xl border border-amber-200 bg-white text-center shadow-sm"
+                transition={{ delay: 0.22, duration: 0.45 }}
+                className="relative mt-6 grid grid-cols-3 overflow-hidden rounded-2xl border border-white/15 bg-white/10 text-center"
               >
                 {STATS.map(([value, label], index) => (
-                  <div key={label} className={`px-2 py-4 ${index < 2 ? 'border-r border-amber-100' : ''}`}>
-                    <span className="block text-xl font-black text-red-900">{value}</span>
-                    <span className="mt-1 block text-[10px] font-bold uppercase tracking-wide text-slate-500">{label}</span>
+                  <div key={label} className={`px-2 py-4 ${index < 2 ? 'border-r border-white/10' : ''}`}>
+                    <span className="block text-xl font-black text-white">{value}</span>
+                    <span className="mt-1 block text-[10px] font-bold uppercase tracking-wide text-white/58">{label}</span>
                   </div>
                 ))}
               </motion.div>
 
               <motion.div
                 variants={fadeUp}
-                transition={{ delay: 0.34, duration: 0.45 }}
-                className="mt-6 rounded-2xl border border-red-100 bg-red-950 p-4 text-white shadow-[0_16px_40px_rgba(127,29,29,0.16)]"
+                transition={{ delay: 0.28, duration: 0.45 }}
+                className="relative mt-6 rounded-2xl border border-white/15 bg-white/10 p-4"
               >
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-300 text-red-950">
@@ -149,7 +162,7 @@ const AboutPage = () => {
                   </div>
                   <div>
                     <p className="text-sm font-black">Premium trust experience</p>
-                    <p className="mt-1 text-xs font-semibold leading-5 text-amber-50/78">
+                    <p className="mt-1 text-xs font-semibold leading-5 text-white/76">
                       Clear identity, cultural belonging, and practical service access in one app-like flow.
                     </p>
                   </div>
@@ -157,27 +170,27 @@ const AboutPage = () => {
               </motion.div>
             </div>
 
-            <div className="bg-[#40120d] p-4 sm:p-8 lg:p-10">
+            <div className="bg-[#40120d] p-4 sm:p-6 lg:p-8">
               <motion.div
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.18, duration: 0.55, ease: 'easeOut' }}
-                className="relative min-h-[340px] overflow-hidden rounded-[1.45rem] border border-amber-200/25 bg-[linear-gradient(180deg,#7f1d1d_0%,#431407_62%,#170a08_100%)] shadow-[0_24px_60px_rgba(0,0,0,0.28)] sm:min-h-[460px] sm:rounded-3xl"
+                className="relative min-h-[320px] overflow-hidden rounded-2xl border border-amber-200/25 bg-gradient-to-b from-red-900 via-[#431407] to-slate-950 shadow-[0_24px_60px_rgba(0,0,0,0.28)] sm:min-h-[500px]"
               >
-                <div className="absolute inset-0 opacity-[0.08] [background-image:linear-gradient(90deg,#fff_1px,transparent_1px),linear-gradient(#fff_1px,transparent_1px)] [background-size:30px_30px]" />
-                <div className="absolute left-4 top-4 z-10 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-amber-100 backdrop-blur">
+                <div className="culture-pattern absolute inset-0 opacity-25" />
+                <div className="absolute left-4 top-4 z-10 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-amber-100">
                   Dharma | Seva | Samaj
                 </div>
                 <motion.img
                   src={parshuramHero}
                   alt="Bhagwan Parshuram"
-                  initial={{ y: 14 }}
+                  initial={{ y: 8 }}
                   animate={{ y: [8, 0, 8] }}
                   transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-                  className="absolute bottom-0 left-1/2 h-[335px] max-w-none -translate-x-1/2 object-contain drop-shadow-[0_28px_42px_rgba(0,0,0,0.36)] sm:h-[450px] lg:h-[500px]"
+                  className="absolute bottom-0 right-[-1.25rem] h-[315px] max-w-none object-contain drop-shadow-[0_28px_42px_rgba(0,0,0,0.36)] sm:left-1/2 sm:right-auto sm:h-[500px] sm:-translate-x-1/2"
                 />
-                <div className="absolute inset-x-4 bottom-4 z-10 rounded-2xl border border-white/15 bg-slate-950/50 p-4 text-white backdrop-blur-md">
-                  <p className="text-lg font-black leading-tight">परंपरा की जड़ें, डिजिटल सुविधा के साथ</p>
+                <div className="absolute inset-x-3 bottom-3 z-10 rounded-2xl border border-white/15 bg-slate-950/62 p-4 text-white backdrop-blur-md sm:inset-x-4 sm:bottom-4">
+                  <p className="text-[1.35rem] font-black leading-tight sm:text-lg">{HINDI.visualTitle}</p>
                   <p className="mt-1 text-xs font-semibold leading-5 text-white/76">
                     Built to feel respectful, reliable, and easy for every community member.
                   </p>
@@ -187,7 +200,7 @@ const AboutPage = () => {
           </div>
         </motion.section>
 
-        <section className="mt-5 grid gap-3 sm:mt-8 md:grid-cols-3 md:gap-4">
+        <section className="mt-5 grid gap-3 md:grid-cols-3 md:gap-4">
           {TRUST_CARDS.map(({ title, text, icon: Icon }, index) => (
             <motion.article
               key={title}
@@ -196,8 +209,7 @@ const AboutPage = () => {
               viewport={{ once: true, amount: 0.35 }}
               variants={fadeUp}
               transition={{ delay: index * 0.06, duration: 0.45 }}
-              whileHover={{ y: -4 }}
-              className="rounded-[1.35rem] border border-amber-100 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-6"
+              className="rounded-2xl border border-amber-100 bg-white p-5 shadow-sm"
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-red-900">
                 <Icon size={23} />
@@ -208,14 +220,14 @@ const AboutPage = () => {
           ))}
         </section>
 
-        <section className="mt-5 grid gap-4 sm:mt-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="mt-5 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
           <motion.div
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.3 }}
             variants={fadeUp}
             transition={{ duration: 0.45 }}
-            className="rounded-[1.4rem] border border-amber-100 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-7"
+            className="rounded-2xl border border-amber-100 bg-white p-5 shadow-sm sm:p-7"
           >
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-950 text-amber-300">
@@ -223,17 +235,13 @@ const AboutPage = () => {
               </div>
               <div>
                 <span className="text-xs font-black uppercase tracking-[0.18em] text-red-800">Our Mission</span>
-                <h2 className="text-xl font-black text-slate-950">विश्वास से विकास तक</h2>
+                <h2 className="text-xl font-black text-slate-950">{HINDI.missionTitle}</h2>
               </div>
             </div>
 
             <div className="mt-5 space-y-4 text-sm font-medium leading-7 text-slate-600 sm:text-base">
-              <p>
-                Vipra Sewa Setu समाज को डिजिटल रूप से जोड़ने की पहल है, जहां रोजगार, सेवा, व्यवसाय और सामाजिक सहयोग एक ही मंच पर मिलते हैं.
-              </p>
-              <p>
-                हमारा उद्देश्य स्थानीय लोगों को भरोसेमंद पहचान देना, युवाओं को अवसरों से जोड़ना और परिवारों तक सही सहायता पहुंचाना है.
-              </p>
+              <p>{HINDI.missionOne}</p>
+              <p>{HINDI.missionTwo}</p>
             </div>
           </motion.div>
 
@@ -246,8 +254,7 @@ const AboutPage = () => {
                 viewport={{ once: true, amount: 0.35 }}
                 variants={fadeUp}
                 transition={{ delay: index * 0.06, duration: 0.45 }}
-                whileHover={{ y: -4 }}
-                className="rounded-[1.35rem] border border-amber-100 bg-white p-5 shadow-sm sm:rounded-3xl"
+                className="rounded-2xl border border-amber-100 bg-white p-5 shadow-sm"
               >
                 <div className="flex items-start gap-4 sm:block">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#fff7ed] text-red-900">
@@ -269,9 +276,9 @@ const AboutPage = () => {
           viewport={{ once: true, amount: 0.25 }}
           variants={fadeUp}
           transition={{ duration: 0.45 }}
-          className="mt-5 overflow-hidden rounded-[1.4rem] border border-amber-100 bg-white shadow-sm sm:mt-8 sm:rounded-3xl"
+          className="mt-5 overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm"
         >
-          <div className="border-b border-amber-100 bg-[#fffaf2] px-5 py-5 sm:px-7">
+          <div className="border-b border-amber-100 bg-[#fff7ed] px-5 py-5 sm:px-7">
             <div className="flex items-center justify-between gap-4">
               <div>
                 <span className="text-xs font-black uppercase tracking-[0.18em] text-red-800">How it works</span>
@@ -311,7 +318,7 @@ const AboutPage = () => {
           viewport={{ once: true, amount: 0.4 }}
           variants={fadeUp}
           transition={{ duration: 0.45 }}
-          className="mt-5 flex items-center gap-3 rounded-[1.35rem] border border-red-900 bg-red-950 p-4 text-white shadow-[0_18px_45px_rgba(127,29,29,0.16)] sm:mt-8 sm:p-5"
+          className="mt-5 flex items-center gap-3 rounded-2xl border border-red-900 bg-red-950 p-4 text-white shadow-[0_18px_45px_rgba(127,29,29,0.16)] sm:p-5"
         >
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-300 text-red-950">
             <MapPin size={23} />

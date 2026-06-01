@@ -1,6 +1,7 @@
 import { ImagePlus, Link as LinkIcon, Megaphone, Pause, Play, Plus, UploadCloud } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
+import { SERVICE_CATEGORIES } from '../../data/marketplace';
 import api from '../../services/api';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { getMediaUrl } from '../../utils/media';
@@ -11,6 +12,7 @@ const emptyForm = {
   imageUrl: '',
   targetUrl: '',
   placement: 'all',
+  targetCategory: 'all',
   status: 'Active',
   imageFile: null,
   audienceRole: 'all',
@@ -59,7 +61,7 @@ const AdsManagement = () => {
       ...form,
       imageFile: uploadMode === 'upload' ? form.imageFile : null,
       imageUrl: uploadMode === 'url' ? form.imageUrl : '',
-      providerProfile: form.audienceRole === 'service_provider' ? form.providerProfile : '',
+      providerProfile: form.providerProfile,
     };
 
     try {
@@ -139,6 +141,20 @@ const AdsManagement = () => {
                 <option value="all">All pages</option>
                 <option value="home">Home top</option>
                 <option value="services">Services top</option>
+                <option value="category">Category pages</option>
+              </select>
+
+              <select
+                value={form.targetCategory}
+                onChange={(event) => setForm({ ...form, targetCategory: event.target.value })}
+                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
+              >
+                <option value="all">All service categories</option>
+                {SERVICE_CATEGORIES.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    Only {category.name}
+                  </option>
+                ))}
               </select>
 
               <select
@@ -153,10 +169,9 @@ const AdsManagement = () => {
               <select
                 value={form.providerProfile}
                 onChange={(event) => setForm({ ...form, providerProfile: event.target.value })}
-                disabled={form.audienceRole !== 'service_provider'}
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100 disabled:bg-slate-100 disabled:text-slate-400"
+                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none transition focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
               >
-                <option value="">No specific provider</option>
+                <option value="">No specific provider sponsor</option>
                 {providerProfiles.map((profile) => (
                   <option key={profile._id} value={profile._id}>
                     {(profile.businessName || profile.user?.name || 'Provider')} - {profile.category} - {profile.city}
@@ -255,7 +270,9 @@ const AdsManagement = () => {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="font-black text-slate-950">{ad.title}</h2>
-                  <p className="mt-1 text-xs font-bold text-slate-500">{ad.type} - {ad.placement} - {ad.audienceRole || 'all'}</p>
+                  <p className="mt-1 text-xs font-bold text-slate-500">
+                    {ad.type} - {ad.placement} - {ad.targetCategory || 'all categories'} - {ad.audienceRole || 'all'}
+                  </p>
                   {ad.providerProfile && (
                     <p className="mt-1 text-xs font-bold text-emerald-700">
                       Provider: {ad.providerProfile.businessName || ad.providerUser?.name} | {ad.providerProfile.category}

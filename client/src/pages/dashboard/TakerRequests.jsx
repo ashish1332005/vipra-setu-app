@@ -72,7 +72,7 @@ const TakerRequests = () => {
     <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-red-900">
             <CalendarClock size={21} />
           </span>
           <div>
@@ -86,7 +86,7 @@ const TakerRequests = () => {
           <Field label="Title" value={form.title} onChange={(value) => setForm({ ...form, title: value })} placeholder="Need electrician for wiring" required />
           <label className="block">
             <span className="text-sm font-bold text-slate-600">Category</span>
-            <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-indigo-500">
+            <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-amber-500">
               {SERVICE_CATEGORIES.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
             </select>
           </label>
@@ -97,10 +97,10 @@ const TakerRequests = () => {
           <Field label="Budget" value={form.budgetLabel} onChange={(value) => setForm({ ...form, budgetLabel: value })} placeholder="Rs 500-1000 or open quote" />
           <label className="block">
             <span className="text-sm font-bold text-slate-600">Description</span>
-            <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} required rows={5} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-indigo-500" />
+            <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} required rows={5} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-amber-500" />
           </label>
-          {message && <p className="rounded-xl bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700">{message}</p>}
-          <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 font-black text-white hover:bg-indigo-700">
+          {message && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-bold text-red-900">{message}</p>}
+          <button className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 font-black text-white hover:bg-red-900">
             <Plus size={18} />
             Create Request
           </button>
@@ -115,7 +115,7 @@ const TakerRequests = () => {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="font-black text-slate-950">{request.title}</h3>
-                  <p className="mt-1 text-sm font-bold text-indigo-700">{request.category} · {request.city}</p>
+                  <p className="mt-1 text-sm font-bold text-red-900">{request.category} | {request.city}</p>
                   <p className="mt-2 text-sm font-medium text-slate-600">{request.description}</p>
                   <p className="mt-3 text-xs font-bold text-slate-500">
                     Provider: {request.provider?.name || 'Not assigned yet'}
@@ -153,8 +153,8 @@ const TakerRequests = () => {
                     <div className="space-y-2">
                       {(request.statusHistory || [{ status: request.status, changedAt: request.createdAt }]).map((item, index) => (
                         <div key={`${item.status}-${index}`} className="flex gap-3 text-xs font-bold text-slate-600">
-                          <span className="mt-1 h-2 w-2 rounded-full bg-indigo-600" />
-                          <span className="capitalize">{item.status.replace('_', ' ')} · {item.changedAt ? new Date(item.changedAt).toLocaleString() : 'Now'}</span>
+                          <span className="mt-1 h-2 w-2 rounded-full bg-red-900" />
+                          <span className="capitalize">{item.status.replace('_', ' ')} | {item.changedAt ? new Date(item.changedAt).toLocaleString() : 'Now'}</span>
                         </div>
                       ))}
                     </div>
@@ -191,7 +191,7 @@ const TakerRequests = () => {
 const Field = ({ label, value, onChange, type = 'text', placeholder = '', required }) => (
   <label className="block">
     <span className="text-sm font-bold text-slate-600">{label}</span>
-    <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} required={required} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-indigo-500" />
+    <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} required={required} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-amber-500" />
   </label>
 );
 

@@ -95,7 +95,7 @@ const TakerProviders = () => {
       <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-indigo-700">Provider Marketplace</p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-red-800">Provider Marketplace</p>
             <h2 className="mt-1 text-2xl font-black text-slate-950">Compare verified local professionals</h2>
             <p className="mt-2 text-sm font-medium text-slate-500">Search, save, compare and send a trackable booking request.</p>
           </div>
@@ -117,11 +117,11 @@ const TakerProviders = () => {
           </div>
         </div>
 
-        {message && <p className="mt-5 rounded-xl bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700">{message}</p>}
+        {message && <p className="mt-5 rounded-xl bg-amber-50 px-4 py-3 text-sm font-bold text-red-900">{message}</p>}
       </section>
 
       {compareProviders.length > 0 && (
-        <section className="rounded-2xl border border-indigo-100 bg-indigo-50 p-5 shadow-sm">
+        <section className="rounded-2xl border border-amber-100 bg-amber-50 p-5 shadow-sm">
           <div className="flex items-center justify-between gap-4">
             <div>
               <h3 className="text-lg font-black text-slate-950">Compare selected providers</h3>
@@ -133,7 +133,7 @@ const TakerProviders = () => {
             {compareProviders.map((provider) => (
               <div key={provider._id} className="rounded-2xl bg-white p-4">
                 <h4 className="font-black text-slate-950">{provider.businessName || provider.user?.name}</h4>
-                <p className="mt-1 text-sm font-bold text-indigo-700">{provider.category}</p>
+        <p className="mt-1 text-sm font-bold text-red-900">{provider.category}</p>
                 <CompareRow label="Rating" value={provider.rating || 'New'} />
                 <CompareRow label="Jobs" value={provider.completedJobs || 0} />
                 <CompareRow label="Rate" value={provider.rate || 'Custom quote'} />
@@ -187,7 +187,7 @@ const ProviderCard = ({ provider, selected, onCompare, onRequest, onSave, onRepo
           <h3 className="font-black text-slate-950">{provider.businessName || provider.user?.name}</h3>
           {provider.subscription?.isFeatured && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800">Featured</span>}
         </div>
-        <p className="mt-1 text-sm font-bold text-indigo-700">{provider.category} | {provider.city}</p>
+        <p className="mt-1 text-sm font-bold text-red-900">{provider.category} | {provider.city}</p>
       </div>
       <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">
         <Star size={13} className={provider.rating ? 'fill-current' : ''} />
@@ -206,7 +206,7 @@ const ProviderCard = ({ provider, selected, onCompare, onRequest, onSave, onRepo
         <Send size={15} />
         Book
       </button>
-      <button onClick={onCompare} className={`rounded-xl px-4 py-3 text-xs font-black ${selected ? 'bg-indigo-100 text-indigo-700' : 'border border-slate-200 bg-white text-slate-700'}`}>
+      <button onClick={onCompare} className={`rounded-xl px-4 py-3 text-xs font-black ${selected ? 'bg-amber-100 text-red-900' : 'border border-slate-200 bg-white text-slate-700'}`}>
         {selected ? 'Selected' : 'Compare'}
       </button>
       <button onClick={onSave} className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-black text-slate-700 hover:bg-slate-50">

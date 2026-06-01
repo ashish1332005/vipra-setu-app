@@ -6,9 +6,6 @@ import {
   Home,
   Info,
   LogIn,
-  Mail,
-  MapPin,
-  Phone,
   PhoneCall,
   Search,
   UserRound,
@@ -20,8 +17,8 @@ import logo from '../assets/logo.jpeg';
 
 const navItems = [
   { label: 'Home', to: '/', icon: Home },
-  { label: 'About', to: '/about', icon: Info },
   { label: 'Services', to: '/services', icon: BriefcaseBusiness },
+  { label: 'About', to: '/about', icon: Info },
   { label: 'Contact', to: '/contact', icon: PhoneCall },
 ];
 
@@ -40,10 +37,10 @@ const getDesktopLinkClass = ({ isActive }) =>
 
 const getBottomLinkClass = ({ isActive }) =>
   [
-    'flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-2.5 text-[10px] font-black transition-all',
+    'flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-xl px-0.5 py-2 text-[9px] font-black transition-all min-[390px]:text-[10px]',
     isActive
       ? 'bg-slate-950 text-amber-200 shadow-[0_10px_24px_rgba(15,23,42,0.22)]'
-      : 'text-slate-500 hover:bg-amber-50 hover:text-slate-950',
+      : 'text-slate-600 hover:bg-amber-100 hover:text-slate-950',
   ].join(' ');
 
 const Navbar = () => {
@@ -55,7 +52,7 @@ const Navbar = () => {
 
   const isSearchOpen = activePanel === 'search';
   const accountLink = currentUser ? '/dashboard' : '/login';
-  const accountLabel = currentUser ? 'Dashboard' : 'Login / Sign Up';
+  const accountLabel = currentUser ? 'Dashboard' : 'Login';
   const notificationLink = currentUser
     ? currentUser.role === 'admin'
       ? '/admin'
@@ -112,37 +109,11 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-white/70 bg-white/88 shadow-[0_12px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-        <div className="hidden bg-[linear-gradient(90deg,#3b0b07_0%,#7f1d1d_48%,#0f172a_100%)] text-slate-200 md:block">
-          <div className="site-shell culture-pattern flex items-center justify-between gap-4 py-1.5 text-xs">
-            <div className="flex items-center gap-4">
-              <a href="tel:+919462874574" className="inline-flex items-center gap-2 text-slate-200/90 transition-colors hover:text-white">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-amber-200">
-                  <Phone size={14} />
-                </span>
-                +91 94628 74574
-              </a>
-              <a href="mailto:support@viprasevasetu.com" className="inline-flex items-center gap-2 text-slate-200/80 transition-colors hover:text-white">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-sky-200">
-                  <Mail size={14} />
-                </span>
-                support@viprasevasetu.com
-              </a>
-            </div>
-
-            <span className="inline-flex items-center gap-2 text-slate-200/80">
-              <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-emerald-200">
-                <MapPin size={14} />
-              </span>
-              RK Colony, Bhilwara
-            </span>
-          </div>
-        </div>
-
-        <div className="site-shell flex min-h-[72px] items-center justify-between gap-3 py-2.5 sm:min-h-[82px] sm:py-3">
+      <nav className="sticky top-0 z-50 border-b border-amber-100 bg-[#fffaf2] shadow-[0_10px_28px_rgba(67,20,7,0.08)]">
+        <div className="site-shell flex min-h-[64px] items-center justify-between gap-2 py-2 sm:min-h-[76px] sm:gap-3 sm:py-3">
           <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-6">
-            <Link to="/" onClick={closePanels} className="group flex min-w-0 shrink-0 items-center gap-3">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] border border-slate-200 bg-white p-1 shadow-[0_8px_20px_rgba(15,23,42,0.08)] sm:h-16 sm:w-16">
+            <Link to="/" onClick={closePanels} className="group flex min-w-0 shrink-0 items-center gap-2.5 sm:gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-100 bg-white p-1 shadow-[0_8px_20px_rgba(67,20,7,0.08)] sm:h-14 sm:w-14">
                 <img
                   src={logo}
                   alt="Vipra Sewa Setu Logo"
@@ -150,11 +121,11 @@ const Navbar = () => {
                 />
               </span>
               <span className="min-w-0">
-                <span className="block truncate text-[1.05rem] font-black leading-5 tracking-tight text-slate-950 sm:text-2xl">
+                <span className="block max-w-[150px] truncate text-[0.98rem] font-black leading-5 tracking-tight text-slate-950 min-[390px]:max-w-[178px] sm:max-w-none sm:text-xl">
                   Vipra Sewa Setu
                 </span>
-                <span className="mt-0.5 block truncate text-[10px] font-black uppercase tracking-[0.13em] text-amber-700 sm:text-xs">
-                  Dharma | Seva | Samaj
+                <span className="mt-0.5 hidden truncate text-[10px] font-black uppercase tracking-[0.12em] text-red-800 min-[390px]:block sm:text-xs">
+                  Service | Community | Trust
                 </span>
               </span>
             </Link>
@@ -168,7 +139,7 @@ const Navbar = () => {
                 <Search size={17} />
               </span>
               <span className="truncate text-sm font-medium text-slate-500">
-                Search community services, members, and local help
+                Search services - plumber, coaching, catering...
               </span>
             </button>
           </div>
@@ -197,14 +168,14 @@ const Navbar = () => {
 
             <Link
               to={accountLink}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-[0_12px_30px_rgba(15,23,42,0.2)] transition-colors hover:bg-red-950"
+            className="inline-flex items-center gap-2 rounded-2xl bg-red-900 px-5 py-3 text-sm font-black text-white shadow-[0_12px_30px_rgba(127,29,29,0.2)] transition-colors hover:bg-slate-950"
             >
               <LogIn size={16} />
               {accountLabel}
             </Link>
           </div>
 
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 lg:hidden">
             <Link
               to={notificationLink}
               onClick={() => {
@@ -212,7 +183,7 @@ const Navbar = () => {
                 closePanels();
               }}
               aria-label="View notifications"
-              className="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm transition-colors hover:border-amber-200 hover:text-amber-700"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-amber-100 bg-white text-slate-700 shadow-sm transition-colors hover:border-amber-300 hover:text-red-900 sm:h-11 sm:w-11"
             >
               <Bell size={18} />
               {hasNotification && (
@@ -225,7 +196,7 @@ const Navbar = () => {
               aria-expanded={isSearchOpen}
               aria-controls="navbar-search-panel"
               onClick={() => togglePanel('search')}
-              className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-amber-200 shadow-[0_12px_28px_rgba(15,23,42,0.18)] transition-colors hover:bg-red-950"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-amber-200 shadow-[0_12px_28px_rgba(15,23,42,0.18)] transition-colors hover:bg-red-950 sm:h-11 sm:w-11"
             >
               <Search size={18} />
             </button>
@@ -244,7 +215,7 @@ const Navbar = () => {
               <input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search services, members, city..."
+                placeholder="Search service, provider, or city..."
                 className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400"
               />
               <button
@@ -272,8 +243,8 @@ const Navbar = () => {
         </div>
       </nav>
 
-      <nav className="fixed inset-x-3 bottom-3 z-[60] rounded-[1.45rem] border border-white/70 bg-white/92 px-2 pb-[calc(env(safe-area-inset-bottom)+0.35rem)] pt-2 shadow-[0_-10px_34px_rgba(15,23,42,0.16)] backdrop-blur-xl lg:hidden">
-        <div className="mx-auto flex max-w-md items-center gap-1">
+      <nav className="fixed inset-x-2 bottom-3 z-[60] rounded-[1.35rem] border border-amber-100 bg-[#fffaf2] px-1.5 pb-[calc(env(safe-area-inset-bottom)+0.3rem)] pt-1.5 shadow-[0_-10px_34px_rgba(15,23,42,0.16)] lg:hidden">
+        <div className="mx-auto flex max-w-md items-center gap-0.5">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
             const to = item.to === '/login' ? accountLink : item.to;
@@ -286,7 +257,7 @@ const Navbar = () => {
                 onClick={closePanels}
                 className={getBottomLinkClass}
               >
-                <Icon size={19} />
+                <Icon size={18} />
                 <span className="truncate">{label}</span>
               </NavLink>
             );

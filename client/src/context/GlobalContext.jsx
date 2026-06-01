@@ -118,10 +118,12 @@ export const GlobalProvider = ({ children }) => {
 
     try {
       const { data } = await api.post('/auth/register', { name, email, phone, password, role });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      setCurrentUser(data.user);
-      return data.user;
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setCurrentUser(data.user);
+      }
+      return data;
     } catch (error) {
       const message = getApiErrorMessage(error, 'Registration failed');
       setAuthError(message);

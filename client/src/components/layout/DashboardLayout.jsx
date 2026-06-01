@@ -61,13 +61,13 @@ const DashboardLayout = ({ role }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#fff7ed_0,#f8fafc_34%,#eef2ff_100%)] text-slate-950">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-slate-200/80 bg-white/90 backdrop-blur-xl lg:flex lg:flex-col">
+    <div className="min-h-screen bg-[#fffaf2] text-slate-950">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-amber-100 bg-white lg:flex lg:flex-col">
         <div className="border-b border-slate-200 p-6">
           <Link to="/" className="text-xl font-black tracking-tight text-slate-950">
             Vipra <span className="text-orange-600">Sewa</span> Setu
           </Link>
-          <p className="mt-2 text-sm font-medium text-slate-500">
+          <p className="mt-2 text-sm font-bold text-slate-500">
             {isProvider ? 'Provider workspace' : 'Service taker workspace'}
           </p>
         </div>
@@ -83,8 +83,8 @@ const DashboardLayout = ({ role }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition ${
                     isActive
-                      ? 'bg-slate-950 text-white shadow-lg shadow-slate-950/15'
-                      : 'text-slate-600 hover:bg-orange-50 hover:text-orange-700'
+                      ? 'bg-red-950 text-white shadow-lg shadow-red-950/15'
+                      : 'text-slate-600 hover:bg-amber-50 hover:text-red-900'
                   }`
                 }
               >
@@ -111,17 +111,17 @@ const DashboardLayout = ({ role }) => {
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-amber-100 bg-[#fffaf2] shadow-[0_8px_24px_rgba(67,20,7,0.06)]">
           <div className="flex items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-orange-600">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-red-800">
                 {isProvider ? 'Seva Provider' : 'Seva Taker'}
               </p>
               <h1 className="mt-1 text-xl font-black text-slate-950 sm:text-2xl">
                 Namaste, {currentUser.name}
               </h1>
             </div>
-            <div className="hidden rounded-full border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-bold text-orange-800 sm:block">
+            <div className="hidden rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-red-900 sm:block">
               {notifications.filter((item) => !item.readAt).length} new alerts
             </div>
             <button
@@ -144,7 +144,7 @@ const DashboardLayout = ({ role }) => {
                   end={item.end}
                   className={({ isActive }) =>
                     `inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-xs font-bold ${
-                      isActive ? 'bg-slate-950 text-white' : 'bg-white text-slate-600'
+                      isActive ? 'bg-red-950 text-white' : 'bg-white text-slate-600 ring-1 ring-amber-100'
                     }`
                   }
                 >

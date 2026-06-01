@@ -108,17 +108,17 @@ const TakerBookingAssistant = () => {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-2xl border border-indigo-100 bg-white shadow-sm">
-        <div className="bg-[linear-gradient(135deg,#111827,#4338ca_48%,#0891b2)] px-6 py-8 text-white">
-          <p className="text-sm font-black uppercase tracking-[0.2em] text-indigo-100">Smart Booking Assistant</p>
-          <h2 className="mt-3 text-3xl font-black">Book help like a premium service app.</h2>
-          <p className="mt-3 max-w-2xl text-sm font-medium text-indigo-50">
+      <section className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm">
+        <div className="bg-gradient-to-br from-[#3b0b07] via-[#7f1d1d] to-slate-950 px-6 py-8 text-white">
+          <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-200">Smart Booking Assistant</p>
+          <h2 className="mt-3 text-3xl font-black">Book local help in 3 simple steps.</h2>
+          <p className="mt-3 max-w-2xl text-sm font-semibold leading-6 text-white/78">
             Select service, describe work, compare providers, choose time and create a trackable request.
           </p>
         </div>
       </section>
 
-      {message && <p className="rounded-xl bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700">{message}</p>}
+      {message && <p className="rounded-xl bg-amber-50 px-4 py-3 text-sm font-bold text-red-900">{message}</p>}
 
       <section className="grid gap-6 lg:grid-cols-[0.72fr_0.28fr]">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -142,7 +142,7 @@ const TakerBookingAssistant = () => {
                     key={template}
                     type="button"
                     onClick={() => applyTemplate(template)}
-                    className={`rounded-xl border px-4 py-3 text-left text-sm font-black transition ${form.title === template ? 'border-indigo-300 bg-indigo-50 text-indigo-700' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-white'}`}
+                    className={`rounded-xl border px-4 py-3 text-left text-sm font-black transition ${form.title === template ? 'border-amber-300 bg-amber-50 text-red-900' : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-white'}`}
                   >
                     {template}
                   </button>
@@ -198,13 +198,13 @@ const TakerBookingAssistant = () => {
               <h3 className="text-2xl font-black text-slate-950">Compare matching providers</h3>
               <div className="mt-5 grid gap-3 md:grid-cols-2">
                 {matchingProviders.map((provider) => (
-                  <button key={provider._id} onClick={() => setForm({ ...form, provider: provider.user?._id })} className={`rounded-2xl border p-4 text-left ${form.provider === provider.user?._id ? 'border-indigo-400 bg-indigo-50' : 'border-slate-200 bg-slate-50'}`}>
+                  <button key={provider._id} onClick={() => setForm({ ...form, provider: provider.user?._id })} className={`rounded-2xl border p-4 text-left ${form.provider === provider.user?._id ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-slate-50'}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h4 className="font-black text-slate-950">{provider.businessName || provider.user?.name}</h4>
-                        <p className="mt-1 text-sm font-bold text-indigo-700">{provider.category} | {provider.city}</p>
+                        <p className="mt-1 text-sm font-bold text-red-900">{provider.category} | {provider.city}</p>
                       </div>
-                      {form.provider === provider.user?._id && <CheckCircle2 size={20} className="text-indigo-700" />}
+                      {form.provider === provider.user?._id && <CheckCircle2 size={20} className="text-red-900" />}
                     </div>
                     <p className="mt-3 text-sm font-medium text-slate-600">{provider.skills?.join(', ') || 'Trusted professional'}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -217,7 +217,7 @@ const TakerBookingAssistant = () => {
                 ))}
                 {matchingProviders.length === 0 && <p className="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm font-bold text-slate-500">No exact provider match. Submit as open request.</p>}
               </div>
-              <button disabled={!canSubmit} onClick={submit} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-700 px-5 py-3 text-sm font-black text-white hover:bg-indigo-800 disabled:cursor-not-allowed disabled:bg-slate-300">
+              <button disabled={!canSubmit} onClick={submit} className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-red-950 px-5 py-3 text-sm font-black text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-slate-300">
                 <ClipboardCheck size={17} />
                 Create Trackable Booking Request
               </button>

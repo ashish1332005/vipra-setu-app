@@ -1,9 +1,27 @@
+const nodemailer = require('nodemailer');
 const env = require('../config/env');
 
-const sendEmail = async ({ to, subject, text }) => {
-  // Production should replace this with SMTP/SendGrid/SES.
-  // Keeping a dev logger makes verification flow functional without fake success.
-  if (env.nodeEnv !== 'production' || !env.smtp.host) {
+const hasSmtpConfig = () => Boolean(env.smtp.host && env.smtp.port);
+
+const createTransporter = () => {
+  const auth = env.smtp.user && env.smtp.pass
+    ? { user: env.smtp.user, pass: env.smtp.pass }
+    : undefined;
+
+  return nodemailer.createTransport({
+    host: env.smtp.host,
+    port: Number(env.smtp.port),
+    secure: env.smtp.secure,
+    auth,
+  });
+};
+
+const sendEmail = async ({ to, subject, text, html }) => {
+  if (!hasSmtpConfig()) {
+    if (env.nodeEnv === 'production') {
+      throw new Error('SMTP email configuration is missing');
+    }
+
     console.log('\n--- DEV EMAIL ---');
     console.log(`To: ${to}`);
     console.log(`Subject: ${subject}`);
@@ -12,7 +30,14 @@ const sendEmail = async ({ to, subject, text }) => {
     return;
   }
 
-  throw new Error('SMTP email provider is not implemented in this build');
+  const transporter = createTransporter();
+  await transporter.sendMail({
+    from: env.emailFrom,
+    to,
+    subject,
+    text,
+    html,
+  });
 };
 
 module.exports = { sendEmail };

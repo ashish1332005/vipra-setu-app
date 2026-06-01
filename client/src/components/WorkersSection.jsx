@@ -20,18 +20,18 @@ const WorkersSection = ({ selectedCategory }) => {
       <div className="site-shell">
         <div className="section-heading mb-10 gap-5">
           <div className="section-copy">
-            <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-emerald-800">
-              Featured Experts
+            <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-red-900">
+              Trusted Providers
             </span>
             <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-              {selectedCategory ? `${selectedCategory} experts near you` : 'Verified providers ready for real service requests.'}
+              {selectedCategory ? `${selectedCategory} providers near you` : 'Verified providers ready for service requests.'}
             </h2>
             <p className="mt-3 max-w-2xl text-base font-medium leading-7 text-slate-600">
-              Every card is built from live provider profiles: skills, rate, city, availability and listing quality.
+              Compare profile, skills, location, and availability before you decide.
             </p>
           </div>
-          <Link to="/services" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-black text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
-            View All Experts
+          <Link to="/services" className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-black text-slate-700 transition hover:border-amber-300 hover:bg-amber-50 hover:text-red-900">
+            View all services
           </Link>
         </div>
 
@@ -119,7 +119,7 @@ const WorkersSection = ({ selectedCategory }) => {
 
                 <div className="mt-5 flex gap-3">
                   <Link to={`/category/${encodeURIComponent(worker.category)}`} className="flex-1 rounded-xl bg-slate-950 px-4 py-3 text-center text-sm font-black text-white transition hover:bg-amber-700">
-                    View Profile
+                    View profile
                   </Link>
                   <button className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 text-slate-600 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
                     <MessageSquare size={18} />

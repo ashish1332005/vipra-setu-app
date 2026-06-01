@@ -4,6 +4,7 @@ import {
   BriefcaseBusiness,
   Building2,
   CalendarDays,
+  ChevronRight,
   GraduationCap,
   HeartPulse,
   Home,
@@ -16,52 +17,52 @@ import { useGlobalContext } from '../context/GlobalContext';
 const SERVICE_VISUALS = {
   Household: {
     icon: Home,
-    accent: 'from-sky-50 via-white to-blue-50',
-    ring: 'group-hover:border-sky-200',
-    iconColor: 'text-sky-700',
-    glow: 'bg-sky-500',
+    panel: 'from-sky-500 via-cyan-500 to-blue-700',
+    tint: 'bg-sky-50 text-sky-700',
+    border: 'hover:border-sky-300',
+    line: 'bg-sky-500',
   },
   Event: {
     icon: CalendarDays,
-    accent: 'from-rose-50 via-white to-orange-50',
-    ring: 'group-hover:border-rose-200',
-    iconColor: 'text-rose-700',
-    glow: 'bg-rose-500',
+    panel: 'from-rose-500 via-red-500 to-orange-600',
+    tint: 'bg-rose-50 text-rose-700',
+    border: 'hover:border-rose-300',
+    line: 'bg-rose-500',
   },
   Education: {
     icon: GraduationCap,
-    accent: 'from-violet-50 via-white to-indigo-50',
-    ring: 'group-hover:border-violet-200',
-    iconColor: 'text-violet-700',
-    glow: 'bg-violet-500',
+    panel: 'from-violet-500 via-indigo-500 to-blue-700',
+    tint: 'bg-violet-50 text-violet-700',
+    border: 'hover:border-violet-300',
+    line: 'bg-violet-500',
   },
   Hospital: {
     icon: HeartPulse,
-    accent: 'from-emerald-50 via-white to-teal-50',
-    ring: 'group-hover:border-emerald-200',
-    iconColor: 'text-emerald-700',
-    glow: 'bg-emerald-500',
+    panel: 'from-emerald-500 via-teal-500 to-cyan-700',
+    tint: 'bg-emerald-50 text-emerald-700',
+    border: 'hover:border-emerald-300',
+    line: 'bg-emerald-500',
   },
   'Property and Rent': {
     icon: Building2,
-    accent: 'from-amber-50 via-white to-orange-50',
-    ring: 'group-hover:border-amber-200',
-    iconColor: 'text-amber-700',
-    glow: 'bg-amber-500',
+    panel: 'from-amber-400 via-orange-500 to-red-700',
+    tint: 'bg-amber-50 text-amber-700',
+    border: 'hover:border-amber-300',
+    line: 'bg-amber-500',
   },
   'Hotels and Restaurant': {
     icon: UtensilsCrossed,
-    accent: 'from-fuchsia-50 via-white to-pink-50',
-    ring: 'group-hover:border-fuchsia-200',
-    iconColor: 'text-fuchsia-700',
-    glow: 'bg-fuchsia-500',
+    panel: 'from-fuchsia-500 via-pink-500 to-rose-700',
+    tint: 'bg-fuchsia-50 text-fuchsia-700',
+    border: 'hover:border-fuchsia-300',
+    line: 'bg-fuchsia-500',
   },
   'Other Services': {
     icon: BriefcaseBusiness,
-    accent: 'from-slate-50 via-white to-stone-50',
-    ring: 'group-hover:border-slate-300',
-    iconColor: 'text-slate-700',
-    glow: 'bg-slate-700',
+    panel: 'from-slate-700 via-zinc-700 to-stone-950',
+    tint: 'bg-slate-100 text-slate-700',
+    border: 'hover:border-slate-300',
+    line: 'bg-slate-700',
   },
 };
 
@@ -80,83 +81,115 @@ const CategoriesSection = () => {
   }, {});
 
   return (
-    <section className="section-space bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_48%,#fffaf2_100%)]">
+    <section className="section-space bg-[linear-gradient(180deg,#fff7ed_0%,#f8fafc_48%,#ffffff_100%)]">
       <div className="site-shell">
-        <div className="section-heading mb-10 gap-5 text-center md:text-left">
-          <div className="section-copy">
-            <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-black uppercase tracking-[0.22em] text-amber-900">
+        <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <span className="inline-flex rounded-full bg-red-950 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-amber-200">
               Service Categories
             </span>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
-              Practical help for every household, event, and business.
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+              Find the right service for every need.
             </h2>
-            <p className="mt-3 text-base font-medium leading-7 text-slate-600">
-              Color-coded categories make the page easy to scan: blue for reliability, green for care, amber for action, and rose for celebration.
+            <p className="mt-3 text-sm font-semibold leading-7 text-slate-600 sm:text-base">
+              Home, event, education, health, property, food, and professional support in one place.
             </p>
           </div>
           <button
+            type="button"
             onClick={() => navigate('/services')}
-            className="hidden rounded-xl border border-orange-100 bg-white px-5 py-3 text-sm font-black text-slate-800 shadow-sm transition hover:border-amber-300 hover:bg-amber-50 md:inline-flex"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-red-900"
           >
-            View all categories
+            View all services
+            <ArrowRight size={17} />
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {SERVICES.map((service) => {
             const Icon = service.icon;
+            const providerCount = providerCountByCategory[service.name] || 0;
 
             return (
-              <article
+              <button
+                type="button"
                 key={service.id}
                 onClick={() => navigate(`/category/${encodeURIComponent(service.name)}`)}
-                className={`group relative cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br ${service.accent} p-5 shadow-[0_14px_36px_rgba(15,23,42,0.07)] transition duration-300 hover:-translate-y-1 ${service.ring} hover:shadow-[0_24px_60px_rgba(15,23,42,0.12)]`}
+                className={`group relative flex min-h-[310px] overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-[0_16px_42px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 ${service.border} hover:shadow-[0_28px_70px_rgba(127,29,29,0.14)]`}
               >
-                <div className={`absolute -right-10 -top-10 h-28 w-28 rounded-full ${service.glow} opacity-10 blur-2xl transition group-hover:opacity-20`} />
-                <div className="relative flex items-start justify-between gap-4">
-                  <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-white shadow-sm ${service.iconColor}`}>
-                    <Icon size={26} strokeWidth={2.1} />
+                <div className={`relative w-full bg-gradient-to-br ${service.panel} p-4 text-white sm:p-5`}>
+                  <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(30deg,#fff_12%,transparent_12.5%,transparent_87%,#fff_87.5%,#fff),linear-gradient(150deg,#fff_12%,transparent_12.5%,transparent_87%,#fff_87.5%,#fff)] [background-position:0_0,12px_12px] [background-size:24px_24px]" />
+                  <div className="relative flex items-start justify-between gap-3">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/18 text-white ring-1 ring-white/25 backdrop-blur">
+                      <Icon size={24} />
+                    </span>
+                    <span className="rounded-full bg-white/18 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white ring-1 ring-white/20 backdrop-blur">
+                      {providerCount} providers
+                    </span>
                   </div>
-                  <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-slate-500 shadow-sm">
-                    {providerCountByCategory[service.name] || 0} providers
-                  </span>
+
+                  <h3 className="relative mt-8 text-2xl font-black leading-tight">{service.name}</h3>
+                  <p className="relative mt-2 line-clamp-2 text-sm font-semibold leading-6 text-white/82">
+                    {service.description}
+                  </p>
                 </div>
 
-                <div className="relative mt-8">
-                  <h3 className="text-xl font-black text-slate-950">
-                    {service.name}
-                  </h3>
-                  <p className="mt-2 text-sm font-medium leading-6 text-slate-600">
-                    {service.desc}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
+                <div className="flex flex-1 flex-col p-4 sm:p-5">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <p className="text-lg font-black text-slate-950">{providerCount}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">Providers</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <p className="text-lg font-black text-slate-950">{service.workTypes.length}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">Services</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-1.5">
                     {service.workTypes.slice(0, 3).map((workType) => (
-                      <span
-                        key={workType}
-                        className="rounded-full border border-white bg-white/80 px-2.5 py-1 text-xs font-bold text-slate-600 shadow-sm"
-                      >
+                      <span key={workType} className={`rounded-lg px-2.5 py-1 text-[11px] font-black ${service.tint}`}>
                         {workType}
                       </span>
                     ))}
                   </div>
-                </div>
 
-                <div className="relative mt-6 flex items-center justify-between border-t border-slate-200/70 pt-4">
-                  <span className="text-sm font-black text-slate-700">Explore category</span>
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white transition group-hover:translate-x-1 group-hover:bg-amber-600">
-                    <ArrowRight size={18} />
-                  </span>
+                  <div className="mt-auto flex items-center justify-between border-t border-slate-100 pt-4">
+                    <span className="text-sm font-black text-slate-800">View providers</span>
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-white transition group-hover:translate-x-1 group-hover:bg-red-900">
+                      <ChevronRight size={18} />
+                    </span>
+                  </div>
                 </div>
-              </article>
+              </button>
             );
           })}
         </div>
 
+        <div className="mt-5 grid gap-3 rounded-2xl border border-amber-100 bg-white p-4 shadow-sm sm:grid-cols-3">
+          {[
+            ['Choose', 'Select a service'],
+            ['Compare', 'View providers'],
+            ['Request', 'Send a request'],
+          ].map(([title, text]) => (
+            <div key={title} className="flex items-center gap-3 rounded-xl bg-orange-50 p-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-950 text-amber-200">
+                <ArrowRight size={16} />
+              </span>
+              <span>
+                <span className="block text-sm font-black text-slate-950">{title}</span>
+                <span className="block text-xs font-semibold text-slate-500">{text}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+
         <button
+          type="button"
           onClick={() => navigate('/services')}
-          className="mt-8 w-full rounded-xl bg-slate-950 py-3 font-black text-white shadow-sm transition hover:bg-amber-700 md:hidden"
+          className="mt-5 w-full rounded-xl bg-slate-950 py-3 font-black text-white shadow-sm transition hover:bg-red-900 md:hidden"
         >
-          View all categories
+          View all services
         </button>
       </div>
     </section>

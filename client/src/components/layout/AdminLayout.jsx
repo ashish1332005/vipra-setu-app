@@ -48,7 +48,7 @@ const AdminLayout = () => {
   const closeMenu = () => setIsMenuOpen(false);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#eef2ff_100%)] font-sans text-slate-950">
+    <div className="min-h-screen bg-[#fffaf2] font-sans text-slate-950">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col border-r border-slate-800 bg-slate-950 text-slate-300 lg:flex">
         <AdminBrand />
         <AdminNav onClick={closeMenu} />
@@ -56,7 +56,7 @@ const AdminLayout = () => {
       </aside>
 
       <div className="lg:pl-72">
-        <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/92 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-amber-100 bg-[#fffaf2] shadow-[0_8px_24px_rgba(67,20,7,0.06)]">
           <div className="flex min-h-[68px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <button
@@ -68,7 +68,7 @@ const AdminLayout = () => {
                 <Menu size={21} />
               </button>
               <div className="min-w-0">
-                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-sky-700">Admin Control</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-red-800">Admin Control</p>
                 <h1 className="truncate text-lg font-black text-slate-950 sm:text-xl">Vipra Sewa Setu</h1>
               </div>
             </div>
@@ -76,7 +76,7 @@ const AdminLayout = () => {
             <div className="flex items-center gap-2">
               <Link
                 to="/"
-                className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-black text-slate-600 shadow-sm transition hover:text-sky-700 sm:inline-flex"
+                className="hidden items-center gap-2 rounded-xl border border-amber-100 bg-white px-3 py-2 text-sm font-black text-slate-600 shadow-sm transition hover:text-red-900 sm:inline-flex"
               >
                 <Home size={17} />
                 Website
@@ -100,7 +100,7 @@ const AdminLayout = () => {
                 end={exact}
                 className={({ isActive }) =>
                   `inline-flex shrink-0 items-center gap-2 rounded-full px-3.5 py-2 text-xs font-black transition ${
-                    isActive ? 'bg-slate-950 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200'
+                    isActive ? 'bg-red-950 text-white' : 'bg-white text-slate-600 ring-1 ring-amber-100'
                   }`
                 }
               >
@@ -153,7 +153,7 @@ const AdminBrand = ({ compact = false }) => (
       <img src={logo} alt="Vipra Sewa Setu" className="h-11 w-11 rounded-xl object-cover ring-1 ring-white/10" />
       <div>
         <p className="text-lg font-black leading-tight text-white">Admin Panel</p>
-        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-sky-300">Control center</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">Control center</p>
       </div>
     </div>
   </div>
@@ -169,7 +169,7 @@ const AdminNav = ({ onClick }) => (
         onClick={onClick}
         className={({ isActive }) =>
           `flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-black transition ${
-            isActive ? 'bg-sky-500 text-white shadow-lg shadow-sky-950/20' : 'text-slate-300 hover:bg-white/8 hover:text-white'
+            isActive ? 'bg-red-900 text-white shadow-lg shadow-red-950/20' : 'text-slate-300 hover:bg-white/8 hover:text-white'
           }`
         }
       >
