@@ -53,7 +53,6 @@ const DashboardLayout = ({ role }) => {
 
   const navItems = navByRole[role] || [];
   const isProvider = role === 'service_provider';
-  const isEmailVerified = Boolean(currentUser.isEmailVerified || currentUser.emailVerifiedAt);
 
   const handleLogout = () => {
     logout();
@@ -165,13 +164,6 @@ const DashboardLayout = ({ role }) => {
         </header>
 
         <main className="px-4 py-6 sm:px-6 lg:px-8">
-          {!isEmailVerified && (
-            <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-bold text-amber-800">
-              {isProvider
-                ? 'Email verification pending. You can browse your dashboard, but publishing services, claiming leads and sending quotes require verified email. Open the verification link sent to your email or resend it from Login.'
-                : 'Email verification pending. You can still book, save providers and track requests. Verify your email from Login to keep your account more secure.'}
-            </div>
-          )}
           <Outlet />
         </main>
       </div>
