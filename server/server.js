@@ -1,12 +1,9 @@
-require('dotenv').config(); // Load environment variables
-const app = require('./src/app');
-const connectDB = require('./src/config/db');
+const app = require('./app');
+const connectDB = require('./config/db');
+const env = require('./config/env');
 
-const PORT = process.env.PORT || 5000;
+connectDB();
 
-// Initialize Database connection then start server
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server is running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  });
+app.listen(env.port, () => {
+  console.log(`Server running on port ${env.port}`);
 });

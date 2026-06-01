@@ -1,146 +1,203 @@
-import { useState } from 'react';
-import { Flame, ShieldCheck, Users, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  CalendarCheck,
+  HandHeart,
+  MessageSquareQuote,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Star,
+} from 'lucide-react';
+
+import bpfLogo from '../assets/bpf.jpeg';
+import logo from '../assets/logo.jpeg';
 import parshuramHero from '../assets/parshuram-hero.png';
+import vipraLogo from '../assets/viprasena.jpeg';
+
+const PARTNERS = [
+  { title: 'Vipra Sena', image: vipraLogo },
+  { title: 'BPF', image: bpfLogo },
+  { title: 'Seva Setu', image: logo },
+];
+
+const BENEFITS = [
+  { icon: ShieldCheck, title: 'Verified access', text: 'Trusted local members and providers.' },
+  { icon: BriefcaseBusiness, title: 'Provider growth', text: 'Visibility for work, services, and business.' },
+  { icon: HandHeart, title: 'Community support', text: 'Seva-led help for everyday needs.' },
+];
+
+const JOURNEY = [
+  { icon: Search, title: 'Smart search', text: 'Find providers by category, city, skill, rating and availability.' },
+  { icon: MessageSquareQuote, title: 'Quotes and tracking', text: 'Send or receive structured quotes with request status updates.' },
+  { icon: CalendarCheck, title: 'Booking control', text: 'Choose time, budget, urgency and keep repeat providers saved.' },
+  { icon: Sparkles, title: 'Growth tools', text: 'Providers get CRM, lead pipeline, analytics and business settings.' },
+];
+
+const FEATURE_PATHS = [
+  { icon: Search, title: 'For service takers', text: 'Book help, compare providers, save trusted profiles and track every request.', to: '/taker/book', cta: 'Start Booking' },
+  { icon: BriefcaseBusiness, title: 'For service providers', text: 'Publish services, claim leads, send quotes and manage your business pipeline.', to: '/provider', cta: 'Open Provider Tools' },
+  { icon: Star, title: 'Browse marketplace', text: 'Explore categories and providers before creating an account.', to: '/services', cta: 'Explore Services' },
+];
 
 const LeadGenForm = () => {
-  const [isLogin, setIsLogin] = useState(false);
-
-  const inputStyle =
-    'w-full rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3.5 text-sm text-slate-800 outline-none transition-all placeholder:text-slate-400 focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-500/10';
-
   return (
-    <section className="relative overflow-hidden rounded-[30px] border border-amber-200/50 bg-white p-3 shadow-[0_24px_70px_rgba(120,53,15,0.12)] sm:p-4 lg:p-5">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.28),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(127,29,29,0.18),transparent_35%)]" />
+    <section className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.08)] sm:rounded-[1.75rem]">
+      <div className="grid lg:grid-cols-[minmax(0,1.06fr)_minmax(340px,0.94fr)]">
+        <div className="bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_54%,#f8fafc_100%)] p-4 sm:p-7 lg:p-8 xl:p-10">
+          <div className="relative overflow-hidden rounded-[1.25rem] bg-slate-950 shadow-[0_18px_50px_rgba(15,23,42,0.18)]">
+            <div className="min-h-[240px] sm:min-h-[360px] lg:min-h-[440px]">
+              <img
+                src={parshuramHero}
+                alt="Bhagwan Parshuram"
+                className="absolute inset-0 h-full w-full object-cover object-top"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(67,20,7,0.92)_0%,rgba(67,20,7,0.58)_48%,rgba(67,20,7,0.04)_100%)]" />
+              <div className="absolute inset-y-0 left-0 flex w-[74%] max-w-md flex-col justify-center p-4 text-white sm:p-7 lg:p-8">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-200 sm:text-xs">
+                  Dharma | Seva | Samaj
+                </p>
+                <h2 className="mt-3 text-2xl font-black leading-tight sm:text-4xl">
+                  One trusted digital platform for seva, work, and community support.
+                </h2>
+                <p className="mt-3 text-xs font-semibold leading-5 text-white/82 sm:text-sm sm:leading-6">
+                  Trusted local help, work opportunities, and community support in one simple platform.
+                </p>
+              </div>
+            </div>
+          </div>
 
-      <div className="relative grid overflow-hidden rounded-[28px] bg-gradient-to-br from-[#34110d] via-[#7f1d1d] to-[#111827] lg:grid-cols-[1.15fr_430px]">
-        
-        {/* LEFT CONTENT */}
-        <div className="relative p-7 text-white sm:p-10 lg:p-12">
-          <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-amber-400/20 blur-3xl" />
-          <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-blue-700/20 blur-3xl" />
-
-          <div className="relative grid gap-10 lg:grid-cols-[1fr_280px] lg:items-end">
+          <div className="mt-5 grid gap-4 xl:grid-cols-[1fr_0.85fr]">
             <div>
-              <span className="inline-flex rounded-full border border-amber-200/30 bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.25em] text-amber-100 backdrop-blur">
-                Vipra Seva Setu
-              </span>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-sky-800">
+                Join the network
+              </p>
+              <h2 className="mt-2 max-w-2xl text-2xl font-black leading-tight text-slate-950 sm:text-4xl">
+                Create account once, then use the complete app.
+              </h2>
+              <p className="mt-3 max-w-xl text-sm font-semibold leading-6 text-slate-600 sm:text-base sm:leading-7">
+                After signup, members can access dashboards, requests, providers, and service discovery from one place.
+              </p>
+            </div>
 
-              <h1 className="mt-6 max-w-2xl text-3xl font-black leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-                Sanskriti, Seva aur Samaj ko jodne wala digital platform.
-              </h1>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              {PARTNERS.map((partner) => (
+                <div
+                  key={partner.title}
+                  className="rounded-xl border border-slate-200 bg-white p-2 text-center shadow-sm"
+                >
+                  <img
+                    src={partner.image}
+                    alt={partner.title}
+                    className="mx-auto h-10 w-10 rounded-lg object-cover sm:h-12 sm:w-12"
+                  />
+                  <p className="mt-2 text-[10px] font-black leading-4 text-slate-700 sm:text-[11px]">
+                    {partner.title}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
 
-              <p className="mt-5 max-w-xl text-base leading-8 text-amber-50/85 sm:text-lg">
-                Apne samaj ke verified professionals, seva providers aur local support ko ek trusted modern platform par connect karein.
+          <div className="mt-5 grid gap-2 sm:grid-cols-3 sm:gap-3">
+            {BENEFITS.map(({ icon: Icon, title, text }) => (
+              <div
+                key={title}
+                className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-950 text-amber-300">
+                  <Icon size={18} />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-black text-slate-950">{title}</h3>
+                  <p className="text-xs font-semibold leading-5 text-slate-500">{text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            {FEATURE_PATHS.map(({ icon: Icon, title, text, to, cta }) => (
+              <Link
+                key={title}
+                to={to}
+                className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md"
+              >
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50 text-sky-700">
+                  <Icon size={18} />
+                </span>
+                <h3 className="mt-3 text-sm font-black text-slate-950">{title}</h3>
+                <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">{text}</p>
+                <span className="mt-3 inline-flex items-center gap-1 text-xs font-black text-sky-700">
+                  {cta}
+                  <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <aside className="border-t border-slate-200 bg-slate-50 p-4 sm:p-7 lg:border-l lg:border-t-0 lg:p-8">
+          <div className="mx-auto flex h-full max-w-md flex-col justify-between rounded-[1.25rem] border border-slate-200 bg-white p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] sm:p-6">
+            <div>
+              <p className="text-[11px] font-black uppercase tracking-[0.2em] text-amber-700 sm:text-xs">
+                Account-first experience
+              </p>
+              <h2 className="mt-3 text-2xl font-black leading-tight text-slate-950">
+                Unlock the app with your member profile.
+              </h2>
+              <p className="mt-3 text-sm font-semibold leading-6 text-slate-500">
+                Create an account to save requests, contact providers, manage leads, and continue from any device.
               </p>
 
-              <div className="mt-7 inline-flex items-center gap-3 rounded-2xl border border-amber-200/25 bg-white/10 px-5 py-3 text-sm font-bold text-amber-50 backdrop-blur">
-                <Flame size={18} />
-                समाज को जोड़ने वाला विश्वसनीय डिजिटल मंच
-              </div>
-
-              <div className="mt-8 grid gap-3 sm:max-w-xl">
-                {[
-                  [ShieldCheck, 'Verified Community Professionals'],
-                  [Flame, 'Culture-rooted Service Network'],
-                  [Users, 'Built for Samaj Connection'],
-                ].map(([Icon, text]) => (
-                  <div
-                    key={text}
-                    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.07] px-4 py-3 backdrop-blur"
-                  >
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-400/15 text-amber-100">
-                      <Icon size={20} />
-                    </div>
-                    <span className="text-sm font-semibold text-white/90">{text}</span>
+              <div className="mt-6 space-y-3">
+                {JOURNEY.map(({ icon: Icon, title, text }) => (
+                  <div key={title} className="flex gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+                      <Icon size={18} />
+                    </span>
+                    <span>
+                      <span className="block text-sm font-black text-slate-950">{title}</span>
+                      <span className="mt-1 block text-xs font-medium leading-5 text-slate-500">{text}</span>
+                    </span>
                   </div>
                 ))}
               </div>
-            </div>
 
-            {/* IMAGE */}
-            <div className="relative mx-auto w-full max-w-[260px] lg:max-w-none">
-              <div className="absolute inset-x-8 bottom-3 h-28 rounded-full bg-amber-300/30 blur-3xl" />
-
-              <div className="relative overflow-hidden rounded-[30px] border border-amber-100/25 bg-white/10 p-2 shadow-2xl backdrop-blur">
-                <img
-                  src={parshuramHero}
-                  alt="Bhagwan Parshuram devotional artwork"
-                  className="h-[300px] w-full rounded-[24px] object-cover object-top lg:h-[390px]"
-                />
-              </div>
-
-              <div className="absolute -bottom-5 left-1/2 w-[90%] -translate-x-1/2 rounded-2xl border border-amber-200/30 bg-black/45 px-4 py-3 text-center text-xs font-extrabold tracking-wide text-amber-50 shadow-xl backdrop-blur">
-                Dharma • Seva • Samaj
+              <div className="mt-6 grid grid-cols-3 gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-center">
+                <div>
+                  <p className="text-lg font-black text-slate-950">7+</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Categories</p>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-slate-950">CRM</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Provider</p>
+                </div>
+                <div>
+                  <p className="text-lg font-black text-slate-950">Live</p>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Tracking</p>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* FORM */}
-        <div className="relative bg-white/95 p-6 sm:p-8 lg:p-10">
-          <div className="mb-7">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">
-              {isLogin ? 'Member Login' : 'Community Registration'}
-            </p>
-
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-900">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              {isLogin
-                ? 'Login to manage your services and profile.'
-                : 'Join the trusted Vipra Seva Setu community.'}
-            </p>
-          </div>
-
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            {!isLogin && (
-              <div>
-                <label className="mb-2 block text-sm font-bold text-slate-700">
-                  Full Name
-                </label>
-                <input type="text" placeholder="Enter your name" className={inputStyle} />
-              </div>
-            )}
-
-            <div>
-              <label className="mb-2 block text-sm font-bold text-slate-700">
-                Mobile No.
-              </label>
-              <input type="tel" placeholder="10-digit mobile number" className={inputStyle} />
-            </div>
-
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <label className="text-sm font-bold text-slate-700">Password</label>
-                {isLogin && (
-                  <button className="text-xs font-bold text-amber-700 hover:text-red-700">
-                    Forgot password?
-                  </button>
-                )}
-              </div>
-              <input type="password" placeholder="Enter password" className={inputStyle} />
-            </div>
-
-            <button className="group mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-600 via-red-700 to-red-800 py-4 text-sm font-black text-white shadow-xl shadow-red-900/20 transition-all hover:-translate-y-0.5 hover:shadow-2xl">
-              {isLogin ? 'Sign In' : 'Register Now'}
-              <ArrowRight size={17} className="transition-transform group-hover:translate-x-1" />
-            </button>
-          </form>
-
-          <div className="mt-7 rounded-2xl bg-amber-50 px-4 py-4 text-center">
-            <p className="text-sm text-slate-600">
-              {isLogin ? "Don't have an account?" : 'Already registered?'}
-              <button
-                onClick={() => setIsLogin(!isLogin)}
-                className="ml-2 font-black text-red-700 hover:text-amber-700"
+            <div className="mt-6 grid gap-3">
+              <Link
+                to="/login?mode=signup"
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-5 py-3.5 text-sm font-black text-white transition hover:bg-sky-600"
               >
-                {isLogin ? 'Sign up' : 'Log in'}
-              </button>
-            </p>
+                Create Account
+                <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
+              </Link>
+              <Link
+                to="/services"
+                className="flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3.5 text-sm font-black text-slate-700 transition hover:border-sky-200 hover:text-sky-700"
+              >
+                Explore without account
+              </Link>
+            </div>
           </div>
-        </div>
+        </aside>
       </div>
     </section>
   );

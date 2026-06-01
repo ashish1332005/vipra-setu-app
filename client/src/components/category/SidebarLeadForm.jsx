@@ -5,12 +5,13 @@ const SidebarLeadForm = ({ categoryName }) => {
   const [type, setType] = useState('Budget');
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-[1.35rem] border border-amber-100 bg-white p-5 shadow-sm">
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-slate-900">
-          Get the List of Top <span className="text-blue-600">{categoryName}</span>
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-red-800">Quick List</p>
+        <h3 className="mt-1 text-lg font-black text-slate-900">
+          Top <span className="text-red-900">{categoryName}</span>
         </h3>
-        <p className="mt-1 text-sm text-slate-600 font-medium">
+        <p className="mt-1 text-sm font-medium text-slate-600">
           We'll send you contact details in seconds for free
         </p>
       </div>
@@ -19,16 +20,16 @@ const SidebarLeadForm = ({ categoryName }) => {
         <p className="mb-3 text-sm font-bold text-slate-800">
           What type of {categoryName} are you looking for?
         </p>
-        <div className="flex items-center gap-4 text-sm font-medium text-slate-700">
+        <div className="grid grid-cols-3 gap-2 text-sm font-medium text-slate-700">
           {['Budget', 'Luxury', 'Others'].map((option) => (
-            <label key={option} className="flex cursor-pointer items-center gap-1.5">
+            <label key={option} className={`flex cursor-pointer items-center justify-center gap-1.5 rounded-full border px-2 py-2 text-xs font-black ${type === option ? 'border-amber-300 bg-[#fff7ed] text-red-900' : 'border-amber-100 bg-white text-slate-600'}`}>
               <input
                 type="radio"
                 name="type"
                 value={option}
                 checked={type === option}
                 onChange={(e) => setType(e.target.value)}
-                className="h-4 w-4 border-slate-300 text-blue-600 focus:ring-blue-600 cursor-pointer"
+                className="sr-only"
               />
               {option}
             </label>
@@ -44,7 +45,7 @@ const SidebarLeadForm = ({ categoryName }) => {
           <input
             type="text"
             placeholder="Name"
-            className="block w-full rounded border border-slate-300 py-2 pl-10 pr-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="block w-full rounded-2xl border border-amber-100 bg-[#fffaf2] py-3 pl-10 pr-3 text-sm font-semibold outline-none placeholder:text-slate-500 focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-100"
           />
         </div>
 
@@ -55,7 +56,7 @@ const SidebarLeadForm = ({ categoryName }) => {
           <input
             type="tel"
             placeholder="Mobile Number"
-            className="block w-full rounded border border-slate-300 py-2 pl-10 pr-3 text-sm outline-none placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+            className="block w-full rounded-2xl border border-amber-100 bg-[#fffaf2] py-3 pl-10 pr-3 text-sm font-semibold outline-none placeholder:text-slate-500 focus:border-amber-400 focus:bg-white focus:ring-4 focus:ring-amber-100"
           />
         </div>
 
@@ -63,14 +64,14 @@ const SidebarLeadForm = ({ categoryName }) => {
           <input
             type="checkbox"
             defaultChecked
-            className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+            className="mt-0.5 h-4 w-4 rounded border-amber-200 text-red-900 focus:ring-red-900"
           />
           <span className="text-xs text-slate-500">
             I Agree to <a href="#" className="underline hover:text-slate-700">T&C's Privacy Policy</a>
           </span>
         </label>
 
-        <button className="mt-2 flex w-full items-center justify-center gap-1 rounded bg-blue-600 py-2.5 text-sm font-bold text-white transition-colors hover:bg-blue-700">
+        <button className="mt-2 flex w-full items-center justify-center gap-1 rounded-2xl bg-red-950 py-3 text-sm font-black text-white transition hover:bg-amber-700">
           Get Best Deal <ChevronRight size={16} />
         </button>
       </form>

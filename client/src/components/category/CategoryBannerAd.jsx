@@ -1,19 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGlobalContext } from '../../context/GlobalContext';
+import { getMediaUrl } from '../../utils/media';
 
 const CategoryBannerAd = () => {
   const { ads } = useGlobalContext();
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Only show active banner ads
-  const activeAds = ads.filter(ad => ad.status === 'Active' && ad.type === 'Category Banner');
+  const activeAds = useMemo(
+    () => ads.filter(ad => ad.status === 'Active' && ad.type === 'Category Banner'),
+    [ads]
+  );
 
-  const nextAd = () => {
+  const nextAd = useCallback(() => {
     if (activeAds.length > 0) {
       setCurrentIndex((prev) => (prev + 1) % activeAds.length);
     }
-  };
+  }, [activeAds.length]);
 
   const prevAd = () => {
     if (activeAds.length > 0) {
@@ -26,7 +30,7 @@ const CategoryBannerAd = () => {
     if (activeAds.length <= 1) return; // Don't scroll if only 1 ad
     const timer = setInterval(nextAd, 5000);
     return () => clearInterval(timer);
-  }, [activeAds.length]);
+  }, [activeAds.length, nextAd]);
 
   if (activeAds.length === 0) {
     return null; // Don't render banner if no active ads
@@ -34,6 +38,11 @@ const CategoryBannerAd = () => {
 
   // Ensure index is within bounds if ads are removed
   const ad = activeAds[currentIndex % activeAds.length];
+  const mainImage = getMediaUrl(ad.mainImage || ad.imageUrl);
+  const sideImage = getMediaUrl(ad.img1 || ad.imageUrl);
+  const secondSideImage = getMediaUrl(ad.img2 || ad.imageUrl);
+  const brandColor = ad.brandColor || '#1d4ed8';
+  const textColor = ad.textColor || '#334155';
 
   return (
     <div className="relative w-full bg-[#f8f6f0] border-b border-slate-200 overflow-hidden group">
@@ -43,8 +52,8 @@ const CategoryBannerAd = () => {
           {/* Left Exterior Image */}
           <div className="relative w-full md:w-[30%] h-32 md:h-28 shrink-0">
             <img 
-              key={`main-${ad.id}`}
-              src={ad.mainImage} 
+              key={`main-${ad._id || ad.id}`}
+              src={mainImage} 
               alt={ad.title} 
               className="w-full h-full object-cover animate-fade-in"
             />
@@ -56,14 +65,14 @@ const CategoryBannerAd = () => {
 
           {/* Center Details */}
           <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
-            <h4 className="text-sm font-serif tracking-wider mb-1 transition-colors" style={{ color: ad.textColor }}>{ad.categoryLabel}</h4>
-            <div className="w-48 h-px mb-2 transition-colors" style={{ backgroundColor: ad.brandColor }}></div>
-            <h2 className="text-3xl font-extrabold tracking-tight mb-2 transition-colors" style={{ color: ad.brandColor }}>{ad.title}</h2>
+            <h4 className="text-sm font-serif tracking-wider mb-1 transition-colors" style={{ color: textColor }}>{ad.categoryLabel || ad.placement || 'Sponsored'}</h4>
+            <div className="w-48 h-px mb-2 transition-colors" style={{ backgroundColor: brandColor }}></div>
+            <h2 className="text-3xl font-extrabold tracking-tight mb-2 transition-colors" style={{ color: brandColor }}>{ad.title}</h2>
             <div className="flex items-center gap-6">
-              <p className="text-sm font-bold transition-colors" style={{ color: ad.textColor }}>Call : {ad.phone}</p>
+              <p className="text-sm font-bold transition-colors" style={{ color: textColor }}>{ad.targetUrl || 'Sponsored listing'}</p>
               <button 
                 className="text-white text-xs font-bold px-4 py-1.5 rounded shadow-sm hover:brightness-110 transition-all"
-                style={{ backgroundColor: ad.brandColor }}
+                style={{ backgroundColor: brandColor }}
               >
                 Know More &gt;
               </button>
@@ -75,8 +84,8 @@ const CategoryBannerAd = () => {
             {/* First curved image */}
             <div className="absolute left-0 top-0 bottom-0 w-3/5 rounded-l-full overflow-hidden border-4 border-white shadow-[-10px_0_15px_rgba(0,0,0,0.1)] z-10 -ml-12">
                <img 
-                key={`img1-${ad.id}`}
-                src={ad.img1} 
+                key={`img1-${ad._id || ad.id}`}
+                src={sideImage} 
                 alt="Interior 1" 
                 className="w-full h-full object-cover animate-fade-in"
               />
@@ -84,8 +93,8 @@ const CategoryBannerAd = () => {
             {/* Second curved image */}
             <div className="absolute right-0 top-0 bottom-0 w-3/5 rounded-l-full overflow-hidden border-4 border-white shadow-[-10px_0_15px_rgba(0,0,0,0.1)] z-20">
                <img 
-                key={`img2-${ad.id}`}
-                src={ad.img2} 
+                key={`img2-${ad._id || ad.id}`}
+                src={secondSideImage} 
                 alt="Interior 2" 
                 className="w-full h-full object-cover animate-fade-in"
               />

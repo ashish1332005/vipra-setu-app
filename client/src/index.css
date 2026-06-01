@@ -4,8 +4,14 @@
 
 @layer base {
   html {
-    /* Scale the base font-size up by 10% to mimic 110% browser zoom */
-    font-size: 110%; 
+    font-size: 100%;
+  }
+
+  @media (min-width: 640px) {
+    html {
+      /* Keep the roomier desktop scale without crowding mobile screens. */
+      font-size: 110%;
+    }
   }
 
   body {
@@ -22,7 +28,7 @@
   }
 
   .section-space {
-    @apply py-14 md:py-16 lg:py-20;
+    @apply py-10 md:py-16 lg:py-20;
   }
 
   .section-heading {
@@ -58,6 +64,37 @@
     color: transparent;
     animation: rainbow-shift 6s linear infinite;
   }
+
+  .culture-pattern {
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(251, 191, 36, 0.18) 1px, transparent 0),
+      linear-gradient(135deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%),
+      linear-gradient(225deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%);
+    background-position: 0 0, 0 0, 14px 14px;
+    background-size: 24px 24px, 28px 28px, 28px 28px;
+  }
+
+  .soft-float {
+    animation: soft-float 6s ease-in-out infinite;
+  }
+
+  .soft-float-delayed {
+    animation: soft-float 7s ease-in-out 0.8s infinite;
+  }
+
+  .shine-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-sweep::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-120%);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+    animation: shine-sweep 4.8s ease-in-out infinite;
+  }
 }
 
 @keyframes rainbow-shift {
@@ -67,5 +104,37 @@
 
   100% {
     background-position: 200% 50%;
+  }
+}
+
+@keyframes soft-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes shine-sweep {
+  0%,
+  45% {
+    transform: translateX(-120%);
+  }
+
+  70%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .soft-float,
+  .soft-float-delayed,
+  .shine-sweep::after,
+  .rainbow-logo {
+    animation: none;
   }
 }

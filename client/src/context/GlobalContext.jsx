@@ -1,85 +1,213 @@
-import React, { createContext, useState, useContext } from 'react';
-import { MOCK_ADS_CONFIG, MOCK_USERS } from '../data/adminData';
-import { WORKERS } from '../data/marketplace';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import api from '../services/api';
+import { getApiErrorMessage } from '../utils/apiError';
 
 const GlobalContext = createContext();
 
 export const useGlobalContext = () => useContext(GlobalContext);
 
 export const GlobalProvider = ({ children }) => {
-  // Unify workers into the user pool so we can manage them from admin
-  const initialUsers = [
-    ...MOCK_USERS,
-    ...WORKERS.map(worker => ({
-      ...worker, // preserve all worker specific fields
-      email: `${worker.name.toLowerCase().replace(' ', '.')}@example.com`,
-      phone: '9876500000',
-      role: 'Provider',
-      status: 'Active',
-      joined: '2026-05-01'
-    }))
-  ];
+  const [currentUser, setCurrentUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+  const [authLoading, setAuthLoading] = useState(() => Boolean(localStorage.getItem('token')));
+  const [authError, setAuthError] = useState('');
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [services, setServices] = useState([]);
+  const [providers, setProviders] = useState([]);
+  const [marketplaceLoading, setMarketplaceLoading] = useState(true);
+  const [marketplaceError, setMarketplaceError] = useState('');
+  const [ads, setAds] = useState([]);
+  const [adsLoading, setAdsLoading] = useState(false);
 
-  const [users, setUsers] = useState(initialUsers);
-  
-  // We need to support the Category Banner Ad specifically. 
-  // We'll create some rich mock ads that match the structure of CategoryBannerAd.
-  const initialAds = [
-    {
-      id: 'A001',
-      type: 'Category Banner',
-      location: 'Event',
-      status: 'Active',
-      clicks: 1250,
-      impressions: 45000,
-      revenue: 1500,
-      
-      // Visual properties for CategoryBannerAd
-      categoryLabel: "AC & Non AC Banquet Hall",
-      title: "Aashika Park",
-      phone: "9829 045 662",
-      mainImage: "https://images.unsplash.com/photo-1541882662098-90059bc2c676?q=80&w=800&auto=format&fit=crop",
-      img1: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop",
-      img2: "https://images.unsplash.com/photo-1519710164239-da123dc03ef4?q=80&w=800&auto=format&fit=crop",
-      brandColor: "#b81d32",
-      textColor: "#60272b"
-    },
-    {
-      id: 'A002',
-      type: 'Category Banner',
-      location: 'Beauty',
-      status: 'Active',
-      clicks: 840,
-      impressions: 32000,
-      revenue: 800,
-      
-      categoryLabel: "Luxury Spa & Wellness",
-      title: "Serenity Spa",
-      phone: "9811 223 344",
-      mainImage: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=800&auto=format&fit=crop",
-      img1: "https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=800&auto=format&fit=crop",
-      img2: "https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=800&auto=format&fit=crop",
-      brandColor: "#059669",
-      textColor: "#064e3b"
+  const loadMarketplace = useCallback(async () => {
+    setMarketplaceLoading(true);
+    setMarketplaceError('');
+
+    try {
+      const [servicesRes, providersRes] = await Promise.all([
+        api.get('/services'),
+        api.get('/providers'),
+      ]);
+      setServices(servicesRes.data.services || []);
+      setProviders(providersRes.data.providers || []);
+    } catch (error) {
+      setMarketplaceError(getApiErrorMessage(error, 'Unable to load live services'));
+    } finally {
+      setMarketplaceLoading(false);
     }
-  ];
+  }, []);
 
-  const [ads, setAds] = useState(initialAds);
+  const loadAds = useCallback(async ({ admin = false } = {}) => {
+    setAdsLoading(true);
 
-  // Actions
-  const toggleAdStatus = (adId) => {
-    setAds(ads.map(ad => 
-      ad.id === adId ? { ...ad, status: ad.status === 'Active' ? 'Paused' : 'Active' } : ad
+    try {
+      const { data } = await api.get(admin ? '/admin/ads' : '/ads', {
+        params: admin || !currentUser?.role ? undefined : { role: currentUser.role },
+      });
+      setAds(data.ads || []);
+    } catch {
+      setAds([]);
+    } finally {
+      setAdsLoading(false);
+    }
+  }, [currentUser?.role]);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    loadMarketplace();
+    if (!token) return;
+
+    setAuthLoading(true);
+    api.get('/auth/me')
+      .then(({ data }) => {
+        setCurrentUser(data.user);
+        localStorage.setItem('user', JSON.stringify(data.user));
+      })
+      .catch(() => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        setCurrentUser(null);
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+  }, [loadMarketplace]);
+
+  useEffect(() => {
+    loadAds();
+  }, [loadAds]);
+
+  const toggleAdStatus = async (adId) => {
+    const ad = ads.find((item) => item._id === adId || item.id === adId);
+    const nextStatus = ad?.status === 'Active' ? 'Paused' : 'Active';
+    const { data } = await api.patch(`/admin/ads/${adId}`, { status: nextStatus });
+    setAds(ads.map((item) => (item._id === adId || item.id === adId ? data.ad : item)));
+  };
+
+  const createAd = async (newAd) => {
+    const { data } = await api.post('/admin/ads', newAd);
+    setAds([data.ad, ...ads]);
+    return data.ad;
+  };
+
+  const login = async ({ email, password }) => {
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const { data } = await api.post('/auth/login', { email, password });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setCurrentUser(data.user);
+      return data.user;
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Login failed');
+      setAuthError(message);
+      throw new Error(message, { cause: error });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const register = async ({ name, email, phone, password, role }) => {
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const { data } = await api.post('/auth/register', { name, email, phone, password, role });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setCurrentUser(data.user);
+      return data.user;
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Registration failed');
+      setAuthError(message);
+      throw new Error(message, { cause: error });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const verifyEmail = async (token) => {
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const { data } = await api.post('/auth/verify-email', { token });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      setCurrentUser(data.user);
+      return data.user;
+    } catch (error) {
+      const message = getApiErrorMessage(error, 'Email verification failed');
+      setAuthError(message);
+      throw new Error(message, { cause: error });
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const resendVerification = async (email) => {
+    const { data } = await api.post('/auth/resend-verification', { email });
+    return data;
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setCurrentUser(null);
+  };
+
+  const loadAdminUsers = useCallback(async () => {
+    setUsersLoading(true);
+
+    try {
+      const { data } = await api.get('/admin/users');
+      const mappedUsers = data.users.map((user) => ({
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: formatRole(user.role),
+        rawRole: user.role,
+        status: formatStatus(user.status),
+        rawStatus: user.status,
+        joined: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-',
+      }));
+      setUsers(mappedUsers);
+      return mappedUsers;
+    } finally {
+      setUsersLoading(false);
+    }
+  }, []);
+
+  const toggleUserStatus = async (userId) => {
+    const user = users.find((item) => item.id === userId);
+    const nextStatus = user?.rawStatus === 'active' ? 'banned' : 'active';
+
+    const { data } = await api.patch(`/admin/users/${userId}/status`, { status: nextStatus });
+
+    setUsers(users.map(item =>
+      item.id === userId
+        ? {
+            ...item,
+            status: formatStatus(data.user.status),
+            rawStatus: data.user.status,
+          }
+        : item
     ));
   };
 
-  const createAd = (newAd) => {
-    setAds([newAd, ...ads]);
-  };
+  const approveProvider = async (userId) => {
+    await api.patch(`/admin/providers/${userId}/approve`);
 
-  const toggleUserStatus = (userId) => {
-    setUsers(users.map(user => 
-      user.id === userId ? { ...user, status: user.status === 'Active' ? 'Banned' : 'Active' } : user
+    setUsers(users.map((item) =>
+      item.id === userId
+        ? { ...item, status: 'Active', rawStatus: 'active' }
+        : item
     ));
   };
 
@@ -87,10 +215,36 @@ export const GlobalProvider = ({ children }) => {
     setUsers(users.filter(user => user.id !== userId));
   };
 
+  const serviceCountByProvider = services.reduce((counts, service) => {
+    const providerId = typeof service.provider === 'object' ? service.provider?._id : service.provider;
+    if (providerId) counts[providerId] = (counts[providerId] || 0) + 1;
+    return counts;
+  }, {});
+  const marketplaceWorkers = providers.map((provider) => mapProviderToWorker(provider, serviceCountByProvider));
+
   return (
     <GlobalContext.Provider value={{
       users,
+      usersLoading,
       ads,
+      adsLoading,
+      services,
+      providers,
+      marketplaceWorkers,
+      marketplaceLoading,
+      marketplaceError,
+      loadMarketplace,
+      currentUser,
+      authLoading,
+      authError,
+      login,
+      register,
+      verifyEmail,
+      resendVerification,
+      logout,
+      loadAdminUsers,
+      approveProvider,
+      loadAds,
       toggleAdStatus,
       createAd,
       toggleUserStatus,
@@ -99,4 +253,57 @@ export const GlobalProvider = ({ children }) => {
       {children}
     </GlobalContext.Provider>
   );
+};
+
+const formatRole = (role = '') => {
+  const labels = {
+    service_provider: 'Provider',
+    service_taker: 'User',
+    admin: 'Admin',
+  };
+
+  return labels[role] || role;
+};
+
+const formatStatus = (status = '') => {
+  if (!status) return '';
+  return status.charAt(0).toUpperCase() + status.slice(1);
+};
+
+const mapProviderToWorker = (provider, serviceCountByProvider = {}) => {
+  const user = provider.user || {};
+  const displayName = provider.businessName || user.name || 'Service Provider';
+  const skillTags = provider.skills?.length ? provider.skills : [provider.category].filter(Boolean);
+  const completedFields = [
+    displayName,
+    provider.category,
+    provider.city,
+    provider.address,
+    provider.rate,
+    provider.availability,
+    skillTags.length,
+  ].filter(Boolean).length;
+  const profileScore = Math.min(100, Math.round((completedFields / 7) * 100));
+
+  return {
+    id: provider._id,
+    providerId: provider._id,
+    userId: user._id,
+    name: displayName,
+    category: provider.category,
+    rating: provider.rating || 0,
+    rate: provider.rate || 'Custom quote',
+    exp: `${provider.experienceYears || 0} yrs`,
+    city: provider.city,
+    location: provider.city,
+    availability: provider.availability || 'Available',
+    tags: skillTags,
+    phone: user.phone,
+    email: user.email,
+    isApproved: provider.isApproved,
+    status: user.status,
+    profileScore,
+    serviceCount: serviceCountByProvider[user._id] || 0,
+    responseLabel: provider.availability?.toLowerCase().includes('today') ? 'Fast response' : 'Listed provider',
+  };
 };

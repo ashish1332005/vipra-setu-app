@@ -2,20 +2,17 @@ import { Search, Sparkles, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CATEGORIES } from '../data/marketplace';
-import { useGlobalContext } from '../../context/GlobalContext';
+import { useGlobalContext } from '../context/GlobalContext';
 
 const QuickFindSection = () => {
-  const { users } = useGlobalContext();
+  const { marketplaceWorkers } = useGlobalContext();
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
   const filteredWorkers = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     
-    // Only use active providers
-    const activeProviders = users.filter(user => user.role === 'Provider' && user.status === 'Active');
-
-    return activeProviders.filter((worker) => {
+    return marketplaceWorkers.filter((worker) => {
       const matchesCategory = activeCategory === 'All' || worker.category === activeCategory;
       const matchesQuery =
         normalizedQuery.length === 0 ||
@@ -25,7 +22,7 @@ const QuickFindSection = () => {
 
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, query, marketplaceWorkers]);
 
   const topWorkers = filteredWorkers.slice().sort((left, right) => right.rating - left.rating).slice(0, 3);
 
