@@ -5,6 +5,7 @@ node_modules/
 dist/
 .env
 .env.local
+.idea/
 client/node_modules/
 client/dist/
 server/node_modules/

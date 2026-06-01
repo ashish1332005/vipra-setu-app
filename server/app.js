@@ -18,6 +18,9 @@ const allowedOrigins = new Set([
   env.clientUrl,
   ...env.clientUrls,
   'https://vipra-setu-1.onrender.com',
+  'capacitor://localhost',
+  'http://localhost',
+  'https://localhost',
 ]);
 
 app.use(cors({
