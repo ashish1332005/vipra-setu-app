@@ -44,6 +44,7 @@ const USER_STEPS = [
 ];
 
 const HERO_BRANDS = [
+  { name: 'Vipra Sewa Setu', image: logo },
   { name: 'Vipra Sena', image: vipraSenaLogo },
   { name: 'BPF', image: bpfLogo },
 ];
@@ -93,19 +94,19 @@ const Home = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-white/15 bg-white/10 p-2 shadow-[0_14px_40px_rgba(0,0,0,0.12)] backdrop-blur-md sm:w-fit"
+            className="mb-5 grid grid-cols-3 gap-2 rounded-xl border border-white/15 bg-white/10 p-2 shadow-[0_14px_40px_rgba(0,0,0,0.12)] backdrop-blur-md sm:w-fit"
           >
             {HERO_BRANDS.map((brand) => (
               <div
                 key={brand.name}
-                className="flex items-center gap-2 rounded-lg border border-white/12 bg-white/10 px-2.5 py-1.5 text-white sm:px-3"
+                className="flex min-w-0 items-center gap-2 rounded-lg border border-white/12 bg-white/10 px-2 py-1.5 text-white sm:px-3"
               >
                 <img
                   src={brand.image}
                   alt={brand.name}
                   className="h-7 w-7 shrink-0 rounded-md object-cover ring-1 ring-white/20 sm:h-8 sm:w-8"
                 />
-                <span className="text-xs font-black leading-tight sm:text-sm">
+                <span className="truncate text-[10px] font-black leading-tight sm:text-sm">
                   {brand.name}
                 </span>
               </div>
@@ -133,7 +134,7 @@ const Home = () => {
                 Namaste, {currentUser.name}
               </p>
               <h1 className="mt-3 max-w-3xl text-[2.15rem] font-black leading-[1.03] tracking-tight sm:text-5xl lg:text-[4.1rem]">
-                आज किस सेवा की जरूरत है?
+                समाज को जोड़ने वाला विश्वसनीय डिजिटल मंच
               </h1>
               <p className="mt-4 max-w-2xl text-sm font-semibold leading-6 text-white/80 sm:text-lg sm:leading-8">
                 Find trusted local providers, send service requests, and track every update from one simple dashboard.
