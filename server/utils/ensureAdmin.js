@@ -3,10 +3,16 @@ const User = require('../models/User');
 const ensureAdmin = async () => {
   const name = process.env.ADMIN_NAME || 'Admin';
   const email = process.env.ADMIN_EMAIL || 'admin@example.com';
-  const phone = process.env.ADMIN_PHONE || '0000000000';
+  const phone = normalizePhone(process.env.ADMIN_PHONE || '0000000000');
   const password = process.env.ADMIN_PASSWORD || 'admin12345';
 
-  const existingAdmin = await User.findOne({ email }).select('+password');
+  const existingAdmin = await User.findOne({
+    $or: [
+      { email },
+      { phone },
+      { role: 'admin' },
+    ],
+  }).select('+password');
 
   if (existingAdmin) {
     existingAdmin.name = name;
@@ -33,5 +39,7 @@ const ensureAdmin = async () => {
 
   console.log(`Admin created: ${email}`);
 };
+
+const normalizePhone = (phone = '') => String(phone).replace(/\D/g, '');
 
 module.exports = ensureAdmin;
