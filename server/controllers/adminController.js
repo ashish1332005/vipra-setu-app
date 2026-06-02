@@ -9,8 +9,6 @@ const SubscriptionPlan = require('../models/SubscriptionPlan');
 const Ad = require('../models/Ad');
 const asyncHandler = require('../utils/asyncHandler');
 const createNotification = require('../utils/createNotification');
-const fs = require('fs');
-const path = require('path');
 
 const getDashboard = asyncHandler(async (req, res) => {
   const [totalUsers, totalProviders, totalTakers, pendingProviders, activeServices, openRequests, pendingServices, openReports, activeSubscriptions] = await Promise.all([
@@ -376,7 +374,7 @@ const createAd = asyncHandler(async (req, res) => {
   }
 
   if (imageFile?.dataUrl) {
-    imageUrl = saveAdImage(req.user._id, imageFile);
+    imageUrl = saveAdImage(imageFile);
   }
 
   if (!title || !imageUrl) {
@@ -401,8 +399,8 @@ const createAd = asyncHandler(async (req, res) => {
   res.status(201).json({ ad });
 });
 
-const saveAdImage = (userId, imageFile) => {
-  const { name = 'ad-image', dataUrl } = imageFile;
+const saveAdImage = (imageFile) => {
+  const { dataUrl } = imageFile;
   const match = typeof dataUrl === 'string' && dataUrl.match(/^data:([\w/+.-]+);base64,(.+)$/);
 
   if (!match) {
@@ -431,14 +429,7 @@ const saveAdImage = (userId, imageFile) => {
     throw error;
   }
 
-  const uploadDir = path.join(__dirname, '..', 'uploads', 'ads');
-  fs.mkdirSync(uploadDir, { recursive: true });
-  const safeName = path.basename(name).replace(/[^a-z0-9.-]/gi, '-').toLowerCase();
-  const filename = `${userId}-${Date.now()}-${safeName || `ad${extension}`}`;
-  const finalName = path.extname(filename) ? filename : `${filename}${extension}`;
-
-  fs.writeFileSync(path.join(uploadDir, finalName), buffer);
-  return `/uploads/ads/${finalName}`;
+  return dataUrl;
 };
 
 const updateAd = asyncHandler(async (req, res) => {
