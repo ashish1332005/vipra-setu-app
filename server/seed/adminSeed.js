@@ -10,10 +10,17 @@ const seedAdmin = async () => {
     const email = process.env.ADMIN_EMAIL || 'admin@example.com';
     const password = process.env.ADMIN_PASSWORD || 'admin12345';
 
-    const existingAdmin = await User.findOne({ email });
+    const existingAdmin = await User.findOne({ email }).select('+password');
 
     if (existingAdmin) {
-      console.log(`Admin already exists: ${email}`);
+      existingAdmin.name = name;
+      existingAdmin.password = password;
+      existingAdmin.role = 'admin';
+      existingAdmin.status = 'active';
+      existingAdmin.emailVerifiedAt = existingAdmin.emailVerifiedAt || new Date();
+      await existingAdmin.save();
+
+      console.log(`Admin updated: ${email}`);
       process.exit(0);
     }
 
