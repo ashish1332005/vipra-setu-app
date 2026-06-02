@@ -179,8 +179,8 @@ const DashboardLayout = ({ role }) => {
         </header>
 
         <main className="px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mb-6">
-            <AdPlacement placement="dashboard" limit={1} compact />
+          <div className="-mx-4 -mt-6 mb-6 sm:-mx-6 lg:-mx-8">
+            <AdPlacement placement="dashboard" compact />
           </div>
           <Outlet />
         </main>

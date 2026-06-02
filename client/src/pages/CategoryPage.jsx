@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { CalendarCheck, CheckCircle2, ChevronRight, MapPin, Phone, Search, Send, Sparkles, User } from 'lucide-react';
-import CategoryBannerAd from '../components/category/CategoryBannerAd';
 import FilterBar from '../components/category/FilterBar';
 import HorizontalWorkerCard from '../components/category/HorizontalWorkerCard';
 import SidebarLeadForm from '../components/category/SidebarLeadForm';
@@ -141,8 +140,6 @@ const CategoryPage = () => {
           <ChevronRight size={12} />
           <span>{marketplaceLoading ? 'Loading listings' : `${categoryWorkers.length} Listings`}</span>
         </nav>
-
-        <CategoryBannerAd categoryName={displayCategory} />
 
         <motion.section
           initial="hidden"
