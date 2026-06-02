@@ -27,7 +27,7 @@ const ProvidersModeration = () => {
 
   const load = () => {
     api.get('/admin/providers')
-      .then(({ data }) => setProfiles(data.profiles))
+      .then(({ data }) => setProfiles(Array.isArray(data.profiles) ? data.profiles : []))
       .catch((err) => setMessage(getApiErrorMessage(err, 'Unable to load providers')));
   };
 
@@ -163,6 +163,12 @@ const ProvidersModeration = () => {
             </div>
           </article>
         ))}
+        {profiles.length === 0 && (
+          <div className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center">
+            <h2 className="text-lg font-black text-slate-900">No providers found</h2>
+            <p className="mt-2 text-sm font-semibold text-slate-500">Create a seva provider from the form above.</p>
+          </div>
+        )}
       </div>
     </section>
   );
