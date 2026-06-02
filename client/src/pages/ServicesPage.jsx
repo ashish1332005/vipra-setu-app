@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 
 import { SERVICES } from '../components/CategoriesSection';
+import AdPlacement from '../components/ads/AdPlacement';
 import { useGlobalContext } from '../context/GlobalContext';
 import logo from '../assets/logo.jpeg';
 import parshuramHero from '../assets/parshuram-hero.png';
@@ -176,6 +177,10 @@ const ServicesPage = () => {
       </section>
 
       <main className="site-shell">
+        <div className="mt-6">
+          <AdPlacement placement="services" limit={2} />
+        </div>
+
         <section className="mt-6">
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>

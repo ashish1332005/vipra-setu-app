@@ -13,6 +13,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import { useGlobalContext } from '../../context/GlobalContext';
+import AdPlacement from '../ads/AdPlacement';
 import api from '../../services/api';
 import logo from '../../assets/logo.jpeg';
 
@@ -178,6 +179,9 @@ const DashboardLayout = ({ role }) => {
         </header>
 
         <main className="px-4 py-6 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <AdPlacement placement="dashboard" limit={1} compact />
+          </div>
           <Outlet />
         </main>
       </div>

@@ -13,6 +13,7 @@ import { Link, Navigate } from 'react-router-dom';
 
 import CategoriesSection from '../components/CategoriesSection';
 import WorkersSection from '../components/WorkersSection';
+import AdPlacement from '../components/ads/AdPlacement';
 import logo from '../assets/logo.jpeg';
 import parshuramHero from '../assets/parshuram-hero.png';
 import { useGlobalContext } from '../context/GlobalContext';
@@ -196,6 +197,12 @@ const Home = () => {
               </div>
             ))}
           </motion.div>
+        </div>
+      </section>
+
+      <section className="bg-[#fffaf2] py-6">
+        <div className="site-shell">
+          <AdPlacement placement="home" limit={2} />
         </div>
       </section>
 
