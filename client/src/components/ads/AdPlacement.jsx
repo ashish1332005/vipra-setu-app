@@ -1,6 +1,7 @@
 import { ExternalLink, Megaphone } from 'lucide-react';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
+import api from '../../services/api';
 import { getMediaUrl } from '../../utils/media';
 
 const placementLabels = {
@@ -12,13 +13,24 @@ const placementLabels = {
 };
 
 const AdPlacement = ({ placement = 'all', category = '', limit = 2, compact = false }) => {
-  const { ads } = useGlobalContext();
+  const { ads, currentUser } = useGlobalContext();
+  const [fallbackAds, setFallbackAds] = useState([]);
+
+  useEffect(() => {
+    if (ads.length > 0) return;
+
+    api.get('/ads', {
+      params: currentUser?.role ? { role: currentUser.role } : undefined,
+    })
+      .then(({ data }) => setFallbackAds(data.ads || []))
+      .catch(() => setFallbackAds([]));
+  }, [ads.length, currentUser?.role]);
 
   const visibleAds = useMemo(() => {
     const currentPlacement = placement.toLowerCase();
     const currentCategory = category.toLowerCase();
 
-    return ads
+    return (ads.length > 0 ? ads : fallbackAds)
       .filter((ad) => {
         const adPlacement = (ad.placement || 'all').toLowerCase();
         const targetCategory = (ad.targetCategory || 'all').toLowerCase();
@@ -28,7 +40,7 @@ const AdPlacement = ({ placement = 'all', category = '', limit = 2, compact = fa
         return ad.status === 'Active' && matchesPlacement && matchesCategory;
       })
       .slice(0, limit);
-  }, [ads, category, limit, placement]);
+  }, [ads, category, fallbackAds, limit, placement]);
 
   if (visibleAds.length === 0) return null;
 
