@@ -83,12 +83,12 @@ const CategoriesSection = () => {
   return (
     <section className="section-space bg-[linear-gradient(180deg,#fff7ed_0%,#f8fafc_48%,#ffffff_100%)]">
       <div className="site-shell">
-        <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="mb-6 flex flex-col gap-4 lg:mb-7 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
             <span className="inline-flex rounded-full bg-red-950 px-3 py-1 text-xs font-black uppercase tracking-[0.16em] text-amber-200">
               Service Categories
             </span>
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-slate-950 sm:text-4xl">
+            <h2 className="mt-4 text-2xl font-black tracking-tight text-slate-950 sm:text-4xl">
               Find the right service for every need.
             </h2>
             <p className="mt-3 text-sm font-semibold leading-7 text-slate-600 sm:text-base">
@@ -98,14 +98,14 @@ const CategoriesSection = () => {
           <button
             type="button"
             onClick={() => navigate('/services')}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-red-900"
+            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-red-900 sm:w-fit"
           >
             View all services
             <ArrowRight size={17} />
           </button>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {SERVICES.map((service) => {
             const Icon = service.icon;
             const providerCount = providerCountByCategory[service.name] || 0;
@@ -115,32 +115,32 @@ const CategoriesSection = () => {
                 type="button"
                 key={service.id}
                 onClick={() => navigate(`/category/${encodeURIComponent(service.name)}`)}
-                className={`group relative flex min-h-[310px] overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-[0_16px_42px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 ${service.border} hover:shadow-[0_28px_70px_rgba(127,29,29,0.14)]`}
+                className={`group relative flex h-full min-h-[292px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-[0_14px_36px_rgba(15,23,42,0.07)] transition hover:-translate-y-1 ${service.border} hover:shadow-[0_24px_58px_rgba(127,29,29,0.13)] sm:min-h-[320px]`}
               >
-                <div className={`relative w-full bg-gradient-to-br ${service.panel} p-4 text-white sm:p-5`}>
+                <div className={`relative min-h-[150px] w-full bg-gradient-to-br ${service.panel} p-4 text-white sm:min-h-[168px] sm:p-5`}>
                   <div className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(30deg,#fff_12%,transparent_12.5%,transparent_87%,#fff_87.5%,#fff),linear-gradient(150deg,#fff_12%,transparent_12.5%,transparent_87%,#fff_87.5%,#fff)] [background-position:0_0,12px_12px] [background-size:24px_24px]" />
                   <div className="relative flex items-start justify-between gap-3">
-                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/18 text-white ring-1 ring-white/25 backdrop-blur">
-                      <Icon size={24} />
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/18 text-white ring-1 ring-white/25 backdrop-blur sm:h-12 sm:w-12">
+                      <Icon size={22} />
                     </span>
-                    <span className="rounded-full bg-white/18 px-2.5 py-1 text-[11px] font-black uppercase tracking-[0.12em] text-white ring-1 ring-white/20 backdrop-blur">
+                    <span className="shrink-0 rounded-full bg-white/18 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.1em] text-white ring-1 ring-white/20 backdrop-blur sm:text-[11px]">
                       {providerCount} providers
                     </span>
                   </div>
 
-                  <h3 className="relative mt-8 text-2xl font-black leading-tight">{service.name}</h3>
-                  <p className="relative mt-2 line-clamp-2 text-sm font-semibold leading-6 text-white/82">
+                  <h3 className="relative mt-6 text-xl font-black leading-tight sm:mt-8 sm:text-2xl">{service.name}</h3>
+                  <p className="relative mt-2 line-clamp-2 text-xs font-semibold leading-5 text-white/82 sm:text-sm sm:leading-6">
                     {service.description}
                   </p>
                 </div>
 
                 <div className="flex flex-1 flex-col p-4 sm:p-5">
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-xl bg-slate-50 p-3">
+                    <div className="rounded-xl bg-slate-50 p-2.5 sm:p-3">
                       <p className="text-lg font-black text-slate-950">{providerCount}</p>
                       <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">Providers</p>
                     </div>
-                    <div className="rounded-xl bg-slate-50 p-3">
+                    <div className="rounded-xl bg-slate-50 p-2.5 sm:p-3">
                       <p className="text-lg font-black text-slate-950">{service.workTypes.length}</p>
                       <p className="text-[10px] font-black uppercase tracking-[0.12em] text-slate-400">Services</p>
                     </div>
@@ -148,7 +148,7 @@ const CategoriesSection = () => {
 
                   <div className="mt-4 flex flex-wrap gap-1.5">
                     {service.workTypes.slice(0, 3).map((workType) => (
-                      <span key={workType} className={`rounded-lg px-2.5 py-1 text-[11px] font-black ${service.tint}`}>
+                      <span key={workType} className={`max-w-full truncate rounded-lg px-2.5 py-1 text-[11px] font-black ${service.tint}`}>
                         {workType}
                       </span>
                     ))}
@@ -183,14 +183,6 @@ const CategoriesSection = () => {
             </div>
           ))}
         </div>
-
-        <button
-          type="button"
-          onClick={() => navigate('/services')}
-          className="mt-5 w-full rounded-xl bg-slate-950 py-3 font-black text-white shadow-sm transition hover:bg-red-900 md:hidden"
-        >
-          View all services
-        </button>
       </div>
     </section>
   );
