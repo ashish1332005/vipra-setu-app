@@ -7,6 +7,7 @@ const {
   rejectProvider,
   reviewProviderKyc,
   listProviderProfiles,
+  createProviderAccount,
   listServicesAdmin,
   moderateService,
   listRequests,
@@ -34,6 +35,7 @@ router.get('/dashboard', getDashboard);
 router.get('/users', listUsers);
 router.patch('/users/:id/status', updateUserStatus);
 router.get('/providers', listProviderProfiles);
+router.post('/providers', createProviderAccount);
 router.patch('/providers/:id/approve', approveProvider);
 router.patch('/providers/:id/reject', rejectProvider);
 router.patch('/providers/:id/kyc', reviewProviderKyc);

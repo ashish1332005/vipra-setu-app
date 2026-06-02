@@ -155,6 +155,74 @@ const listProviderProfiles = asyncHandler(async (req, res) => {
   res.json({ profiles });
 });
 
+const createProviderAccount = asyncHandler(async (req, res) => {
+  const {
+    name,
+    phone,
+    password,
+    businessName = '',
+    category,
+    city = 'Bhilwara',
+    address = '',
+    skills = [],
+    experienceYears = 0,
+    rate = '',
+    availability = 'Available',
+    isApproved = true,
+  } = req.body;
+  const normalizedPhone = normalizePhone(phone);
+
+  if (!name || !normalizedPhone || !password || !category || !city) {
+    res.status(400);
+    throw new Error('Name, mobile number, password, category, and city are required');
+  }
+
+  const existingUser = await User.findOne({ phone: normalizedPhone });
+  if (existingUser) {
+    res.status(409);
+    throw new Error('Mobile number is already registered');
+  }
+
+  const user = await User.create({
+    name,
+    email: buildPhoneLoginEmail(normalizedPhone),
+    phone: normalizedPhone,
+    password,
+    role: 'service_provider',
+    status: isApproved ? 'active' : 'pending',
+    emailVerifiedAt: new Date(),
+  });
+
+  const profile = await ProviderProfile.create({
+    user: user._id,
+    businessName,
+    category,
+    city,
+    address,
+    skills: normalizeSkills(skills),
+    experienceYears,
+    rate,
+    availability,
+    isApproved,
+    approvalNote: isApproved ? 'Created and approved by admin' : 'Created by admin',
+  });
+
+  await createNotification({
+    user: user._id,
+    title: 'Provider account created',
+    message: isApproved
+      ? 'Your provider account has been created and approved by admin.'
+      : 'Your provider account has been created by admin and is pending approval.',
+    type: 'approval',
+    link: '/provider',
+  });
+
+  const populatedProfile = await ProviderProfile.findById(profile._id)
+    .populate('user', 'name email phone status');
+
+  res.status(201).json({ user, profile: populatedProfile });
+});
+
 const listServicesAdmin = asyncHandler(async (req, res) => {
   const services = await Service.find()
     .populate('provider', 'name email phone status')
@@ -460,6 +528,18 @@ const deleteAd = asyncHandler(async (req, res) => {
   res.json({ message: 'Ad deleted' });
 });
 
+const normalizePhone = (phone = '') => String(phone).replace(/\D/g, '');
+
+const buildPhoneLoginEmail = (phone) => `${phone}@mobile.local`;
+
+const normalizeSkills = (skills = []) => {
+  if (Array.isArray(skills)) return skills.map((skill) => String(skill).trim()).filter(Boolean);
+  return String(skills)
+    .split(',')
+    .map((skill) => skill.trim())
+    .filter(Boolean);
+};
+
 module.exports = {
   getDashboard,
   listUsers,
@@ -468,6 +548,7 @@ module.exports = {
   rejectProvider,
   reviewProviderKyc,
   listProviderProfiles,
+  createProviderAccount,
   listServicesAdmin,
   moderateService,
   listRequests,

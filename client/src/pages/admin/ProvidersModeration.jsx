@@ -1,11 +1,29 @@
 import { useEffect, useState } from 'react';
-import { BadgeCheck, FileCheck2, XCircle } from 'lucide-react';
+import { BadgeCheck, FileCheck2, Plus, UserPlus, XCircle } from 'lucide-react';
 import api from '../../services/api';
+import { SERVICE_CATEGORIES } from '../../data/marketplace';
 import { getApiErrorMessage } from '../../utils/apiError';
+
+const initialForm = {
+  name: '',
+  phone: '',
+  password: '',
+  businessName: '',
+  category: 'Household',
+  city: 'Bhilwara',
+  address: '',
+  skills: '',
+  experienceYears: '',
+  rate: '',
+  availability: 'Available',
+  isApproved: true,
+};
 
 const ProvidersModeration = () => {
   const [profiles, setProfiles] = useState([]);
   const [message, setMessage] = useState('');
+  const [form, setForm] = useState(initialForm);
+  const [creating, setCreating] = useState(false);
 
   const load = () => {
     api.get('/admin/providers')
@@ -25,6 +43,32 @@ const ProvidersModeration = () => {
     }
   };
 
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }));
+  };
+
+  const handleCreateProvider = async (event) => {
+    event.preventDefault();
+    setCreating(true);
+    setMessage('');
+
+    try {
+      await api.post('/admin/providers', {
+        ...form,
+        experienceYears: Number(form.experienceYears || 0),
+        skills: form.skills,
+      });
+      setForm(initialForm);
+      setMessage('Provider account created.');
+      load();
+    } catch (err) {
+      setMessage(getApiErrorMessage(err, 'Unable to create provider account'));
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <section>
       <div className="mb-8">
@@ -32,6 +76,56 @@ const ProvidersModeration = () => {
         <p className="mt-1 text-slate-500">Approve/reject providers, verify KYC, and review subscription status.</p>
       </div>
       {message && <p className="mb-4 rounded-xl bg-blue-50 px-4 py-3 text-sm font-bold text-blue-700">{message}</p>}
+
+      <form onSubmit={handleCreateProvider} className="mb-6 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+            <UserPlus size={21} />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-slate-950">Create Seva Provider</h2>
+            <p className="text-sm font-semibold text-slate-500">Admin se provider account aur profile ek saath banayein.</p>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <Field label="Provider Name" name="name" value={form.name} onChange={handleChange} required />
+          <Field label="Mobile Number" name="phone" type="tel" value={form.phone} onChange={handleChange} required />
+          <Field label="Password" name="password" type="password" value={form.password} onChange={handleChange} required minLength={6} />
+          <Field label="Business Name" name="businessName" value={form.businessName} onChange={handleChange} />
+
+          <label className="grid gap-1.5 text-sm font-bold text-slate-700">
+            Category
+            <select name="category" value={form.category} onChange={handleChange} className={inputClass}>
+              {SERVICE_CATEGORIES.map((category) => (
+                <option key={category.id} value={category.name}>{category.name}</option>
+              ))}
+            </select>
+          </label>
+
+          <Field label="City" name="city" value={form.city} onChange={handleChange} required />
+          <Field label="Skills" name="skills" value={form.skills} onChange={handleChange} placeholder="Plumber, Electrician" />
+          <Field label="Experience Years" name="experienceYears" type="number" value={form.experienceYears} onChange={handleChange} min="0" />
+          <Field label="Rate" name="rate" value={form.rate} onChange={handleChange} placeholder="Custom quote" />
+          <Field label="Availability" name="availability" value={form.availability} onChange={handleChange} />
+          <label className="grid gap-1.5 text-sm font-bold text-slate-700 md:col-span-2">
+            Address
+            <input name="address" value={form.address} onChange={handleChange} className={inputClass} placeholder="Area / full address" />
+          </label>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <label className="inline-flex items-center gap-2 text-sm font-bold text-slate-700">
+            <input type="checkbox" name="isApproved" checked={form.isApproved} onChange={handleChange} className="h-4 w-4 rounded border-slate-300" />
+            Create as approved provider
+          </label>
+          <button disabled={creating} className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-black text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60">
+            <Plus size={17} />
+            {creating ? 'Creating...' : 'Create Provider'}
+          </button>
+        </div>
+      </form>
+
       <div className="grid gap-4">
         {profiles.map((profile) => (
           <article key={profile._id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -39,7 +133,7 @@ const ProvidersModeration = () => {
               <div>
                 <h2 className="text-lg font-black text-slate-950">{profile.businessName || profile.user?.name}</h2>
                 <p className="mt-1 text-sm font-bold text-orange-700">{profile.category} | {profile.city}</p>
-                <p className="mt-2 text-sm text-slate-500">{profile.user?.email} | {profile.user?.phone}</p>
+                <p className="mt-2 text-sm text-slate-500">{formatContact(profile.user)}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Badge label={profile.isApproved ? 'Approved' : 'Pending approval'} tone={profile.isApproved ? 'green' : 'amber'} />
                   <Badge label={`KYC: ${profile.kyc?.status || 'not_submitted'}`} tone="blue" />
@@ -72,6 +166,20 @@ const ProvidersModeration = () => {
       </div>
     </section>
   );
+};
+
+const inputClass = 'w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-950 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
+
+const Field = ({ label, ...props }) => (
+  <label className="grid gap-1.5 text-sm font-bold text-slate-700">
+    {label}
+    <input {...props} className={inputClass} />
+  </label>
+);
+
+const formatContact = (user = {}) => {
+  const email = user.email?.endsWith('@mobile.local') ? '' : user.email;
+  return [email, user.phone].filter(Boolean).join(' | ');
 };
 
 const Badge = ({ label, tone }) => {
