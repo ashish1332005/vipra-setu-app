@@ -94,19 +94,19 @@ const Home = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="mb-5 grid grid-cols-3 gap-2 rounded-xl border border-white/15 bg-white/10 p-2 shadow-[0_14px_40px_rgba(0,0,0,0.12)] backdrop-blur-md sm:w-fit"
+            className="mb-6 grid grid-cols-3 gap-2 rounded-2xl border border-white/18 bg-white/10 p-2.5 shadow-[0_14px_40px_rgba(0,0,0,0.12)] backdrop-blur-md sm:w-fit sm:gap-3 sm:p-3"
           >
             {HERO_BRANDS.map((brand) => (
               <div
                 key={brand.name}
-                className="flex min-w-0 items-center gap-2 rounded-lg border border-white/12 bg-white/10 px-2 py-1.5 text-white sm:px-3"
+                className="flex min-w-0 items-center gap-2 rounded-xl border border-white/18 bg-white/10 px-2 py-2 text-white sm:min-w-40 sm:gap-3 sm:px-3"
               >
                 <img
                   src={brand.image}
                   alt={brand.name}
-                  className="h-7 w-7 shrink-0 rounded-md object-cover ring-1 ring-white/20 sm:h-8 sm:w-8"
+                  className="h-10 w-10 shrink-0 rounded-lg object-cover ring-1 ring-white/25 sm:h-12 sm:w-12"
                 />
-                <span className="truncate text-[10px] font-black leading-tight sm:text-sm">
+                <span className="min-w-0 text-[11px] font-black leading-tight sm:text-sm">
                   {brand.name}
                 </span>
               </div>
@@ -120,17 +120,7 @@ const Home = () => {
               transition={{ duration: 0.55 }}
               className="text-white"
             >
-              <div className="shine-sweep inline-flex max-w-full items-center gap-3 rounded-full border border-white/15 bg-white/10 py-1.5 pl-1.5 pr-4 shadow-[0_16px_45px_rgba(0,0,0,0.12)] backdrop-blur-md">
-                <img src={logo} alt="Vipra Sewa Setu" className="h-10 w-10 rounded-full object-cover" />
-                <span className="min-w-0">
-                  <span className="block text-sm font-black leading-tight">Vipra Sewa Setu</span>
-                  <span className="block text-[10px] font-black uppercase tracking-[0.18em] text-amber-200">
-                    धर्म | सेवा | समाज
-                  </span>
-                </span>
-              </div>
-
-              <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-amber-200">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-200">
                 Namaste, {currentUser.name}
               </p>
               <h1 className="mt-3 max-w-3xl text-[2.15rem] font-black leading-[1.03] tracking-tight sm:text-5xl lg:text-[4.1rem]">
