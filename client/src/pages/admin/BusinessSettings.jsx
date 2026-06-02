@@ -44,7 +44,7 @@ const BusinessSettings = () => {
     setMessage('Category saved.');
     setCategoryForm({ name: '', description: '', serviceTypes: '' });
     load();
-    loadMarketplace();
+    await loadMarketplace();
   };
 
   const addServiceToCategory = async (category) => {
@@ -52,7 +52,8 @@ const BusinessSettings = () => {
     const serviceName = serviceDrafts[draftKey]?.trim();
     if (!serviceName) return;
 
-    const nextServiceTypes = [...new Set([...(category.serviceTypes || []), serviceName])];
+    const currentServices = getCategoryServices(category);
+    const nextServiceTypes = [...new Set([...currentServices, serviceName])];
     await api.post('/admin/categories', {
       name: category.name,
       description: category.description,
@@ -62,7 +63,7 @@ const BusinessSettings = () => {
     setServiceDrafts((current) => ({ ...current, [draftKey]: '' }));
     setMessage('Service added to category.');
     load();
-    loadMarketplace();
+    await loadMarketplace();
   };
 
   return (
@@ -103,17 +104,18 @@ const BusinessSettings = () => {
         <div className="mt-6 space-y-2">
           {displayedCategories.map((category) => {
             const draftKey = category._id || category.name;
+            const services = getCategoryServices(category);
 
             return (
             <div key={draftKey} className="rounded-xl bg-slate-50 px-4 py-3">
               <p className="text-sm font-black text-slate-900">{category.name}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {(category.serviceTypes || []).map((service) => (
+                {services.map((service) => (
                   <span key={service} className="rounded-lg bg-white px-2.5 py-1 text-xs font-black text-slate-600 ring-1 ring-slate-200">
                     {service}
                   </span>
                 ))}
-                {(category.serviceTypes || []).length === 0 && (
+                {services.length === 0 && (
                   <span className="text-xs font-medium text-slate-500">No service types</span>
                 )}
               </div>
@@ -147,5 +149,11 @@ const Input = ({ label, value, onChange, type = 'text', placeholder = '' }) => (
     <input type={type} value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none" />
   </label>
 );
+
+const getCategoryServices = (category = {}) => {
+  if (Array.isArray(category.serviceTypes)) return category.serviceTypes.filter(Boolean);
+  if (Array.isArray(category.workTypes)) return category.workTypes.filter(Boolean);
+  return [];
+};
 
 export default BusinessSettings;
