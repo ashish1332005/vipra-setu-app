@@ -17,8 +17,10 @@ const UsersManagement = () => {
   }, [loadAdminUsers]);
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const normalizedSearch = searchTerm.toLowerCase();
+    const matchesSearch = user.name.toLowerCase().includes(normalizedSearch)
+      || (user.email || '').toLowerCase().includes(normalizedSearch)
+      || (user.phone || '').toLowerCase().includes(normalizedSearch);
     const matchesFilter = statusFilter === 'All' || user.status === statusFilter;
     return matchesSearch && matchesFilter;
   });
@@ -98,7 +100,7 @@ const UsersManagement = () => {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h2 className="truncate font-black text-slate-950">{user.name}</h2>
-                  <p className="mt-1 truncate text-xs font-semibold text-slate-500">{user.email}</p>
+                  {user.email && <p className="mt-1 truncate text-xs font-semibold text-slate-500">{user.email}</p>}
                   <p className="mt-0.5 text-xs font-semibold text-slate-500">{user.phone}</p>
                 </div>
                 <button
@@ -187,7 +189,7 @@ const UsersManagement = () => {
                     <div className="text-xs text-slate-500 mt-0.5">ID: {user.id}</div>
                   </td>
                   <td className="py-4 px-6">
-                    <div className="text-sm text-slate-700">{user.email}</div>
+                    {user.email && <div className="text-sm text-slate-700">{user.email}</div>}
                     <div className="text-xs text-slate-500">{user.phone}</div>
                   </td>
                   <td className="py-4 px-6">

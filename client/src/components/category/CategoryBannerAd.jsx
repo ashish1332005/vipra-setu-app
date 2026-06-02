@@ -10,8 +10,8 @@ const CategoryBannerAd = ({ categoryName = '' }) => {
   // Only show active banner ads
   const activeAds = useMemo(
     () => ads.filter((ad) => {
-      const targetCategory = (ad.targetCategory || 'all').toLowerCase();
-      const currentCategory = categoryName.toLowerCase();
+      const targetCategory = normalizeCategory(ad.targetCategory || 'all');
+      const currentCategory = normalizeCategory(categoryName);
       const placement = (ad.placement || 'all').toLowerCase();
       const matchesCategory = targetCategory === 'all' || targetCategory === currentCategory;
       const matchesPlacement = ['all', 'category'].includes(placement);
@@ -134,5 +134,7 @@ const CategoryBannerAd = ({ categoryName = '' }) => {
     </div>
   );
 };
+
+const normalizeCategory = (value = '') => value.trim().toLowerCase();
 
 export default CategoryBannerAd;

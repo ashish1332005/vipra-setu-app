@@ -3,7 +3,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Megaphone } from 'lucide-react';
 import { useGlobalContext } from '../context/GlobalContext';
 import { getMediaUrl } from '../utils/media';
 
-const TopAdCarousel = ({ placement = 'home' }) => {
+const TopAdCarousel = ({ placement = 'home', category = '' }) => {
   const { ads } = useGlobalContext();
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -12,9 +12,14 @@ const TopAdCarousel = ({ placement = 'home' }) => {
       const isActive = ad.status === 'Active';
       const isBanner = ['Home Rail', 'Category Banner'].includes(ad.type);
       const matchesPlacement = ['all', placement].includes((ad.placement || 'all').toLowerCase());
-      return isActive && isBanner && matchesPlacement;
+      const targetCategory = normalizeCategory(ad.targetCategory || 'all');
+      const currentCategory = normalizeCategory(category);
+      const matchesCategory = currentCategory
+        ? targetCategory === 'all' || targetCategory === currentCategory
+        : targetCategory === 'all';
+      return isActive && isBanner && matchesPlacement && matchesCategory;
     })
-  ), [ads, placement]);
+  ), [ads, category, placement]);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -131,5 +136,7 @@ const TopAdCarousel = ({ placement = 'home' }) => {
     </section>
   );
 };
+
+const normalizeCategory = (value = '') => value.trim().toLowerCase();
 
 export default TopAdCarousel;

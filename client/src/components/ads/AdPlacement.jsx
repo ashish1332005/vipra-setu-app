@@ -8,28 +8,34 @@ const AdPlacement = ({ placement = 'all', category = '', limit = 10, compact = f
   const [fallbackAds, setFallbackAds] = useState([]);
 
   useEffect(() => {
-    if (ads.length > 0) return;
+    if (ads.length > 0 && !category) return;
+
+    const params = {};
+    if (currentUser?.role) params.role = currentUser.role;
+    if (category) params.category = category;
 
     api.get('/ads', {
-      params: currentUser?.role ? { role: currentUser.role } : undefined,
+      params: Object.keys(params).length > 0 ? params : undefined,
     })
       .then(({ data }) => setFallbackAds(data.ads || []))
       .catch(() => setFallbackAds([]));
-  }, [ads.length, currentUser?.role]);
+  }, [ads.length, category, currentUser?.role]);
 
   const visibleAds = useMemo(() => {
     const currentPlacement = placement.toLowerCase();
-    const currentCategory = category.toLowerCase();
-    const isCategoryAwarePlacement = ['category', 'services'].includes(currentPlacement);
+    const currentCategory = normalizeCategory(category);
+    const sourceAds = category
+      ? dedupeAds([...ads, ...fallbackAds])
+      : (ads.length > 0 ? ads : fallbackAds);
 
-    return (ads.length > 0 ? ads : fallbackAds)
+    return sourceAds
       .filter((ad) => {
         const adPlacement = (ad.placement || 'all').toLowerCase();
-        const targetCategory = (ad.targetCategory || 'all').toLowerCase();
+        const targetCategory = normalizeCategory(ad.targetCategory || 'all');
         const matchesPlacement = adPlacement === 'all' || adPlacement === currentPlacement;
-        const matchesCategory = isCategoryAwarePlacement
-          ? targetCategory === 'all' || (currentCategory && targetCategory === currentCategory)
-          : true;
+        const matchesCategory = currentCategory
+          ? targetCategory === 'all' || targetCategory === currentCategory
+          : targetCategory === 'all';
 
         return ad.status === 'Active' && matchesPlacement && matchesCategory;
       })
@@ -71,6 +77,19 @@ const AdPlacement = ({ placement = 'all', category = '', limit = 10, compact = f
       </div>
     </section>
   );
+};
+
+const normalizeCategory = (value = '') => value.trim().toLowerCase();
+
+const dedupeAds = (items = []) => {
+  const seen = new Set();
+  return items.filter((item) => {
+    const key = item?._id || item?.id;
+    if (!key) return true;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 };
 
 export default AdPlacement;

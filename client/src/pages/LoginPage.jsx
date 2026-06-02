@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -6,7 +6,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Lock,
-  Mail,
   Phone,
   ShieldCheck,
   Sparkles,
@@ -27,7 +26,6 @@ const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
     phone: '',
     password: '',
     role: 'service_taker',
@@ -36,8 +34,7 @@ const LoginPage = () => {
   const [messageType, setMessageType] = useState('info');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login, register, verifyEmail, resendVerification, authLoading, authError } = useGlobalContext();
-  const hasVerifiedLink = useRef(false);
+  const { login, register, authLoading, authError } = useGlobalContext();
 
   const navigateByRole = useCallback((user) => {
     if (user.role === 'admin') navigate('/admin', { replace: true });
@@ -48,25 +45,7 @@ const LoginPage = () => {
     if (searchParams.get('mode') === 'signup') {
       setIsLogin(false);
     }
-
-    const token = searchParams.get('verifyToken');
-    if (!token || hasVerifiedLink.current) return;
-
-    hasVerifiedLink.current = true;
-    setMessageType('info');
-    setMessage('Verifying your email...');
-
-    verifyEmail(token)
-      .then((user) => {
-        setMessageType('success');
-        setMessage('Email verified successfully.');
-        navigateByRole(user);
-      })
-      .catch((error) => {
-        setMessageType('error');
-        setMessage(error.message);
-      });
-  }, [navigateByRole, searchParams, verifyEmail]);
+  }, [searchParams]);
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
@@ -90,42 +69,6 @@ const LoginPage = () => {
         setMessage(data.message || 'Account created successfully.');
         navigateByRole(data.user);
       }
-    } catch (error) {
-      setMessageType('error');
-      setMessage(error.message);
-    }
-  };
-
-  const handleVerifyFromLink = async () => {
-    const token = searchParams.get('verifyToken');
-    if (!token) {
-      setMessageType('error');
-      setMessage('Verification token not found in URL.');
-      return;
-    }
-
-    try {
-      const user = await verifyEmail(token);
-      setMessageType('success');
-      setMessage('Email verified successfully.');
-      navigateByRole(user);
-    } catch (error) {
-      setMessageType('error');
-      setMessage(error.message);
-    }
-  };
-
-  const handleResend = async () => {
-    if (!formData.email) {
-      setMessageType('error');
-      setMessage('Enter your email first, then resend verification.');
-      return;
-    }
-
-    try {
-      const data = await resendVerification(formData.email);
-      setMessageType('success');
-      setMessage(data.verificationToken ? `Verification sent. Dev token: ${data.verificationToken}` : data.message);
     } catch (error) {
       setMessageType('error');
       setMessage(error.message);
@@ -294,16 +237,6 @@ const LoginPage = () => {
                 </div>
 
                 <form className="mt-5 space-y-3.5 sm:mt-6 sm:space-y-4" onSubmit={handleSubmit}>
-                  {searchParams.get('verifyToken') && (
-                    <button
-                      type="button"
-                      onClick={handleVerifyFromLink}
-                      className="w-full rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700"
-                    >
-                      Verify Email From Link
-                    </button>
-                  )}
-
                   {!isLogin && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
                       <label className="mb-2 block text-sm font-bold text-slate-700">Full Name</label>
@@ -323,14 +256,14 @@ const LoginPage = () => {
                   )}
 
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-700">Email</label>
+                    <label className="mb-2 block text-sm font-bold text-slate-700">Mobile Number</label>
                     <div className="relative">
-                      <Mail size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-700" />
+                      <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-700" />
                       <input
-                        name="email"
-                        type="email"
-                        placeholder="Enter your email"
-                        value={formData.email}
+                        name="phone"
+                        type="tel"
+                        placeholder="Enter mobile number"
+                        value={formData.phone}
                         onChange={handleChange}
                         required
                         className={inputClass}
@@ -340,22 +273,6 @@ const LoginPage = () => {
 
                   {!isLogin && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4">
-                      <div>
-                        <label className="mb-2 block text-sm font-bold text-slate-700">Mobile Number</label>
-                        <div className="relative">
-                          <Phone size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-sky-700" />
-                          <input
-                            name="phone"
-                            type="tel"
-                            placeholder="Enter mobile number"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            required={!isLogin}
-                            className={inputClass}
-                          />
-                        </div>
-                      </div>
-
                       <div>
                         <label className="mb-2 block text-sm font-bold text-slate-700">Account Type</label>
                         <select
@@ -420,13 +337,6 @@ const LoginPage = () => {
                     className="text-sm font-bold text-slate-500 transition hover:text-sky-700"
                   >
                     {isLogin ? "Don't have an account? Create one" : 'Already have an account? Login'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleResend}
-                    className="mt-3 block w-full text-xs font-bold text-slate-500 underline decoration-slate-300 underline-offset-4 transition hover:text-sky-700"
-                  >
-                    Resend email verification
                   </button>
                 </div>
               </div>

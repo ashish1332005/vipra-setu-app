@@ -93,12 +93,12 @@ export const GlobalProvider = ({ children }) => {
     return data.ad;
   };
 
-  const login = async ({ email, password }) => {
+  const login = async ({ phone, password }) => {
     setAuthLoading(true);
     setAuthError('');
 
     try {
-      const { data } = await api.post('/auth/login', { email, password });
+      const { data } = await api.post('/auth/login', { phone, password });
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       setCurrentUser(data.user);
@@ -112,12 +112,12 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
-  const register = async ({ name, email, phone, password, role }) => {
+  const register = async ({ name, phone, password, role }) => {
     setAuthLoading(true);
     setAuthError('');
 
     try {
-      const { data } = await api.post('/auth/register', { name, email, phone, password, role });
+      const { data } = await api.post('/auth/register', { name, phone, password, role });
       if (data.token) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
@@ -171,7 +171,7 @@ export const GlobalProvider = ({ children }) => {
       const mappedUsers = data.users.map((user) => ({
         id: user._id,
         name: user.name,
-        email: user.email,
+        email: getDisplayEmail(user.email),
         phone: user.phone,
         role: formatRole(user.role),
         rawRole: user.role,
@@ -301,7 +301,7 @@ const mapProviderToWorker = (provider, serviceCountByProvider = {}) => {
     availability: provider.availability || 'Available',
     tags: skillTags,
     phone: user.phone,
-    email: user.email,
+    email: getDisplayEmail(user.email),
     isApproved: provider.isApproved,
     status: user.status,
     profileScore,
@@ -309,3 +309,5 @@ const mapProviderToWorker = (provider, serviceCountByProvider = {}) => {
     responseLabel: provider.availability?.toLowerCase().includes('today') ? 'Fast response' : 'Listed provider',
   };
 };
+
+const getDisplayEmail = (email = '') => email.endsWith('@mobile.local') ? '' : email;

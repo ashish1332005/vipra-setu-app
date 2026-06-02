@@ -7,11 +7,13 @@ const env = require('../config/env');
 const { sendEmail } = require('../utils/email');
 
 const register = asyncHandler(async (req, res) => {
-  const { name, email, phone, password, role = 'service_taker', providerProfile } = req.body;
+  const { name, phone, password, role = 'service_taker', providerProfile } = req.body;
 
-  if (!name || !email || !phone || !password) {
+  const normalizedPhone = normalizePhone(phone);
+
+  if (!name || !normalizedPhone || !password) {
     res.status(400);
-    throw new Error('Name, email, phone, and password are required');
+    throw new Error('Name, mobile number, and password are required');
   }
 
   if (!['service_provider', 'service_taker'].includes(role)) {
@@ -19,16 +21,16 @@ const register = asyncHandler(async (req, res) => {
     throw new Error('Invalid registration role');
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ phone: normalizedPhone });
   if (existingUser) {
     res.status(409);
-    throw new Error('User already exists');
+    throw new Error('Mobile number is already registered');
   }
 
   const user = await User.create({
     name,
-    email,
-    phone,
+    email: buildPhoneLoginEmail(normalizedPhone),
+    phone: normalizedPhone,
     password,
     role,
     status: role === 'service_provider' ? 'pending' : 'active',
@@ -57,17 +59,19 @@ const register = asyncHandler(async (req, res) => {
 });
 
 const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { phone, password } = req.body;
 
-  if (!email || !password) {
+  const normalizedPhone = normalizePhone(phone);
+
+  if (!normalizedPhone || !password) {
     res.status(400);
-    throw new Error('Email and password are required');
+    throw new Error('Mobile number and password are required');
   }
 
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ phone: normalizedPhone }).select('+password');
   if (!user || !(await user.matchPassword(password))) {
     res.status(401);
-    throw new Error('Invalid email or password');
+    throw new Error('Invalid mobile number or password');
   }
 
   if (user.status === 'banned') {
@@ -139,13 +143,19 @@ const resendVerification = asyncHandler(async (req, res) => {
 const sanitizeUser = (user) => ({
   id: user._id,
   name: user.name,
-  email: user.email,
+  email: isPhoneLoginEmail(user.email) ? '' : user.email,
   phone: user.phone,
   role: user.role,
   status: user.status,
   emailVerifiedAt: user.emailVerifiedAt,
   isEmailVerified: Boolean(user.emailVerifiedAt),
 });
+
+const normalizePhone = (phone = '') => String(phone).replace(/\D/g, '');
+
+const buildPhoneLoginEmail = (phone) => `${phone}@mobile.local`;
+
+const isPhoneLoginEmail = (email = '') => email.endsWith('@mobile.local');
 
 const issueEmailVerification = async (user) => {
   const token = crypto.randomBytes(32).toString('hex');
