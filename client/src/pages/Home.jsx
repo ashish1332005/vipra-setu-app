@@ -13,8 +13,10 @@ import { Link, Navigate } from 'react-router-dom';
 
 import CategoriesSection from '../components/CategoriesSection';
 import WorkersSection from '../components/WorkersSection';
+import bpfLogo from '../assets/bpf.jpeg';
 import logo from '../assets/logo.jpeg';
 import parshuramHero from '../assets/parshuram-hero.png';
+import vipraSenaLogo from '../assets/viprasena.jpeg';
 import { useGlobalContext } from '../context/GlobalContext';
 
 const QUICK_ACTIONS = [
@@ -39,6 +41,12 @@ const USER_STEPS = [
   { title: 'Choose a service', text: 'Select a category or search by your need.', icon: Search },
   { title: 'Send request', text: 'Add date, location, budget, and contact details.', icon: CalendarPlus },
   { title: 'Track work', text: 'View replies, status, and history in your dashboard.', icon: LayoutDashboard },
+];
+
+const HERO_BRANDS = [
+  { name: 'Vipra Sewa Setu', image: logo },
+  { name: 'Vipra Sena', image: vipraSenaLogo },
+  { name: 'BPF', image: bpfLogo },
 ];
 
 const Home = () => {
@@ -82,6 +90,29 @@ const Home = () => {
         <div className="culture-pattern absolute inset-x-0 top-0 h-[80%] opacity-70" />
 
         <div className="site-shell relative py-6 sm:py-10 lg:py-14">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+            className="mb-6 flex max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-white/15 bg-white/10 p-2 shadow-[0_18px_50px_rgba(0,0,0,0.14)] backdrop-blur-md [scrollbar-width:none] sm:gap-3 sm:p-3 [&::-webkit-scrollbar]:hidden"
+          >
+            {HERO_BRANDS.map((brand) => (
+              <div
+                key={brand.name}
+                className="flex min-w-fit items-center gap-2 rounded-xl border border-white/12 bg-white/10 px-2.5 py-2 text-white sm:gap-3 sm:px-4"
+              >
+                <img
+                  src={brand.image}
+                  alt={brand.name}
+                  className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-white/20 sm:h-11 sm:w-11"
+                />
+                <span className="text-sm font-black leading-tight sm:text-base">
+                  {brand.name}
+                </span>
+              </div>
+            ))}
+          </motion.div>
+
           <div className="grid gap-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(420px,1.05fr)] lg:items-center">
             <motion.div
               initial={{ opacity: 0, y: 18 }}
