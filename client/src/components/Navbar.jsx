@@ -11,7 +11,6 @@ import {
   UserRound,
 } from 'lucide-react';
 
-import { CATEGORIES } from '../data/marketplace';
 import { useGlobalContext } from '../context/GlobalContext';
 import logo from '../assets/logo.jpeg';
 
@@ -45,7 +44,7 @@ const getBottomLinkClass = ({ isActive }) =>
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const { currentUser, marketplaceWorkers } = useGlobalContext();
+  const { currentUser, marketplaceWorkers, categoryOptions } = useGlobalContext();
   const [hasNotification, setHasNotification] = useState(true);
   const [activePanel, setActivePanel] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,7 +62,7 @@ const Navbar = () => {
   const trimmedSearch = searchQuery.trim().toLowerCase();
   const searchResults = trimmedSearch
     ? [
-        ...CATEGORIES.filter((category) =>
+        ...categoryOptions.filter((category) =>
           category.name.toLowerCase().includes(trimmedSearch)
         ).map((category) => ({
           label: category.name,
@@ -86,7 +85,7 @@ const Navbar = () => {
           to: `/category/${encodeURIComponent(worker.category)}`,
         })),
       ].slice(0, 5)
-    : CATEGORIES.slice(0, 4).map((category) => ({
+    : categoryOptions.slice(0, 4).map((category) => ({
         label: category.name,
         meta: category.description,
         to: `/category/${encodeURIComponent(category.name)}`,

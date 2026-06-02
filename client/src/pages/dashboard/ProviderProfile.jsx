@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { BadgeCheck, CheckCircle2, CircleAlert, TrendingUp } from 'lucide-react';
 import api from '../../services/api';
-import { SERVICE_CATEGORIES } from '../../data/marketplace';
+import { useGlobalContext } from '../../context/GlobalContext';
 import { getApiErrorMessage } from '../../utils/apiError';
 
 const ProviderProfile = () => {
@@ -16,6 +16,7 @@ const ProviderProfile = () => {
     availability: 'Available today',
   });
   const [message, setMessage] = useState('');
+  const { serviceCategories } = useGlobalContext();
   const profileTasks = useMemo(() => [
     { label: 'Business name', done: Boolean(form.businessName.trim()) },
     { label: 'Category selected', done: Boolean(form.category) },
@@ -65,7 +66,7 @@ const ProviderProfile = () => {
           <label className="block">
             <span className="text-sm font-bold text-slate-600">Category</span>
             <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 font-semibold outline-none focus:border-orange-500">
-              {SERVICE_CATEGORIES.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
+              {serviceCategories.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
             </select>
           </label>
           <Input label="City" name="city" value={form.city} onChange={setForm} />

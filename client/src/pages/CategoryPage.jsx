@@ -23,7 +23,7 @@ const CategoryPage = () => {
   const { categoryName } = useParams();
   const navigate = useNavigate();
   const decodedCategory = decodeURIComponent(categoryName);
-  const { currentUser, marketplaceWorkers, marketplaceLoading, marketplaceError, loadMarketplace } = useGlobalContext();
+  const { currentUser, marketplaceWorkers, marketplaceLoading, marketplaceError, loadMarketplace, serviceCategories } = useGlobalContext();
   const [selectedService, setSelectedService] = useState('');
   const [providerQuery, setProviderQuery] = useState('');
   const [sortBy, setSortBy] = useState('recommended');
@@ -38,16 +38,16 @@ const CategoryPage = () => {
   });
   const [requestMessage, setRequestMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const categoryConfig = getCategoryConfig(decodedCategory);
+  const categoryConfig = getCategoryConfig(decodedCategory, serviceCategories);
   const displayCategory = categoryConfig?.name || decodedCategory;
   const workTypes = categoryConfig?.workTypes || [];
   const activeService = selectedService || workTypes[0] || displayCategory;
 
   const categoryWorkers = useMemo(() => {
     return marketplaceWorkers.filter(
-      worker => worker.category && isSameCategory(worker.category, displayCategory)
+      worker => worker.category && isSameCategory(worker.category, displayCategory, serviceCategories)
     );
-  }, [displayCategory, marketplaceWorkers]);
+  }, [displayCategory, marketplaceWorkers, serviceCategories]);
 
   const serviceWorkers = useMemo(() => {
     const normalizedQuery = providerQuery.trim().toLowerCase();

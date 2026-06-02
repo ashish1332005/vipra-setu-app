@@ -12,6 +12,7 @@ const serviceTakerRoutes = require('./routes/serviceTakerRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const adRoutes = require('./routes/adRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 
 const app = express();
 const allowedOrigins = new Set([
@@ -61,6 +62,7 @@ app.use('/api/service-takers', serviceTakerRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/ads', adRoutes);
+app.use('/api/categories', categoryRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });

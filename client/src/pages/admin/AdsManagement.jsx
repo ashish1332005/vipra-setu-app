@@ -1,7 +1,6 @@
 import { ImagePlus, Link as LinkIcon, Megaphone, Pause, Play, Plus, UploadCloud } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
-import { SERVICE_CATEGORIES } from '../../data/marketplace';
 import api from '../../services/api';
 import { getApiErrorMessage } from '../../utils/apiError';
 import { getMediaUrl } from '../../utils/media';
@@ -22,7 +21,7 @@ const emptyForm = {
 };
 
 const AdsManagement = () => {
-  const { ads, adsLoading, loadAds, createAd, toggleAdStatus } = useGlobalContext();
+  const { ads, adsLoading, loadAds, createAd, toggleAdStatus, serviceCategories } = useGlobalContext();
   const [form, setForm] = useState(emptyForm);
   const [uploadMode, setUploadMode] = useState('upload');
   const [preview, setPreview] = useState('');
@@ -150,7 +149,7 @@ const AdsManagement = () => {
                 className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
               >
                 <option value="all">All service categories</option>
-                {SERVICE_CATEGORIES.map((category) => (
+                {serviceCategories.map((category) => (
                   <option key={category.id} value={category.name}>
                     Only {category.name}
                   </option>

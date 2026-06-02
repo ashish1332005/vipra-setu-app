@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, CalendarClock, CheckCircle2, ClipboardCheck, MapPin, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import api from '../../services/api';
-import { SERVICE_CATEGORIES } from '../../data/marketplace';
+import { useGlobalContext } from '../../context/GlobalContext';
 import { getApiErrorMessage } from '../../utils/apiError';
 
 const initialForm = {
@@ -67,6 +67,7 @@ const TakerBookingAssistant = () => {
   const [providers, setProviders] = useState([]);
   const [message, setMessage] = useState('');
   const [step, setStep] = useState(1);
+  const { serviceCategories } = useGlobalContext();
 
   useEffect(() => {
     api.get('/providers').then(({ data }) => setProviders(data.providers || []));
@@ -77,6 +78,8 @@ const TakerBookingAssistant = () => {
     .sort((left, right) => (right.rating || 0) - (left.rating || 0))
     .slice(0, 6), [form.category, form.city, providers]);
   const selectedProvider = matchingProviders.find((provider) => provider.user?._id === form.provider);
+  const selectedCategoryConfig = serviceCategories.find((category) => category.name === form.category);
+  const requestTemplates = REQUEST_TEMPLATES[form.category] || selectedCategoryConfig?.workTypes || [];
   const canContinueDetails = form.title.trim().length > 2;
   const canSubmit = Boolean(form.title.trim() || form.description.trim() || selectedProvider);
 
@@ -134,10 +137,10 @@ const TakerBookingAssistant = () => {
             <div className="space-y-4">
               <h3 className="text-2xl font-black text-slate-950">What service do you need?</h3>
               <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} className="w-full rounded-xl border border-slate-200 px-4 py-3 font-bold outline-none">
-                {SERVICE_CATEGORIES.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
+                {serviceCategories.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
               </select>
               <div className="grid gap-2 sm:grid-cols-2">
-                {(REQUEST_TEMPLATES[form.category] || []).map((template) => (
+                {requestTemplates.map((template) => (
                   <button
                     key={template}
                     type="button"

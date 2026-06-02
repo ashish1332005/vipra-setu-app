@@ -1,11 +1,10 @@
 import { Search, Sparkles, Star } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CATEGORIES } from '../data/marketplace';
 import { useGlobalContext } from '../context/GlobalContext';
 
 const QuickFindSection = () => {
-  const { marketplaceWorkers } = useGlobalContext();
+  const { marketplaceWorkers, categoryOptions } = useGlobalContext();
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -60,7 +59,7 @@ const QuickFindSection = () => {
               </label>
 
               <div className="mt-6 flex flex-wrap gap-3">
-                {['All', ...CATEGORIES.map((category) => category.name)].map((category) => (
+                {['All', ...categoryOptions.map((category) => category.name)].map((category) => (
                   <button
                     key={category}
                     type="button"
@@ -85,7 +84,7 @@ const QuickFindSection = () => {
                 </div>
                 <div className="rounded-2xl bg-white/10 p-4">
                   <p className="text-sm uppercase tracking-[0.2em] text-light/60">Categories</p>
-                  <p className="mt-2 text-3xl font-bold">{activeCategory === 'All' ? CATEGORIES.length : 1}</p>
+                  <p className="mt-2 text-3xl font-bold">{activeCategory === 'All' ? categoryOptions.length : 1}</p>
                 </div>
               </div>
 

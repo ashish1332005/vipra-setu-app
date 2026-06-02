@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Bookmark, BriefcaseBusiness, CheckCircle2, Flag, MapPin, Search, Send, ShieldCheck, Star } from 'lucide-react';
 import api from '../../services/api';
-import { SERVICE_CATEGORIES } from '../../data/marketplace';
+import { useGlobalContext } from '../../context/GlobalContext';
 import { getApiErrorMessage } from '../../utils/apiError';
 
 const TakerProviders = () => {
@@ -12,6 +12,7 @@ const TakerProviders = () => {
   const [sortBy, setSortBy] = useState('recommended');
   const [compareIds, setCompareIds] = useState([]);
   const [message, setMessage] = useState('');
+  const { serviceCategories } = useGlobalContext();
 
   const load = () => {
     Promise.all([
@@ -106,7 +107,7 @@ const TakerProviders = () => {
             </label>
             <select value={category} onChange={(event) => setCategory(event.target.value)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none">
               <option value="All">All Categories</option>
-              {SERVICE_CATEGORIES.map((item) => <option key={item.id} value={item.name}>{item.name}</option>)}
+              {serviceCategories.map((item) => <option key={item.id} value={item.name}>{item.name}</option>)}
             </select>
             <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none">
               <option value="recommended">Recommended</option>

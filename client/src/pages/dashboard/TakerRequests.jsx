@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CalendarClock, CheckCircle2, IndianRupee, Plus, Star, X } from 'lucide-react';
 import api from '../../services/api';
-import { SERVICE_CATEGORIES } from '../../data/marketplace';
+import { useGlobalContext } from '../../context/GlobalContext';
 import { getApiErrorMessage } from '../../utils/apiError';
 
 const initialForm = {
@@ -19,6 +19,7 @@ const TakerRequests = () => {
   const [requests, setRequests] = useState([]);
   const [form, setForm] = useState(initialForm);
   const [message, setMessage] = useState('');
+  const { serviceCategories } = useGlobalContext();
 
   const loadRequests = () => {
     api.get('/service-takers/me/requests').then(({ data }) => setRequests(data.requests));
@@ -87,7 +88,7 @@ const TakerRequests = () => {
           <label className="block">
             <span className="text-sm font-bold text-slate-600">Category</span>
             <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 font-semibold outline-none focus:border-amber-500">
-              {SERVICE_CATEGORIES.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
+              {serviceCategories.map((category) => <option key={category.id} value={category.name}>{category.name}</option>)}
             </select>
           </label>
           <Field label="City" value={form.city} onChange={(value) => setForm({ ...form, city: value })} required />

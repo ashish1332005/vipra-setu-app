@@ -13,7 +13,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { SERVICES } from '../components/CategoriesSection';
+import { buildServices } from '../components/CategoriesSection';
 import { useGlobalContext } from '../context/GlobalContext';
 import logo from '../assets/logo.jpeg';
 import parshuramHero from '../assets/parshuram-hero.png';
@@ -22,9 +22,10 @@ const ALL_FILTER = 'All';
 
 const ServicesPage = () => {
   const navigate = useNavigate();
-  const { providers, marketplaceLoading, marketplaceError } = useGlobalContext();
+  const { providers, marketplaceLoading, marketplaceError, serviceCategories } = useGlobalContext();
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(ALL_FILTER);
+  const services = useMemo(() => buildServices(serviceCategories), [serviceCategories]);
 
   const providerCountByCategory = useMemo(() => providers.reduce((counts, provider) => {
     counts[provider.category] = (counts[provider.category] || 0) + 1;
@@ -34,7 +35,7 @@ const ServicesPage = () => {
   const filteredServices = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return SERVICES.filter((service) => {
+    return services.filter((service) => {
       const matchesCategory = activeCategory === ALL_FILTER || service.name === activeCategory;
       const searchableText = [
         service.name,
@@ -46,9 +47,9 @@ const ServicesPage = () => {
 
       return matchesCategory && matchesQuery;
     });
-  }, [activeCategory, query]);
+  }, [activeCategory, query, services]);
 
-  const totalWorkTypes = SERVICES.reduce((total, service) => total + service.workTypes.length, 0);
+  const totalWorkTypes = services.reduce((total, service) => total + service.workTypes.length, 0);
   const hasSearch = query.trim().length > 0 || activeCategory !== ALL_FILTER;
 
   const clearFilters = () => {
@@ -111,7 +112,7 @@ const ServicesPage = () => {
                   <p className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-200">सेवा Directory</p>
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     {[
-                      [SERVICES.length, 'Categories', BriefcaseBusiness],
+                      [services.length, 'Categories', BriefcaseBusiness],
                       [marketplaceLoading ? '...' : providers.length, 'Providers', UsersRound],
                       [totalWorkTypes, 'Services', ShieldCheck],
                     ].map(([value, label, Icon]) => (
@@ -152,7 +153,7 @@ const ServicesPage = () => {
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-amber-300">
                 <SlidersHorizontal size={16} />
               </span>
-              {[ALL_FILTER, ...SERVICES.map((service) => service.name)].map((category) => {
+              {[ALL_FILTER, ...services.map((service) => service.name)].map((category) => {
                 const isActive = activeCategory === category;
 
                 return (

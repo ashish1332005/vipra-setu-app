@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import api from '../services/api';
+import { mergeServiceCategories, toCategoryOptions } from '../data/marketplace';
 import { getApiErrorMessage } from '../utils/apiError';
 
 const GlobalContext = createContext();
@@ -17,6 +18,7 @@ export const GlobalProvider = ({ children }) => {
   const [usersLoading, setUsersLoading] = useState(false);
   const [services, setServices] = useState([]);
   const [providers, setProviders] = useState([]);
+  const [categoryConfigs, setCategoryConfigs] = useState([]);
   const [marketplaceLoading, setMarketplaceLoading] = useState(true);
   const [marketplaceError, setMarketplaceError] = useState('');
   const [ads, setAds] = useState([]);
@@ -27,12 +29,14 @@ export const GlobalProvider = ({ children }) => {
     setMarketplaceError('');
 
     try {
-      const [servicesRes, providersRes] = await Promise.all([
+      const [servicesRes, providersRes, categoriesRes] = await Promise.all([
         api.get('/services'),
         api.get('/providers'),
+        api.get('/categories'),
       ]);
       setServices(servicesRes.data.services || []);
       setProviders(providersRes.data.providers || []);
+      setCategoryConfigs(categoriesRes.data.categories || []);
     } catch (error) {
       setMarketplaceError(getApiErrorMessage(error, 'Unable to load live services'));
     } finally {
@@ -222,6 +226,8 @@ export const GlobalProvider = ({ children }) => {
     if (providerId) counts[providerId] = (counts[providerId] || 0) + 1;
     return counts;
   }, {});
+  const serviceCategories = mergeServiceCategories(categoryConfigs);
+  const categoryOptions = toCategoryOptions(serviceCategories);
   const marketplaceWorkers = providers.map((provider) => mapProviderToWorker(provider, serviceCountByProvider));
 
   return (
@@ -232,6 +238,8 @@ export const GlobalProvider = ({ children }) => {
       adsLoading,
       services,
       providers,
+      serviceCategories,
+      categoryOptions,
       marketplaceWorkers,
       marketplaceLoading,
       marketplaceError,

@@ -11,7 +11,6 @@ import {
   UtensilsCrossed,
 } from 'lucide-react';
 
-import { SERVICE_CATEGORIES } from '../data/marketplace';
 import { useGlobalContext } from '../context/GlobalContext';
 
 const SERVICE_VISUALS = {
@@ -66,15 +65,16 @@ const SERVICE_VISUALS = {
   },
 };
 
-export const SERVICES = SERVICE_CATEGORIES.map((service) => ({
+export const buildServices = (serviceCategories) => serviceCategories.map((service) => ({
   ...service,
   desc: service.shortDescription,
-  ...SERVICE_VISUALS[service.name],
+  ...(SERVICE_VISUALS[service.name] || SERVICE_VISUALS['Other Services']),
 }));
 
 const CategoriesSection = () => {
   const navigate = useNavigate();
-  const { providers } = useGlobalContext();
+  const { providers, serviceCategories } = useGlobalContext();
+  const services = buildServices(serviceCategories);
   const providerCountByCategory = providers.reduce((counts, provider) => {
     counts[provider.category] = (counts[provider.category] || 0) + 1;
     return counts;
@@ -106,7 +106,7 @@ const CategoriesSection = () => {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {SERVICES.map((service) => {
+          {services.map((service) => {
             const Icon = service.icon;
             const providerCount = providerCountByCategory[service.name] || 0;
 

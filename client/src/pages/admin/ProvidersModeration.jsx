@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BadgeCheck, FileCheck2, Plus, UserPlus, XCircle } from 'lucide-react';
 import api from '../../services/api';
-import { SERVICE_CATEGORIES } from '../../data/marketplace';
+import { useGlobalContext } from '../../context/GlobalContext';
 import { getApiErrorMessage } from '../../utils/apiError';
 
 const initialForm = {
@@ -24,6 +24,7 @@ const ProvidersModeration = () => {
   const [message, setMessage] = useState('');
   const [form, setForm] = useState(initialForm);
   const [creating, setCreating] = useState(false);
+  const { serviceCategories } = useGlobalContext();
 
   const load = () => {
     api.get('/admin/providers')
@@ -97,7 +98,7 @@ const ProvidersModeration = () => {
           <label className="grid gap-1.5 text-sm font-bold text-slate-700">
             Category
             <select name="category" value={form.category} onChange={handleChange} className={inputClass}>
-              {SERVICE_CATEGORIES.map((category) => (
+              {serviceCategories.map((category) => (
                 <option key={category.id} value={category.name}>{category.name}</option>
               ))}
             </select>

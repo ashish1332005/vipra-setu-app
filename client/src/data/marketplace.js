@@ -70,17 +70,54 @@ export const CATEGORIES = SERVICE_CATEGORIES.map(({ id, name, description }) => 
   description,
 }));
 
-export const getCategoryConfig = (categoryName = '') => {
+export const mergeServiceCategories = (categoryConfigs = []) => {
+  const categoryMap = new Map(SERVICE_CATEGORIES.map((category) => [
+    category.name.toLowerCase(),
+    { ...category },
+  ]));
+
+  categoryConfigs
+    .filter((category) => category?.isActive !== false && category?.name)
+    .forEach((category, index) => {
+      const key = category.name.toLowerCase();
+      const existing = categoryMap.get(key);
+      const serviceTypes = Array.isArray(category.serviceTypes) ? category.serviceTypes.filter(Boolean) : [];
+
+      categoryMap.set(key, {
+        ...(existing || {
+          id: `admin-${category._id || index}`,
+          name: category.name,
+          aliases: [],
+          shortDescription: category.description || 'Admin added service category',
+          count: 'New',
+        }),
+        name: category.name,
+        description: category.description || existing?.description || '',
+        shortDescription: category.description || existing?.shortDescription || '',
+        workTypes: serviceTypes.length > 0 ? serviceTypes : (existing?.workTypes || []),
+      });
+    });
+
+  return Array.from(categoryMap.values());
+};
+
+export const toCategoryOptions = (serviceCategories = SERVICE_CATEGORIES) => serviceCategories.map(({ id, name, description }) => ({
+  id,
+  name,
+  description,
+}));
+
+export const getCategoryConfig = (categoryName = '', serviceCategories = SERVICE_CATEGORIES) => {
   const normalizedName = categoryName.trim().toLowerCase();
 
-  return SERVICE_CATEGORIES.find((category) => {
+  return serviceCategories.find((category) => {
     const names = [category.name, ...(category.aliases || [])];
     return names.some((name) => name.toLowerCase() === normalizedName);
   });
 };
 
-export const isSameCategory = (workerCategory = '', selectedCategory = '') => {
-  const category = getCategoryConfig(selectedCategory);
+export const isSameCategory = (workerCategory = '', selectedCategory = '', serviceCategories = SERVICE_CATEGORIES) => {
+  const category = getCategoryConfig(selectedCategory, serviceCategories);
   const names = category ? [category.name, ...(category.aliases || [])] : [selectedCategory];
 
   return names.some((name) => name.toLowerCase() === workerCategory.toLowerCase());
