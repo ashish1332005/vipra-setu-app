@@ -13,7 +13,7 @@ const CategoryBannerAd = ({ categoryName = '' }) => {
       const targetCategory = normalizeCategory(ad.targetCategory || 'all');
       const currentCategory = normalizeCategory(categoryName);
       const placement = (ad.placement || 'all').toLowerCase();
-      const matchesCategory = targetCategory === 'all' || targetCategory === currentCategory;
+      const matchesCategory = targetCategory === currentCategory;
       const matchesPlacement = ['all', 'category'].includes(placement);
 
       return ad.status === 'Active' && ad.type === 'Category Banner' && matchesPlacement && matchesCategory;

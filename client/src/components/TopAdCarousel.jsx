@@ -15,7 +15,7 @@ const TopAdCarousel = ({ placement = 'home', category = '' }) => {
       const targetCategory = normalizeCategory(ad.targetCategory || 'all');
       const currentCategory = normalizeCategory(category);
       const matchesCategory = currentCategory
-        ? targetCategory === 'all' || targetCategory === currentCategory
+        ? targetCategory === currentCategory
         : targetCategory === 'all';
       return isActive && isBanner && matchesPlacement && matchesCategory;
     })

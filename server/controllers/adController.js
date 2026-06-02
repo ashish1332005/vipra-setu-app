@@ -5,7 +5,7 @@ const listActiveAds = asyncHandler(async (req, res) => {
   const role = (req.query.role || 'all').trim();
   const category = (req.query.category || '').trim();
   const categoryFilter = category && category !== 'all'
-    ? { targetCategory: { $in: ['all', category] } }
+    ? { targetCategory: category }
     : { targetCategory: 'all' };
   const ads = await Ad.find({
     status: 'Active',
