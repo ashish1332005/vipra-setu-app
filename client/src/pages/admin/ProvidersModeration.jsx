@@ -27,7 +27,7 @@ const ProvidersModeration = () => {
 
   const load = () => {
     api.get('/admin/providers')
-      .then(({ data }) => setProfiles(Array.isArray(data.profiles) ? data.profiles : []))
+      .then(({ data }) => setProfiles(Array.isArray(data.profiles) ? data.profiles.filter(Boolean) : []))
       .catch((err) => setMessage(getApiErrorMessage(err, 'Unable to load providers')));
   };
 
@@ -127,8 +127,8 @@ const ProvidersModeration = () => {
       </form>
 
       <div className="grid gap-4">
-        {profiles.map((profile) => (
-          <article key={profile._id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        {profiles.filter(Boolean).map((profile) => (
+          <article key={profile._id || profile.user?._id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
               <div>
                 <h2 className="text-lg font-black text-slate-950">{profile.businessName || profile.user?.name}</h2>
@@ -183,9 +183,9 @@ const Field = ({ label, ...props }) => (
   </label>
 );
 
-const formatContact = (user = {}) => {
-  const email = user.email?.endsWith('@mobile.local') ? '' : user.email;
-  return [email, user.phone].filter(Boolean).join(' | ');
+const formatContact = (user) => {
+  const email = user?.email?.endsWith('@mobile.local') ? '' : user?.email;
+  return [email, user?.phone].filter(Boolean).join(' | ') || 'Contact not available';
 };
 
 const Badge = ({ label, tone }) => {
