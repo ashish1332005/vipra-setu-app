@@ -32,7 +32,7 @@ export const GlobalProvider = ({ children }) => {
       const [servicesRes, providersRes, categoriesRes] = await Promise.all([
         api.get('/services'),
         api.get('/providers'),
-        api.get('/categories'),
+        api.get('/categories').catch(() => ({ data: { categories: [] } })),
       ]);
       setServices(servicesRes.data.services || []);
       setProviders(providersRes.data.providers || []);

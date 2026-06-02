@@ -370,14 +370,21 @@ const listCategories = asyncHandler(async (req, res) => {
 const upsertCategory = asyncHandler(async (req, res) => {
   const { name, description, serviceTypes = [], isActive = true } = req.body;
 
-  if (!name) {
+  const categoryName = String(name || '').trim();
+
+  if (!categoryName) {
     res.status(400);
     throw new Error('Category name is required');
   }
 
   const category = await CategoryConfig.findOneAndUpdate(
-    { name },
-    { name, description, serviceTypes, isActive },
+    { name: categoryName },
+    {
+      name: categoryName,
+      description,
+      serviceTypes: normalizeSkills(serviceTypes),
+      isActive,
+    },
     { upsert: true, new: true, runValidators: true }
   );
 
