@@ -20,13 +20,16 @@ const AdPlacement = ({ placement = 'all', category = '', limit = 10, compact = f
   const visibleAds = useMemo(() => {
     const currentPlacement = placement.toLowerCase();
     const currentCategory = category.toLowerCase();
+    const isCategoryAwarePlacement = ['category', 'services'].includes(currentPlacement);
 
     return (ads.length > 0 ? ads : fallbackAds)
       .filter((ad) => {
         const adPlacement = (ad.placement || 'all').toLowerCase();
         const targetCategory = (ad.targetCategory || 'all').toLowerCase();
         const matchesPlacement = adPlacement === 'all' || adPlacement === currentPlacement;
-        const matchesCategory = !currentCategory || targetCategory === 'all' || targetCategory === currentCategory;
+        const matchesCategory = isCategoryAwarePlacement
+          ? targetCategory === 'all' || (currentCategory && targetCategory === currentCategory)
+          : true;
 
         return ad.status === 'Active' && matchesPlacement && matchesCategory;
       })
