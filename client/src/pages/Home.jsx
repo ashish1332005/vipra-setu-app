@@ -44,7 +44,6 @@ const USER_STEPS = [
 ];
 
 const HERO_BRANDS = [
-  { name: 'Vipra Sewa Setu', image: logo },
   { name: 'Vipra Sena', image: vipraSenaLogo },
   { name: 'BPF', image: bpfLogo },
 ];
@@ -94,19 +93,19 @@ const Home = () => {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
-            className="mb-6 flex max-w-full items-center gap-2 overflow-x-auto rounded-2xl border border-white/15 bg-white/10 p-2 shadow-[0_18px_50px_rgba(0,0,0,0.14)] backdrop-blur-md [scrollbar-width:none] sm:gap-3 sm:p-3 [&::-webkit-scrollbar]:hidden"
+            className="mb-5 flex flex-wrap items-center gap-2 rounded-xl border border-white/15 bg-white/10 p-2 shadow-[0_14px_40px_rgba(0,0,0,0.12)] backdrop-blur-md sm:w-fit"
           >
             {HERO_BRANDS.map((brand) => (
               <div
                 key={brand.name}
-                className="flex min-w-fit items-center gap-2 rounded-xl border border-white/12 bg-white/10 px-2.5 py-2 text-white sm:gap-3 sm:px-4"
+                className="flex items-center gap-2 rounded-lg border border-white/12 bg-white/10 px-2.5 py-1.5 text-white sm:px-3"
               >
                 <img
                   src={brand.image}
                   alt={brand.name}
-                  className="h-9 w-9 shrink-0 rounded-lg object-cover ring-1 ring-white/20 sm:h-11 sm:w-11"
+                  className="h-7 w-7 shrink-0 rounded-md object-cover ring-1 ring-white/20 sm:h-8 sm:w-8"
                 />
-                <span className="text-sm font-black leading-tight sm:text-base">
+                <span className="text-xs font-black leading-tight sm:text-sm">
                   {brand.name}
                 </span>
               </div>
