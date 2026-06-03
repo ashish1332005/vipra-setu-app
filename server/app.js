@@ -39,7 +39,10 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '10mb' }));
+// Allow larger JSON payloads to support base64 image uploads from the client
+app.use(express.json({ limit: '50mb' }));
+// Also accept larger URL-encoded bodies just in case some clients send form-encoded data
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(morgan(env.nodeEnv === 'production' ? 'combined' : 'dev'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
