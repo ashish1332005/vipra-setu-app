@@ -3,6 +3,7 @@ import { BadgeCheck, FileCheck2, ImagePlus, Pencil, Plus, RotateCcw, Save, Uploa
 import api from '../../services/api';
 import { useGlobalContext } from '../../context/GlobalContext';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { prepareImageUpload } from '../../utils/imageUpload';
 import { getMediaUrl } from '../../utils/media';
 
 const initialForm = {
@@ -56,22 +57,22 @@ const ProvidersModeration = () => {
     setForm((current) => ({ ...current, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleImageFile = (urlField, fileField, event) => {
+  const handleImageFile = async (urlField, fileField, event, options) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    try {
+      const imageFile = await prepareImageUpload(file, options);
       setForm((current) => ({
         ...current,
-        [urlField]: reader.result,
-        [fileField]: {
-          name: file.name,
-          dataUrl: reader.result,
-        },
+        [urlField]: imageFile.dataUrl,
+        [fileField]: imageFile,
       }));
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      event.target.value = '';
+    }
   };
 
   const startEdit = (profile) => {
@@ -118,15 +119,24 @@ const ProvidersModeration = () => {
       if (!payload.password) delete payload.password;
 
       if (editingProfileId) {
-        await api.put(`/admin/providers/${editingProfileId}`, payload);
+        const { data } = await api.put(`/admin/providers/${editingProfileId}`, payload);
+        if (data.profile) {
+          setProfiles((current) => current.map((profile) => (
+            profile._id === data.profile._id ? data.profile : profile
+          )));
+        }
         setMessage('Provider profile updated.');
       } else {
-        await api.post('/admin/providers', payload);
+        const { data } = await api.post('/admin/providers', payload);
+        if (data.profile) {
+          setProfiles((current) => [data.profile, ...current]);
+        }
         setMessage('Provider account created.');
       }
 
       resetForm();
       load();
+      await loadMarketplace();
     } catch (err) {
       setMessage(getApiErrorMessage(err, editingProfileId ? 'Unable to update provider profile' : 'Unable to create provider account'));
     } finally {
@@ -173,8 +183,8 @@ const ProvidersModeration = () => {
             </div>
           </div>
           <div className="grid gap-3 px-5 pb-5 pt-12 md:grid-cols-2">
-            <ImageUploadButton label="Upload Profile Image" onChange={(event) => handleImageFile('profileImageUrl', 'profileImageFile', event)} />
-            <ImageUploadButton label="Upload Cover Image" onChange={(event) => handleImageFile('coverImageUrl', 'coverImageFile', event)} />
+            <ImageUploadButton label="Upload Profile Image" onChange={(event) => handleImageFile('profileImageUrl', 'profileImageFile', event, { maxWidth: 700, maxHeight: 700, quality: 0.82 })} />
+            <ImageUploadButton label="Upload Cover Image" onChange={(event) => handleImageFile('coverImageUrl', 'coverImageFile', event, { maxWidth: 1600, maxHeight: 700, quality: 0.84 })} />
             <Field label="Profile Image URL" name="profileImageUrl" value={form.profileImageUrl} onChange={handleChange} placeholder="https://example.com/profile.jpg" />
             <Field label="Cover Image URL" name="coverImageUrl" value={form.coverImageUrl} onChange={handleChange} placeholder="https://example.com/cover.jpg" />
           </div>

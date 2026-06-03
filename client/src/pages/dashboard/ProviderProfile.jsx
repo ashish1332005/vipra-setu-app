@@ -3,6 +3,7 @@ import { BadgeCheck, CheckCircle2, CircleAlert, ImagePlus, TrendingUp, UploadClo
 import api from '../../services/api';
 import { useGlobalContext } from '../../context/GlobalContext';
 import { getApiErrorMessage } from '../../utils/apiError';
+import { prepareImageUpload } from '../../utils/imageUpload';
 import { getMediaUrl } from '../../utils/media';
 
 const ProviderProfile = () => {
@@ -87,23 +88,22 @@ const ProviderProfile = () => {
     }
   };
 
-  const handleImageFile = (field, fileField, event) => {
+  const handleImageFile = async (field, fileField, event, options) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    try {
+      const imageFile = await prepareImageUpload(file, options);
       setForm((current) => ({
         ...current,
         [field]: current[field],
-        [fileField]: {
-          name: file.name,
-          type: file.type,
-          dataUrl: reader.result,
-        },
+        [fileField]: imageFile,
       }));
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      setMessage(error.message);
+    } finally {
+      event.target.value = '';
+    }
   };
 
   const profilePreview = form.profileImageFile?.dataUrl || form.profileImageUrl;
@@ -137,14 +137,14 @@ const ProviderProfile = () => {
                   value={form.profileImageUrl}
                   fileName={form.profileImageFile?.name}
                   onUrlChange={(value) => setForm((current) => ({ ...current, profileImageUrl: value, profileImageFile: null }))}
-                  onFileChange={(event) => handleImageFile('profileImageUrl', 'profileImageFile', event)}
+                  onFileChange={(event) => handleImageFile('profileImageUrl', 'profileImageFile', event, { maxWidth: 700, maxHeight: 700, quality: 0.82 })}
                 />
                 <ImageControl
                   label="Cover Image"
                   value={form.coverImageUrl}
                   fileName={form.coverImageFile?.name}
                   onUrlChange={(value) => setForm((current) => ({ ...current, coverImageUrl: value, coverImageFile: null }))}
-                  onFileChange={(event) => handleImageFile('coverImageUrl', 'coverImageFile', event)}
+                  onFileChange={(event) => handleImageFile('coverImageUrl', 'coverImageFile', event, { maxWidth: 1600, maxHeight: 700, quality: 0.84 })}
                 />
               </div>
             </div>
