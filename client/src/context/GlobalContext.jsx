@@ -324,10 +324,12 @@ const mapProviderToWorker = (provider, serviceCountByProvider = {}) => {
     tags: skillTags,
     phone: user.phone,
     email: getDisplayEmail(user.email),
+    profileImageUrl: provider.profileImageUrl,
+    coverImageUrl: provider.coverImageUrl,
     isApproved: provider.isApproved,
     status: user.status,
     profileScore,
-    serviceCount: serviceCountByProvider[user._id] || 0,
+    serviceCount: serviceCountByProvider[provider._id] || serviceCountByProvider[user._id] || 0,
     responseLabel: provider.availability?.toLowerCase().includes('today') ? 'Fast response' : 'Listed provider',
   };
 };

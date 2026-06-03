@@ -161,11 +161,15 @@ const createProviderAccount = asyncHandler(async (req, res) => {
     category,
     city = 'Bhilwara',
     address = '',
+    profileImageUrl = '',
+    coverImageUrl = '',
     skills = [],
     experienceYears = 0,
     rate = '',
     availability = 'Available',
     isApproved = true,
+    profileImageFile,
+    coverImageFile,
   } = req.body;
   const normalizedPhone = normalizePhone(phone);
 
@@ -190,12 +194,21 @@ const createProviderAccount = asyncHandler(async (req, res) => {
     emailVerifiedAt: new Date(),
   });
 
+  const finalProfileImageUrl = profileImageFile?.dataUrl
+    ? saveProviderImage(profileImageFile)
+    : profileImageUrl;
+  const finalCoverImageUrl = coverImageFile?.dataUrl
+    ? saveProviderImage(coverImageFile)
+    : coverImageUrl;
+
   const profile = await ProviderProfile.create({
     user: user._id,
     businessName,
     category,
     city,
     address,
+    profileImageUrl: finalProfileImageUrl,
+    coverImageUrl: finalCoverImageUrl,
     skills: normalizeSkills(skills),
     experienceYears,
     rate,
@@ -218,6 +231,78 @@ const createProviderAccount = asyncHandler(async (req, res) => {
     .populate('user', 'name email phone status');
 
   res.status(201).json({ user, profile: populatedProfile });
+});
+
+const updateProviderProfileAdmin = asyncHandler(async (req, res) => {
+  const profile = await ProviderProfile.findById(req.params.id).populate('user', 'name email phone status');
+
+  if (!profile) {
+    res.status(404);
+    throw new Error('Provider profile not found');
+  }
+
+  const userUpdates = {};
+  if (req.body.name !== undefined) userUpdates.name = req.body.name;
+  if (req.body.phone !== undefined) {
+    const normalizedPhone = normalizePhone(req.body.phone);
+    if (!normalizedPhone) {
+      res.status(400);
+      throw new Error('Mobile number is required');
+    }
+
+    const duplicateUser = await User.findOne({
+      phone: normalizedPhone,
+      _id: { $ne: profile.user?._id },
+    });
+    if (duplicateUser) {
+      res.status(409);
+      throw new Error('Mobile number is already registered');
+    }
+
+    userUpdates.phone = normalizedPhone;
+    userUpdates.email = buildPhoneLoginEmail(normalizedPhone);
+  }
+  if (req.body.password) userUpdates.password = req.body.password;
+  if (req.body.isApproved !== undefined) {
+    userUpdates.status = req.body.isApproved ? 'active' : 'pending';
+  }
+
+  const allowedFields = [
+    'businessName',
+    'category',
+    'city',
+    'address',
+    'experienceYears',
+    'rate',
+    'availability',
+    'profileImageUrl',
+    'coverImageUrl',
+    'isApproved',
+  ];
+  const profileUpdates = allowedFields.reduce((data, field) => {
+    if (req.body[field] !== undefined) data[field] = req.body[field];
+    return data;
+  }, {});
+
+  if (req.body.skills !== undefined) profileUpdates.skills = normalizeSkills(req.body.skills);
+  if (req.body.profileImageFile?.dataUrl) {
+    profileUpdates.profileImageUrl = saveProviderImage(req.body.profileImageFile);
+  }
+  if (req.body.coverImageFile?.dataUrl) {
+    profileUpdates.coverImageUrl = saveProviderImage(req.body.coverImageFile);
+  }
+
+  if (Object.keys(userUpdates).length) {
+    await User.findByIdAndUpdate(profile.user?._id, userUpdates, { runValidators: true });
+  }
+
+  const updatedProfile = await ProviderProfile.findByIdAndUpdate(
+    profile._id,
+    profileUpdates,
+    { new: true, runValidators: true }
+  ).populate('user', 'name email phone status');
+
+  res.json({ profile: updatedProfile });
 });
 
 const listServicesAdmin = asyncHandler(async (req, res) => {
@@ -546,6 +631,39 @@ const saveAdImage = (imageFile) => {
   return dataUrl;
 };
 
+const saveProviderImage = (imageFile) => {
+  const { dataUrl } = imageFile;
+  const match = typeof dataUrl === 'string' && dataUrl.match(/^data:([\w/+.-]+);base64,(.+)$/);
+
+  if (!match) {
+    const error = new Error('Invalid provider image upload');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const allowedTypes = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+  };
+  const extension = allowedTypes[match[1]];
+
+  if (!extension) {
+    const error = new Error('Only JPG, PNG, or WEBP provider images are allowed');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const buffer = Buffer.from(match[2], 'base64');
+  if (buffer.length > 5 * 1024 * 1024) {
+    const error = new Error('Provider image must be 5MB or smaller');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return dataUrl;
+};
+
 const updateAd = asyncHandler(async (req, res) => {
   const { imageFile } = req.body;
   const allowedFields = ['title', 'type', 'imageUrl', 'targetUrl', 'status', 'placement', 'placements', 'targetCategory', 'audienceRole', 'subtitle', 'ctaLabel'];
@@ -644,6 +762,7 @@ module.exports = {
   reviewProviderKyc,
   listProviderProfiles,
   createProviderAccount,
+  updateProviderProfileAdmin,
   listServicesAdmin,
   createServiceAdmin,
   moderateService,

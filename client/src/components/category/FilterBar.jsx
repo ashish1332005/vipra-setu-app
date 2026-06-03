@@ -2,9 +2,9 @@ import { Calendar, Search, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 
 const FilterBar = ({ query, onQueryChange, sortBy, onSortChange, onlyAvailable, onOnlyAvailableChange, resultCount }) => {
   return (
-    <div className="grid w-full gap-2 py-2 lg:grid-cols-[minmax(260px,1fr)_auto_auto_auto] lg:items-center">
-      <label className="flex items-center gap-2 rounded-full border border-amber-100 bg-white px-3 py-2 text-xs font-black text-slate-700 shadow-sm">
-        <Search size={15} className="text-red-900" />
+    <div className="grid w-full grid-cols-[1fr_auto] gap-2 rounded-xl border border-slate-200 bg-white p-2 shadow-[0_10px_24px_rgba(15,23,42,0.05)] lg:grid-cols-[minmax(260px,1fr)_auto_auto_auto] lg:items-center">
+      <label className="flex min-h-11 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 lg:col-span-1">
+        <Search size={16} className="text-red-900" />
         <input
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
@@ -13,11 +13,16 @@ const FilterBar = ({ query, onQueryChange, sortBy, onSortChange, onlyAvailable, 
         />
       </label>
 
-      <div className="flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <span className="flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-2 py-2 text-xs font-black text-slate-700 lg:order-3 lg:px-3">
+        {resultCount}
+        <span className="hidden pl-1 sm:inline">results</span>
+      </span>
+
+      <div className="col-span-2 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] lg:col-span-1 lg:order-2">
         <select
           value={sortBy}
           onChange={(event) => onSortChange(event.target.value)}
-          className="shrink-0 rounded-full border border-amber-100 bg-white px-3 py-2 text-xs font-black text-slate-700 shadow-sm outline-none hover:bg-[#fff7ed]"
+          className="min-h-9 shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 outline-none hover:bg-slate-50"
         >
           <option value="recommended">Recommended</option>
           <option value="profile">Best profile</option>
@@ -28,29 +33,25 @@ const FilterBar = ({ query, onQueryChange, sortBy, onSortChange, onlyAvailable, 
         <button
           type="button"
           onClick={() => onOnlyAvailableChange(!onlyAvailable)}
-          className={`flex shrink-0 items-center gap-2 rounded-full border px-3 py-2 text-xs font-black shadow-sm ${
+          className={`flex min-h-9 shrink-0 items-center gap-2 rounded-lg border px-3 py-2 text-xs font-black ${
             onlyAvailable
               ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-              : 'border-amber-100 bg-white text-slate-700 hover:bg-[#fff7ed]'
+              : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
           }`}
         >
           <Calendar size={14} />
           Available
         </button>
 
-        <span className="flex shrink-0 items-center gap-2 rounded-full border border-amber-100 bg-white px-3 py-2 text-xs font-black text-slate-700 shadow-sm">
+        <span className="hidden min-h-9 shrink-0 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-black text-slate-700 sm:flex">
           <ShieldCheck size={14} className="text-red-900" />
           Verified network
         </span>
       </div>
 
-      <span className="flex shrink-0 items-center justify-center rounded-full border border-amber-100 bg-white px-3 py-2 text-xs font-black text-slate-700 shadow-sm">
-        {resultCount} results
-      </span>
-
-      <button type="button" className="flex shrink-0 items-center justify-center gap-2 rounded-full border border-red-100 bg-red-950 px-4 py-2 text-xs font-black text-white shadow-sm hover:bg-amber-700">
+      <button type="button" className="hidden min-h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-red-900 bg-red-950 px-3 py-2 text-xs font-black text-white hover:bg-red-900 lg:order-4 lg:flex lg:px-4">
         <SlidersHorizontal size={14} />
-        Filters
+        <span className="sr-only lg:not-sr-only">Filters</span>
       </button>
     </div>
   );

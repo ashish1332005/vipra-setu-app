@@ -34,6 +34,8 @@ const updateMyProviderProfile = asyncHandler(async (req, res) => {
     'experienceYears',
     'rate',
     'availability',
+    'profileImageUrl',
+    'coverImageUrl',
     'weeklyAvailability',
     'blackoutDates',
     'businessSettings',
@@ -45,6 +47,14 @@ const updateMyProviderProfile = asyncHandler(async (req, res) => {
     if (req.body[field] !== undefined) data[field] = req.body[field];
     return data;
   }, {});
+
+  if (req.body.profileImageFile?.dataUrl) {
+    updates.profileImageUrl = saveProviderImage(req.body.profileImageFile);
+  }
+
+  if (req.body.coverImageFile?.dataUrl) {
+    updates.coverImageUrl = saveProviderImage(req.body.coverImageFile);
+  }
 
   const profile = await ProviderProfile.findOneAndUpdate(
     { user: req.user._id },
@@ -122,6 +132,39 @@ const saveKycDocument = (userId, documentFile) => {
 
   fs.writeFileSync(path.join(uploadDir, finalName), buffer);
   return `/uploads/kyc/${finalName}`;
+};
+
+const saveProviderImage = (imageFile) => {
+  const { dataUrl } = imageFile;
+  const match = typeof dataUrl === 'string' && dataUrl.match(/^data:([\w/+.-]+);base64,(.+)$/);
+
+  if (!match) {
+    const error = new Error('Invalid provider image upload');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const allowedTypes = {
+    'image/jpeg': '.jpg',
+    'image/png': '.png',
+    'image/webp': '.webp',
+  };
+  const extension = allowedTypes[match[1]];
+
+  if (!extension) {
+    const error = new Error('Only JPG, PNG, or WEBP provider images are allowed');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const buffer = Buffer.from(match[2], 'base64');
+  if (buffer.length > 5 * 1024 * 1024) {
+    const error = new Error('Provider image must be 5MB or smaller');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return dataUrl;
 };
 
 const createService = asyncHandler(async (req, res) => {

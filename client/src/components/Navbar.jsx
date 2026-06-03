@@ -108,22 +108,22 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 border-b border-amber-100 bg-[#fffaf2] shadow-[0_10px_28px_rgba(67,20,7,0.08)]">
-        <div className="site-shell flex min-h-[64px] items-center justify-between gap-2 py-2 sm:min-h-[76px] sm:gap-3 sm:py-3">
+      <nav className="sticky top-0 z-50 border-b border-amber-100 bg-[#fffaf2] shadow-[0_8px_24px_rgba(67,20,7,0.08)]">
+        <div className="site-shell flex min-h-[58px] items-center justify-between gap-2 py-1.5 sm:min-h-[76px] sm:gap-3 sm:py-3">
           <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-6">
             <Link to="/" onClick={closePanels} className="group flex min-w-0 shrink-0 items-center gap-2.5 sm:gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-amber-100 bg-white p-1 shadow-[0_8px_20px_rgba(67,20,7,0.08)] sm:h-14 sm:w-14">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-100 bg-white p-1 shadow-[0_8px_20px_rgba(67,20,7,0.08)] sm:h-14 sm:w-14 sm:rounded-2xl">
                 <img
                   src={logo}
                   alt="Vipra Sewa Setu Logo"
-                  className="h-full w-full rounded-[1rem] object-cover"
+                  className="h-full w-full rounded-lg object-cover sm:rounded-[1rem]"
                 />
               </span>
               <span className="min-w-0">
-                <span className="block max-w-[150px] truncate text-[0.98rem] font-black leading-5 tracking-tight text-slate-950 min-[390px]:max-w-[178px] sm:max-w-none sm:text-xl">
+                <span className="block max-w-[150px] truncate text-base font-black leading-5 tracking-tight text-slate-950 min-[390px]:max-w-[188px] sm:max-w-none sm:text-xl">
                   Vipra Sewa Setu
                 </span>
-                <span className="mt-0.5 hidden truncate text-[10px] font-black uppercase tracking-[0.12em] text-red-800 min-[390px]:block sm:text-xs">
+                <span className="mt-0.5 block truncate text-[9px] font-black uppercase tracking-[0.12em] text-red-800 sm:text-xs">
                   Service | Community | Trust
                 </span>
               </span>
@@ -182,7 +182,7 @@ const Navbar = () => {
                 closePanels();
               }}
               aria-label="View notifications"
-              className="relative inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-amber-100 bg-white text-slate-700 shadow-sm transition-colors hover:border-amber-300 hover:text-red-900 sm:h-11 sm:w-11"
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-amber-100 bg-white text-slate-700 shadow-sm transition-colors hover:border-amber-300 hover:text-red-900 sm:h-11 sm:w-11 sm:rounded-2xl"
             >
               <Bell size={18} />
               {hasNotification && (
@@ -195,7 +195,7 @@ const Navbar = () => {
               aria-expanded={isSearchOpen}
               aria-controls="navbar-search-panel"
               onClick={() => togglePanel('search')}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-amber-200 shadow-[0_12px_28px_rgba(15,23,42,0.18)] transition-colors hover:bg-red-950 sm:h-11 sm:w-11"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-amber-200 shadow-[0_12px_28px_rgba(15,23,42,0.18)] transition-colors hover:bg-red-950 sm:h-11 sm:w-11 sm:rounded-2xl"
             >
               <Search size={18} />
             </button>
@@ -242,7 +242,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      <nav className="fixed inset-x-2 bottom-3 z-[60] rounded-[1.35rem] border border-amber-100 bg-[#fffaf2] px-1.5 pb-[calc(env(safe-area-inset-bottom)+0.3rem)] pt-1.5 shadow-[0_-10px_34px_rgba(15,23,42,0.16)] lg:hidden">
+      <nav className="fixed inset-x-2 bottom-3 z-[60] rounded-[1.25rem] border border-amber-100 bg-[#fffaf2] px-1.5 pb-[calc(env(safe-area-inset-bottom)+0.3rem)] pt-1.5 shadow-[0_-10px_30px_rgba(15,23,42,0.15)] lg:hidden">
         <div className="mx-auto flex max-w-md items-center gap-0.5">
           {bottomNavItems.map((item) => {
             const Icon = item.icon;
