@@ -1,4 +1,4 @@
-import { ImagePlus, Link as LinkIcon, Megaphone, Pause, Play, Plus, UploadCloud } from 'lucide-react';
+import { ImagePlus, Link as LinkIcon, Megaphone, Pause, Play, Plus, Trash2, UploadCloud } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
 import api from '../../services/api';
@@ -11,6 +11,7 @@ const emptyForm = {
   imageUrl: '',
   targetUrl: '',
   placement: 'all',
+  placements: ['all'],
   targetCategory: 'all',
   status: 'Active',
   imageFile: null,
@@ -20,13 +21,31 @@ const emptyForm = {
   ctaLabel: 'Know More',
 };
 
+const PLACEMENT_OPTIONS = [
+  { value: 'all', label: 'All pages' },
+  { value: 'home', label: 'Home' },
+  { value: 'services', label: 'Services' },
+  { value: 'category', label: 'Category pages' },
+  { value: 'dashboard', label: 'User dashboards' },
+];
+
+const formatPlacements = (placements = ['all']) => {
+  const labels = PLACEMENT_OPTIONS.reduce((items, option) => {
+    items[option.value] = option.label;
+    return items;
+  }, {});
+
+  return placements.map((placement) => labels[placement] || placement || 'All pages').join(', ');
+};
+
 const AdsManagement = () => {
-  const { ads, adsLoading, loadAds, createAd, toggleAdStatus, serviceCategories } = useGlobalContext();
+  const { ads, adsLoading, loadAds, createAd, toggleAdStatus, deleteAd, serviceCategories } = useGlobalContext();
   const [form, setForm] = useState(emptyForm);
   const [uploadMode, setUploadMode] = useState('upload');
   const [preview, setPreview] = useState('');
   const [message, setMessage] = useState('');
   const [providerProfiles, setProviderProfiles] = useState([]);
+  const [busyAdId, setBusyAdId] = useState('');
 
   useEffect(() => {
     loadAds({ admin: true });
@@ -58,6 +77,8 @@ const AdsManagement = () => {
 
     const payload = {
       ...form,
+      placement: form.placements[0] || 'all',
+      placements: form.placements,
       imageFile: uploadMode === 'upload' ? form.imageFile : null,
       imageUrl: uploadMode === 'url' ? form.imageUrl : '',
       providerProfile: form.providerProfile,
@@ -65,6 +86,7 @@ const AdsManagement = () => {
 
     try {
       await createAd(payload);
+      await loadAds({ admin: true });
       setForm(emptyForm);
       setPreview('');
       setUploadMode('upload');
@@ -74,11 +96,51 @@ const AdsManagement = () => {
     }
   };
 
+  const togglePlacement = (placement) => {
+    setForm((current) => {
+      if (placement === 'all') {
+        return { ...current, placement: 'all', placements: ['all'] };
+      }
+
+      const currentPlacements = current.placements.filter((item) => item !== 'all');
+      const nextPlacements = currentPlacements.includes(placement)
+        ? currentPlacements.filter((item) => item !== placement)
+        : [...currentPlacements, placement];
+      const safePlacements = nextPlacements.length > 0 ? nextPlacements : ['all'];
+
+      return {
+        ...current,
+        placement: safePlacements[0],
+        placements: safePlacements,
+      };
+    });
+  };
+
   const handleToggle = async (adId) => {
     try {
+      setBusyAdId(adId);
       await toggleAdStatus(adId);
+      await loadAds({ admin: true });
     } catch (error) {
       setMessage(getApiErrorMessage(error, 'Unable to update ad'));
+    } finally {
+      setBusyAdId('');
+    }
+  };
+
+  const handleDelete = async (adId) => {
+    const confirmed = window.confirm('Delete this ad permanently?');
+    if (!confirmed) return;
+
+    try {
+      setBusyAdId(adId);
+      setMessage('');
+      await deleteAd(adId);
+      setMessage('Ad deleted successfully.');
+    } catch (error) {
+      setMessage(getApiErrorMessage(error, 'Unable to delete ad'));
+    } finally {
+      setBusyAdId('');
     }
   };
 
@@ -108,7 +170,7 @@ const AdsManagement = () => {
                 </div>
               )}
               <div className="absolute bottom-3 left-3 right-3 rounded-xl bg-slate-950/72 px-4 py-3 text-white backdrop-blur">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-200">{form.placement || 'all'} placement</p>
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-amber-200">{formatPlacements(form.placements)} placement</p>
                 <h2 className="mt-1 truncate text-lg font-black">{form.title || 'Sponsored service provider'}</h2>
               </div>
             </div>
@@ -132,16 +194,33 @@ const AdsManagement = () => {
                 <option>Category Banner</option>
                 <option>Sidebar</option>
               </select>
-              <select
-                value={form.placement}
-                onChange={(event) => setForm({ ...form, placement: event.target.value })}
-                className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
-              >
-                <option value="all">All pages</option>
-                <option value="home">Home top</option>
-                <option value="services">Services top</option>
-                <option value="category">Category pages</option>
-              </select>
+              <div className="sm:col-span-2">
+                <p className="mb-2 text-xs font-black uppercase tracking-[0.14em] text-slate-500">Show on pages</p>
+                <div className="grid gap-2 sm:grid-cols-3">
+                  {PLACEMENT_OPTIONS.map((option) => {
+                    const checked = form.placements.includes(option.value);
+
+                    return (
+                      <label
+                        key={option.value}
+                        className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-black transition ${
+                          checked
+                            ? 'border-sky-200 bg-sky-50 text-sky-800'
+                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => togglePlacement(option.value)}
+                          className="h-4 w-4 accent-sky-600"
+                        />
+                        {option.label}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
 
               <select
                 value={form.targetCategory}
@@ -270,7 +349,7 @@ const AdsManagement = () => {
                 <div>
                   <h2 className="font-black text-slate-950">{ad.title}</h2>
                   <p className="mt-1 text-xs font-bold text-slate-500">
-                    {ad.type} - {ad.placement} - {ad.targetCategory || 'all categories'} - {ad.audienceRole || 'all'}
+                    {ad.type} - {formatPlacements(ad.placements || [ad.placement])} - {ad.targetCategory || 'all categories'} - {ad.audienceRole || 'all'}
                   </p>
                   {ad.providerProfile && (
                     <p className="mt-1 text-xs font-bold text-emerald-700">
@@ -283,10 +362,26 @@ const AdsManagement = () => {
                   {ad.status}
                 </span>
               </div>
-              <button onClick={() => handleToggle(ad._id || ad.id)} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-200">
-                {ad.status === 'Active' ? <Pause size={15} /> : <Play size={15} />}
-                {ad.status === 'Active' ? 'Pause' : 'Activate'}
-              </button>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleToggle(ad._id || ad.id)}
+                  disabled={busyAdId === (ad._id || ad.id)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-sm font-black text-slate-700 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {ad.status === 'Active' ? <Pause size={15} /> : <Play size={15} />}
+                  {ad.status === 'Active' ? 'Pause' : 'Activate'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(ad._id || ad.id)}
+                  disabled={busyAdId === (ad._id || ad.id)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-red-50 px-4 py-2 text-sm font-black text-red-700 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <Trash2 size={15} />
+                  Delete
+                </button>
+              </div>
             </div>
           </article>
         ))}

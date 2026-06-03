@@ -500,6 +500,7 @@ const createAd = asyncHandler(async (req, res) => {
     targetUrl = '',
     status = 'Active',
     placement = 'all',
+    placements,
     targetCategory = 'all',
     imageFile,
     audienceRole = 'all',
@@ -529,13 +530,16 @@ const createAd = asyncHandler(async (req, res) => {
     throw new Error('Ad title and image are required');
   }
 
+  const normalizedPlacements = normalizePlacements(placements, placement);
+
   const ad = await Ad.create({
     title,
     type,
     imageUrl,
     targetUrl,
     status,
-    placement,
+    placement: normalizedPlacements[0] || 'all',
+    placements: normalizedPlacements,
     targetCategory,
     audienceRole,
     providerProfile: providerProfile || undefined,
@@ -580,11 +584,16 @@ const saveAdImage = (imageFile) => {
 };
 
 const updateAd = asyncHandler(async (req, res) => {
-  const allowedFields = ['title', 'type', 'imageUrl', 'targetUrl', 'status', 'placement', 'targetCategory', 'audienceRole', 'providerProfile', 'providerUser', 'subtitle', 'ctaLabel'];
+  const allowedFields = ['title', 'type', 'imageUrl', 'targetUrl', 'status', 'placement', 'placements', 'targetCategory', 'audienceRole', 'providerProfile', 'providerUser', 'subtitle', 'ctaLabel'];
   const updates = allowedFields.reduce((data, field) => {
     if (req.body[field] !== undefined) data[field] = req.body[field];
     return data;
   }, {});
+
+  if (req.body.placements !== undefined || req.body.placement !== undefined) {
+    updates.placements = normalizePlacements(req.body.placements, req.body.placement);
+    updates.placement = updates.placements[0] || 'all';
+  }
 
   const ad = await Ad.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
 
@@ -610,6 +619,17 @@ const deleteAd = asyncHandler(async (req, res) => {
 const normalizePhone = (phone = '') => String(phone).replace(/\D/g, '');
 
 const buildPhoneLoginEmail = (phone) => `${phone}@mobile.local`;
+
+const normalizePlacements = (placements, fallback = 'all') => {
+  const allowedPlacements = new Set(['all', 'home', 'services', 'category', 'dashboard']);
+  const values = Array.isArray(placements) ? placements : [fallback];
+  const normalized = values
+    .map((value) => String(value || '').trim().toLowerCase())
+    .filter((value) => allowedPlacements.has(value));
+
+  if (normalized.includes('all')) return ['all'];
+  return [...new Set(normalized)].length ? [...new Set(normalized)] : ['all'];
+};
 
 const normalizeSkills = (skills = []) => {
   if (Array.isArray(skills)) return skills.map((skill) => String(skill).trim()).filter(Boolean);

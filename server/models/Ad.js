@@ -32,6 +32,10 @@ const adSchema = new mongoose.Schema(
       trim: true,
       default: 'all',
     },
+    placements: {
+      type: [String],
+      default: ['all'],
+    },
     targetCategory: {
       type: String,
       trim: true,

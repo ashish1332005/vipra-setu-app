@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useGlobalContext } from '../../context/GlobalContext';
+import { adMatchesCategory, adMatchesPlacement } from '../../utils/adTargeting';
 import { getMediaUrl } from '../../utils/media';
 
 const CategoryBannerAd = ({ categoryName = '' }) => {
@@ -10,11 +11,8 @@ const CategoryBannerAd = ({ categoryName = '' }) => {
   // Only show active banner ads
   const activeAds = useMemo(
     () => ads.filter((ad) => {
-      const targetCategory = normalizeCategory(ad.targetCategory || 'all');
-      const currentCategory = normalizeCategory(categoryName);
-      const placement = (ad.placement || 'all').toLowerCase();
-      const matchesCategory = targetCategory === currentCategory;
-      const matchesPlacement = ['all', 'category'].includes(placement);
+      const matchesCategory = adMatchesCategory(ad.targetCategory, categoryName);
+      const matchesPlacement = adMatchesPlacement(ad, 'category');
 
       return ad.status === 'Active' && ad.type === 'Category Banner' && matchesPlacement && matchesCategory;
     }),
@@ -134,7 +132,5 @@ const CategoryBannerAd = ({ categoryName = '' }) => {
     </div>
   );
 };
-
-const normalizeCategory = (value = '') => value.trim().toLowerCase();
 
 export default CategoryBannerAd;

@@ -88,13 +88,19 @@ export const GlobalProvider = ({ children }) => {
     const ad = ads.find((item) => item._id === adId || item.id === adId);
     const nextStatus = ad?.status === 'Active' ? 'Paused' : 'Active';
     const { data } = await api.patch(`/admin/ads/${adId}`, { status: nextStatus });
-    setAds(ads.map((item) => (item._id === adId || item.id === adId ? data.ad : item)));
+    setAds((currentAds) => currentAds.map((item) => (item._id === adId || item.id === adId ? data.ad : item)));
+    return data.ad;
   };
 
   const createAd = async (newAd) => {
     const { data } = await api.post('/admin/ads', newAd);
-    setAds([data.ad, ...ads]);
+    setAds((currentAds) => [data.ad, ...currentAds]);
     return data.ad;
+  };
+
+  const deleteAd = async (adId) => {
+    await api.delete(`/admin/ads/${adId}`);
+    setAds((currentAds) => currentAds.filter((item) => item._id !== adId && item.id !== adId));
   };
 
   const login = async ({ phone, password }) => {
@@ -257,6 +263,7 @@ export const GlobalProvider = ({ children }) => {
       loadAds,
       toggleAdStatus,
       createAd,
+      deleteAd,
       toggleUserStatus,
       deleteUser
     }}>

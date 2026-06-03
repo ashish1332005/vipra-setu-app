@@ -95,6 +95,15 @@
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
     animation: shine-sweep 4.8s ease-in-out infinite;
   }
+
+  .ad-marquee-track {
+    animation: ad-marquee 24s linear infinite;
+    will-change: transform;
+  }
+
+  .ad-marquee-track:hover {
+    animation-play-state: paused;
+  }
 }
 
 @keyframes rainbow-shift {
@@ -130,11 +139,22 @@
   }
 }
 
+@keyframes ad-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .soft-float,
   .soft-float-delayed,
   .shine-sweep::after,
-  .rainbow-logo {
+  .rainbow-logo,
+  .ad-marquee-track {
     animation: none;
   }
 }
