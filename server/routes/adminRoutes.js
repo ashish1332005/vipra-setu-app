@@ -19,8 +19,6 @@ const {
   updateReport,
   listCategories,
   upsertCategory,
-  listSubscriptionPlans,
-  upsertSubscriptionPlan,
   listAds,
   createAd,
   updateAd,
@@ -51,8 +49,6 @@ router.get('/reports', listReports);
 router.patch('/reports/:id', updateReport);
 router.get('/categories', listCategories);
 router.post('/categories', upsertCategory);
-router.get('/subscription-plans', listSubscriptionPlans);
-router.post('/subscription-plans', upsertSubscriptionPlan);
 router.get('/ads', listAds);
 router.post('/ads', createAd);
 router.patch('/ads/:id', updateAd);

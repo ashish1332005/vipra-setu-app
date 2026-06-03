@@ -36,9 +36,7 @@ const TakerProviders = () => {
     return [...nextProviders].sort((left, right) => {
       if (sortBy === 'rating') return (right.rating || 0) - (left.rating || 0);
       if (sortBy === 'jobs') return (right.completedJobs || 0) - (left.completedJobs || 0);
-      if (sortBy === 'featured') return Number(right.subscription?.isFeatured || false) - Number(left.subscription?.isFeatured || false);
-      return Number(right.subscription?.isFeatured || false) - Number(left.subscription?.isFeatured || false)
-        || (right.rating || 0) - (left.rating || 0)
+      return (right.rating || 0) - (left.rating || 0)
         || (right.completedJobs || 0) - (left.completedJobs || 0);
     });
   }, [category, providers, query, sortBy]);
@@ -111,7 +109,6 @@ const TakerProviders = () => {
             </select>
             <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} className="rounded-xl border border-slate-200 px-4 py-3 text-sm font-bold outline-none">
               <option value="recommended">Recommended</option>
-              <option value="featured">Featured first</option>
               <option value="rating">Highest rated</option>
               <option value="jobs">Most completed</option>
             </select>
@@ -186,7 +183,6 @@ const ProviderCard = ({ provider, selected, onCompare, onRequest, onSave, onRepo
       <div>
         <div className="flex items-center gap-2">
           <h3 className="font-black text-slate-950">{provider.businessName || provider.user?.name}</h3>
-          {provider.subscription?.isFeatured && <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-800">Featured</span>}
         </div>
         <p className="mt-1 text-sm font-bold text-red-900">{provider.category} | {provider.city}</p>
       </div>

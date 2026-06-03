@@ -5,13 +5,12 @@ const Service = require('../models/Service');
 const Review = require('../models/Review');
 const Report = require('../models/Report');
 const CategoryConfig = require('../models/CategoryConfig');
-const SubscriptionPlan = require('../models/SubscriptionPlan');
 const Ad = require('../models/Ad');
 const asyncHandler = require('../utils/asyncHandler');
 const createNotification = require('../utils/createNotification');
 
 const getDashboard = asyncHandler(async (req, res) => {
-  const [totalUsers, totalProviders, totalTakers, pendingProviders, activeServices, openRequests, pendingServices, openReports, activeSubscriptions] = await Promise.all([
+  const [totalUsers, totalProviders, totalTakers, pendingProviders, activeServices, openRequests, pendingServices, openReports] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ role: 'service_provider' }),
     User.countDocuments({ role: 'service_taker' }),
@@ -20,7 +19,6 @@ const getDashboard = asyncHandler(async (req, res) => {
     ServiceRequest.countDocuments({ status: 'open' }),
     Service.countDocuments({ moderationStatus: 'pending' }),
     Report.countDocuments({ status: { $in: ['open', 'reviewing'] } }),
-    ProviderProfile.countDocuments({ 'subscription.status': 'active' }),
   ]);
 
   res.json({
@@ -33,7 +31,6 @@ const getDashboard = asyncHandler(async (req, res) => {
       openRequests,
       pendingServices,
       openReports,
-      activeSubscriptions,
     },
   });
 });
@@ -463,33 +460,8 @@ const upsertCategory = asyncHandler(async (req, res) => {
   res.json({ category });
 });
 
-const listSubscriptionPlans = asyncHandler(async (req, res) => {
-  const plans = await SubscriptionPlan.find().sort('price');
-  res.json({ plans });
-});
-
-const upsertSubscriptionPlan = asyncHandler(async (req, res) => {
-  const { code, name, price, durationDays = 365, leadCredits = 120, featured = false, features = [], isActive = true } = req.body;
-
-  if (!code || !name || price === undefined) {
-    res.status(400);
-    throw new Error('Plan code, name, and price are required');
-  }
-
-  const plan = await SubscriptionPlan.findOneAndUpdate(
-    { code },
-    { code, name, price, durationDays, leadCredits, featured, features, isActive },
-    { upsert: true, new: true, runValidators: true }
-  );
-
-  res.json({ plan });
-});
-
 const listAds = asyncHandler(async (req, res) => {
-  const ads = await Ad.find()
-    .populate('providerProfile', 'businessName category city rating reviewCount isApproved subscription')
-    .populate('providerUser', 'name email phone role status')
-    .sort('-createdAt');
+  const ads = await getPopulatedAds();
   res.json({ ads });
 });
 
@@ -509,17 +481,7 @@ const createAd = asyncHandler(async (req, res) => {
     ctaLabel = 'Know More',
   } = req.body;
   let { imageUrl = '' } = req.body;
-  let providerUser = undefined;
-
-  if (providerProfile) {
-    const profile = await ProviderProfile.findById(providerProfile).populate('user', 'name email phone');
-    if (!profile) {
-      res.status(404);
-      throw new Error('Selected provider account was not found');
-    }
-
-    providerUser = profile.user?._id;
-  }
+  const providerUser = await resolveProviderUser(providerProfile);
 
   if (imageFile?.dataUrl) {
     imageUrl = saveAdImage(imageFile);
@@ -547,7 +509,8 @@ const createAd = asyncHandler(async (req, res) => {
     subtitle,
     ctaLabel,
   });
-  res.status(201).json({ ad });
+  const populatedAd = await getPopulatedAd(ad._id);
+  res.status(201).json({ ad: populatedAd });
 });
 
 const saveAdImage = (imageFile) => {
@@ -584,15 +547,25 @@ const saveAdImage = (imageFile) => {
 };
 
 const updateAd = asyncHandler(async (req, res) => {
-  const allowedFields = ['title', 'type', 'imageUrl', 'targetUrl', 'status', 'placement', 'placements', 'targetCategory', 'audienceRole', 'providerProfile', 'providerUser', 'subtitle', 'ctaLabel'];
+  const { imageFile } = req.body;
+  const allowedFields = ['title', 'type', 'imageUrl', 'targetUrl', 'status', 'placement', 'placements', 'targetCategory', 'audienceRole', 'subtitle', 'ctaLabel'];
   const updates = allowedFields.reduce((data, field) => {
     if (req.body[field] !== undefined) data[field] = req.body[field];
     return data;
   }, {});
 
+  if (imageFile?.dataUrl) {
+    updates.imageUrl = saveAdImage(imageFile);
+  }
+
   if (req.body.placements !== undefined || req.body.placement !== undefined) {
     updates.placements = normalizePlacements(req.body.placements, req.body.placement);
     updates.placement = updates.placements[0] || 'all';
+  }
+
+  if (req.body.providerProfile !== undefined) {
+    updates.providerProfile = req.body.providerProfile || null;
+    updates.providerUser = await resolveProviderUser(req.body.providerProfile);
   }
 
   const ad = await Ad.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
@@ -602,7 +575,8 @@ const updateAd = asyncHandler(async (req, res) => {
     throw new Error('Ad not found');
   }
 
-  res.json({ ad });
+  const populatedAd = await getPopulatedAd(ad._id);
+  res.json({ ad: populatedAd });
 });
 
 const deleteAd = asyncHandler(async (req, res) => {
@@ -619,6 +593,28 @@ const deleteAd = asyncHandler(async (req, res) => {
 const normalizePhone = (phone = '') => String(phone).replace(/\D/g, '');
 
 const buildPhoneLoginEmail = (phone) => `${phone}@mobile.local`;
+
+const getPopulatedAds = () => Ad.find()
+  .populate('providerProfile', 'businessName category city rating reviewCount isApproved')
+  .populate('providerUser', 'name email phone role status')
+  .sort('-createdAt');
+
+const getPopulatedAd = (id) => Ad.findById(id)
+  .populate('providerProfile', 'businessName category city rating reviewCount isApproved')
+  .populate('providerUser', 'name email phone role status');
+
+const resolveProviderUser = async (providerProfile) => {
+  if (!providerProfile) return null;
+
+  const profile = await ProviderProfile.findById(providerProfile).populate('user', 'name email phone');
+  if (!profile) {
+    const error = new Error('Selected provider account was not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  return profile.user?._id;
+};
 
 const normalizePlacements = (placements, fallback = 'all') => {
   const allowedPlacements = new Set(['all', 'home', 'services', 'category', 'dashboard']);
@@ -659,8 +655,6 @@ module.exports = {
   updateReport,
   listCategories,
   upsertCategory,
-  listSubscriptionPlans,
-  upsertSubscriptionPlan,
   listAds,
   createAd,
   updateAd,

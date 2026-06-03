@@ -2,7 +2,6 @@ const ProviderProfile = require('../models/ProviderProfile');
 const Service = require('../models/Service');
 const ServiceRequest = require('../models/ServiceRequest');
 const Review = require('../models/Review');
-const SubscriptionPlan = require('../models/SubscriptionPlan');
 const asyncHandler = require('../utils/asyncHandler');
 const createNotification = require('../utils/createNotification');
 const fs = require('fs');
@@ -125,82 +124,12 @@ const saveKycDocument = (userId, documentFile) => {
   return `/uploads/kyc/${finalName}`;
 };
 
-const listSubscriptionPlans = asyncHandler(async (req, res) => {
-  let plans = await SubscriptionPlan.find({ isActive: true }).sort('price');
-
-  if (plans.length === 0) {
-    plans = [
-      {
-        code: 'basic_yearly',
-        name: 'Basic Yearly',
-        price: 1999,
-        durationDays: 365,
-        leadCredits: 120,
-        featured: false,
-        features: ['Public profile', 'Service listings', 'Lead dashboard', 'Request tracking'],
-      },
-      {
-        code: 'pro_yearly',
-        name: 'Pro Yearly',
-        price: 4999,
-        durationDays: 365,
-        leadCredits: 360,
-        featured: true,
-        features: ['Featured ranking', 'More lead credits', 'Portfolio highlights', 'Priority approval'],
-      },
-    ];
-  }
-
-  res.json({ plans });
-});
-
-const activateMySubscription = asyncHandler(async (req, res) => {
-  const { plan = 'basic_yearly' } = req.body;
-  const planConfig = await SubscriptionPlan.findOne({ code: plan, isActive: true });
-  const durationDays = planConfig?.durationDays || 365;
-  const leadCredits = planConfig?.leadCredits || (plan === 'pro_yearly' ? 360 : 120);
-  const startsAt = new Date();
-  const expiresAt = new Date(startsAt);
-  expiresAt.setDate(expiresAt.getDate() + durationDays);
-
-  const profile = await ProviderProfile.findOneAndUpdate(
-    { user: req.user._id },
-    {
-      subscription: {
-        plan,
-        status: 'active',
-        startsAt,
-        expiresAt,
-        leadCredits,
-        isFeatured: planConfig?.featured || plan === 'featured_yearly' || plan === 'pro_yearly',
-      },
-    },
-    { new: true, runValidators: true }
-  );
-
-  await createNotification({
-    user: req.user._id,
-    title: 'Subscription activated',
-    message: `Your ${plan} subscription is active for 1 year.`,
-    type: 'subscription',
-    link: '/provider',
-  });
-
-  res.json({ profile });
-});
-
 const createService = asyncHandler(async (req, res) => {
   const { title, category, description, priceLabel, durationLabel, packageType, includes } = req.body;
 
   if (!title || !category || !description) {
     res.status(400);
     throw new Error('Title, category, and description are required');
-  }
-
-  const profile = await ProviderProfile.findOne({ user: req.user._id });
-  if (profile?.subscription?.status !== 'active') {
-    res.status(402);
-    throw new Error('Active yearly subscription is required to publish services');
   }
 
   const service = await Service.create({
@@ -264,16 +193,6 @@ const listOpenRequests = asyncHandler(async (req, res) => {
 const claimRequest = asyncHandler(async (req, res) => {
   const profile = await ProviderProfile.findOne({ user: req.user._id });
 
-  if (profile?.subscription?.status !== 'active') {
-    res.status(402);
-    throw new Error('Active yearly subscription is required to claim leads');
-  }
-
-  if ((profile.subscription.leadCredits || 0) <= 0) {
-    res.status(402);
-    throw new Error('No lead credits remaining');
-  }
-
   const request = await ServiceRequest.findOneAndUpdate(
     { _id: req.params.id, status: 'open' },
     {
@@ -294,11 +213,6 @@ const claimRequest = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error('Open request not found');
   }
-
-  await ProviderProfile.findOneAndUpdate(
-    { user: req.user._id },
-    { $inc: { 'subscription.leadCredits': -1 } }
-  );
 
   await createNotification({
     user: request.serviceTaker?._id || request.serviceTaker,
@@ -475,7 +389,6 @@ const getBusinessAnalytics = asyncHandler(async (req, res) => {
       pendingFollowUps,
       rating: profile?.rating || 0,
       reviewCount: reviews.length,
-      leadCredits: profile?.subscription?.leadCredits || 0,
     },
   });
 });
@@ -493,8 +406,6 @@ module.exports = {
   getMyProviderProfile,
   updateMyProviderProfile,
   submitMyKyc,
-  listSubscriptionPlans,
-  activateMySubscription,
   createService,
   listMyServices,
   updateMyService,

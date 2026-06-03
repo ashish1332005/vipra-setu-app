@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useGlobalContext } from '../../context/GlobalContext';
 import api from '../../services/api';
 import { adMatchesCategory, adMatchesPlacement } from '../../utils/adTargeting';
@@ -8,20 +8,23 @@ const AdPlacement = ({ placement = 'all', pagePlacement, category = '', limit = 
   const { ads, currentUser } = useGlobalContext();
   const [fallbackAds, setFallbackAds] = useState([]);
   const [isVisible, setIsVisible] = useState(false);
+  const railRef = useRef(null);
 
   useEffect(() => {
     if (ads.length > 0 && !category) return;
 
     const params = {};
+    const targetPlacement = pagePlacement || placement;
     if (currentUser?.role) params.role = currentUser.role;
     if (category) params.category = category;
+    if (targetPlacement && targetPlacement !== 'all') params.placement = targetPlacement;
 
     api.get('/ads', {
       params: Object.keys(params).length > 0 ? params : undefined,
     })
       .then(({ data }) => setFallbackAds(data.ads || []))
       .catch(() => setFallbackAds([]));
-  }, [ads.length, category, currentUser?.role]);
+  }, [ads.length, category, currentUser?.role, pagePlacement, placement]);
 
   const visibleAds = useMemo(() => {
     const currentPlacement = placement.toLowerCase();
@@ -50,6 +53,31 @@ const AdPlacement = ({ placement = 'all', pagePlacement, category = '', limit = 
     const timer = window.setTimeout(() => setIsVisible(true), 220);
     return () => window.clearTimeout(timer);
   }, [visibleAds.length, placement, category]);
+
+  useEffect(() => {
+    if (placement.toLowerCase() === 'sidebar' || visibleAds.length <= 1) return undefined;
+
+    const rail = railRef.current;
+    if (!rail) return undefined;
+
+    const timer = window.setInterval(() => {
+      const maxScrollLeft = rail.scrollWidth - rail.clientWidth;
+
+      if (maxScrollLeft <= 0) return;
+
+      if (rail.scrollLeft >= maxScrollLeft - 8) {
+        rail.scrollTo({ left: 0, behavior: 'smooth' });
+        return;
+      }
+
+      rail.scrollBy({
+        left: Math.min(rail.clientWidth * 0.82, 520),
+        behavior: 'smooth',
+      });
+    }, 3600);
+
+    return () => window.clearInterval(timer);
+  }, [placement, visibleAds.length]);
 
   if (visibleAds.length === 0) return null;
 
@@ -92,20 +120,20 @@ const AdPlacement = ({ placement = 'all', pagePlacement, category = '', limit = 
     );
   }
 
-  const railAds = visibleAds.length > 1 ? [...visibleAds, ...visibleAds] : visibleAds;
-
   return (
     <section className={`overflow-hidden border-y border-amber-100 bg-[#fffaf2] py-2 transition-all duration-500 ease-out ${isVisible ? 'max-h-56 opacity-100 translate-y-0' : 'max-h-0 -translate-y-2 opacity-0'} ${className}`}>
-      <div className="overflow-hidden px-3 sm:px-4 lg:px-6">
-        <div className={`flex w-max gap-3 ${visibleAds.length > 1 ? 'ad-marquee-track' : ''}`}>
-      {railAds.map((ad, index) => {
+      <div
+        ref={railRef}
+        className="flex snap-x gap-3 overflow-x-auto px-3 scroll-smooth [scrollbar-width:none] sm:px-4 lg:px-6 [&::-webkit-scrollbar]:hidden"
+      >
+      {visibleAds.map((ad) => {
         const href = ad.targetUrl || '#';
         const hasTarget = Boolean(ad.targetUrl);
         const CardTag = hasTarget ? 'a' : 'article';
 
         return (
           <CardTag
-            key={`${ad._id || ad.id}-${index}`}
+            key={ad._id || ad.id}
             href={hasTarget ? href : undefined}
             target={hasTarget ? '_blank' : undefined}
             rel={hasTarget ? 'noreferrer' : undefined}
@@ -125,7 +153,6 @@ const AdPlacement = ({ placement = 'all', pagePlacement, category = '', limit = 
           </CardTag>
         );
       })}
-        </div>
       </div>
     </section>
   );

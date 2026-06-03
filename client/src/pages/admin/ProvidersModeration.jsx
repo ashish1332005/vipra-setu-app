@@ -74,7 +74,7 @@ const ProvidersModeration = () => {
     <section>
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Provider Approval & KYC</h1>
-        <p className="mt-1 text-slate-500">Approve/reject providers, verify KYC, and review subscription status.</p>
+        <p className="mt-1 text-slate-500">Approve/reject providers and verify KYC documents.</p>
       </div>
       {message && <p className="mb-4 rounded-xl bg-blue-50 px-4 py-3 text-sm font-bold text-blue-700">{message}</p>}
 
@@ -138,8 +138,6 @@ const ProvidersModeration = () => {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Badge label={profile.isApproved ? 'Approved' : 'Pending approval'} tone={profile.isApproved ? 'green' : 'amber'} />
                   <Badge label={`KYC: ${profile.kyc?.status || 'not_submitted'}`} tone="blue" />
-                  <Badge label={`Plan: ${profile.subscription?.status || 'inactive'}`} tone="slate" />
-                  <Badge label={`${profile.subscription?.leadCredits || 0} credits`} tone="slate" />
                 </div>
                 {profile.kyc?.documentNumber && (
                   <p className="mt-3 text-xs font-bold text-slate-500">

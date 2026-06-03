@@ -4,8 +4,6 @@ const {
   getMyProviderProfile,
   updateMyProviderProfile,
   submitMyKyc,
-  listSubscriptionPlans,
-  activateMySubscription,
   createService,
   listMyServices,
   updateMyService,
@@ -23,12 +21,10 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 router.get('/', listProviders);
-router.get('/subscription-plans', listSubscriptionPlans);
 router.use('/me', protect, authorize('service_provider'));
 router.get('/me', getMyProviderProfile);
 router.put('/me', updateMyProviderProfile);
 router.post('/me/kyc', submitMyKyc);
-router.post('/me/subscription', activateMySubscription);
 router.get('/me/services', listMyServices);
 router.post('/me/services', createService);
 router.patch('/me/services/:id', updateMyService);

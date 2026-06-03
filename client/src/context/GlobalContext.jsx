@@ -98,6 +98,12 @@ export const GlobalProvider = ({ children }) => {
     return data.ad;
   };
 
+  const updateAd = async (adId, adUpdates) => {
+    const { data } = await api.patch(`/admin/ads/${adId}`, adUpdates);
+    setAds((currentAds) => currentAds.map((item) => (item._id === adId || item.id === adId ? data.ad : item)));
+    return data.ad;
+  };
+
   const deleteAd = async (adId) => {
     await api.delete(`/admin/ads/${adId}`);
     setAds((currentAds) => currentAds.filter((item) => item._id !== adId && item.id !== adId));
@@ -263,6 +269,7 @@ export const GlobalProvider = ({ children }) => {
       loadAds,
       toggleAdStatus,
       createAd,
+      updateAd,
       deleteAd,
       toggleUserStatus,
       deleteUser

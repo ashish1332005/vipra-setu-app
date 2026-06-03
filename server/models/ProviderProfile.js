@@ -88,29 +88,6 @@ const providerProfileSchema = new mongoose.Schema(
       submittedAt: Date,
       reviewedAt: Date,
     },
-    subscription: {
-      plan: {
-        type: String,
-        enum: ['none', 'basic_yearly', 'pro_yearly', 'featured_yearly'],
-        default: 'none',
-      },
-      status: {
-        type: String,
-        enum: ['inactive', 'trial', 'active', 'expired', 'cancelled'],
-        default: 'inactive',
-      },
-      startsAt: Date,
-      expiresAt: Date,
-      leadCredits: {
-        type: Number,
-        min: 0,
-        default: 0,
-      },
-      isFeatured: {
-        type: Boolean,
-        default: false,
-      },
-    },
     completedJobs: {
       type: Number,
       min: 0,

@@ -21,7 +21,7 @@ const navByRole = {
   service_provider: [
     { label: 'Overview', to: '/provider', icon: LayoutDashboard, end: true },
     { label: 'Profile', to: '/provider/profile', icon: UserRound },
-    { label: 'Growth', to: '/provider/growth', icon: CreditCard },
+    { label: 'Verification', to: '/provider/growth', icon: CreditCard },
     { label: 'Business Suite', to: '/provider/business', icon: Building2 },
     { label: 'Services', to: '/provider/services', icon: BriefcaseBusiness },
     { label: 'Requests', to: '/provider/requests', icon: ClipboardList },

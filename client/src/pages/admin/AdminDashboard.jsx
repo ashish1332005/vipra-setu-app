@@ -27,7 +27,6 @@ const AdminDashboard = () => {
     openRequests: 0,
     pendingServices: 0,
     openReports: 0,
-    activeSubscriptions: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -104,7 +103,6 @@ const AdminDashboard = () => {
             <StatPill label="Open Requests" value={stats.openRequests} />
             <StatPill label="Pending Services" value={stats.pendingServices || 0} />
             <StatPill label="Open Reports" value={stats.openReports || 0} />
-            <StatPill label="Active Subscriptions" value={stats.activeSubscriptions || 0} />
           </div>
           <div className="mt-6 rounded-xl bg-amber-50 p-5 text-sm font-bold text-red-900">
             Use Ads Control to target one service category, one placement, and one provider sponsor when needed.
