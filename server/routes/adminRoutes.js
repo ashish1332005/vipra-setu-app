@@ -9,6 +9,7 @@ const {
   listProviderProfiles,
   createProviderAccount,
   listServicesAdmin,
+  createServiceAdmin,
   moderateService,
   listRequests,
   updateRequestStatus,
@@ -40,6 +41,7 @@ router.patch('/providers/:id/approve', approveProvider);
 router.patch('/providers/:id/reject', rejectProvider);
 router.patch('/providers/:id/kyc', reviewProviderKyc);
 router.get('/services', listServicesAdmin);
+router.post('/services', createServiceAdmin);
 router.patch('/services/:id/moderation', moderateService);
 router.get('/requests', listRequests);
 router.patch('/requests/:id/status', updateRequestStatus);

@@ -230,6 +230,78 @@ const listServicesAdmin = asyncHandler(async (req, res) => {
   res.json({ services });
 });
 
+const createServiceAdmin = asyncHandler(async (req, res) => {
+  const {
+    provider,
+    title,
+    category,
+    description,
+    priceLabel = '',
+    durationLabel = '',
+    packageType = 'standard',
+    includes = [],
+    moderationStatus = 'approved',
+    moderationNote = 'Created by admin',
+    isFeatured = false,
+    isActive = true,
+  } = req.body;
+
+  const categoryName = String(category || '').trim();
+
+  if (!provider || !title || !categoryName || !description) {
+    res.status(400);
+    throw new Error('Provider, title, category, and description are required');
+  }
+
+  if (!['pending', 'approved', 'rejected'].includes(moderationStatus)) {
+    res.status(400);
+    throw new Error('Invalid moderation status');
+  }
+
+  const [providerUser, categoryConfig] = await Promise.all([
+    User.findOne({ _id: provider, role: 'service_provider' }),
+    CategoryConfig.findOne({ name: categoryName, isActive: true }),
+  ]);
+
+  if (!providerUser) {
+    res.status(404);
+    throw new Error('Service provider not found');
+  }
+
+  if (!categoryConfig) {
+    res.status(404);
+    throw new Error('Active category not found');
+  }
+
+  const service = await Service.create({
+    provider: providerUser._id,
+    title,
+    category: categoryName,
+    description,
+    priceLabel,
+    durationLabel,
+    packageType,
+    includes: normalizeSkills(includes),
+    moderationStatus,
+    moderationNote,
+    isFeatured,
+    isActive,
+  });
+
+  await createNotification({
+    user: providerUser._id,
+    title: 'Service created by admin',
+    message: `Admin created "${service.title}" in ${service.category}.`,
+    type: 'approval',
+    link: '/provider/services',
+  });
+
+  const populatedService = await Service.findById(service._id)
+    .populate('provider', 'name email phone status');
+
+  res.status(201).json({ service: populatedService });
+});
+
 const moderateService = asyncHandler(async (req, res) => {
   const { moderationStatus, moderationNote = '', isFeatured } = req.body;
   const updates = {};
@@ -557,6 +629,7 @@ module.exports = {
   listProviderProfiles,
   createProviderAccount,
   listServicesAdmin,
+  createServiceAdmin,
   moderateService,
   listRequests,
   updateRequestStatus,
