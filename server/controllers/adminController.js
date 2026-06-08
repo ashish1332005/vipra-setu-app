@@ -6,11 +6,13 @@ const Review = require('../models/Review');
 const Report = require('../models/Report');
 const CategoryConfig = require('../models/CategoryConfig');
 const Ad = require('../models/Ad');
+const ContactLog = require('../models/ContactLog');
 const asyncHandler = require('../utils/asyncHandler');
 const createNotification = require('../utils/createNotification');
+const saveImageUpload = require('../utils/saveImageUpload');
 
 const getDashboard = asyncHandler(async (req, res) => {
-  const [totalUsers, totalProviders, totalTakers, pendingProviders, activeServices, openRequests, pendingServices, openReports] = await Promise.all([
+  const [totalUsers, totalProviders, totalTakers, pendingProviders, activeServices, openRequests, pendingServices, openReports, contactLogs] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ role: 'service_provider' }),
     User.countDocuments({ role: 'service_taker' }),
@@ -19,6 +21,7 @@ const getDashboard = asyncHandler(async (req, res) => {
     ServiceRequest.countDocuments({ status: 'open' }),
     Service.countDocuments({ moderationStatus: 'pending' }),
     Report.countDocuments({ status: { $in: ['open', 'reviewing'] } }),
+    ContactLog.countDocuments(),
   ]);
 
   res.json({
@@ -31,6 +34,7 @@ const getDashboard = asyncHandler(async (req, res) => {
       openRequests,
       pendingServices,
       openReports,
+      contactLogs,
     },
   });
 });
@@ -426,6 +430,22 @@ const listRequests = asyncHandler(async (req, res) => {
   res.json({ requests });
 });
 
+const listContactLogs = asyncHandler(async (req, res) => {
+  const { method, category } = req.query;
+  const filter = {};
+  if (method) filter.method = method;
+  if (category) filter.category = category;
+
+  const contactLogs = await ContactLog.find(filter)
+    .populate('serviceTaker', 'name phone')
+    .populate('provider', 'name phone')
+    .populate('providerProfile', 'businessName category city rate')
+    .sort('-createdAt')
+    .limit(250);
+
+  res.json({ contactLogs });
+});
+
 const updateRequestStatus = asyncHandler(async (req, res) => {
   const { status, provider } = req.body;
   const updates = {};
@@ -522,7 +542,15 @@ const listCategories = asyncHandler(async (req, res) => {
 });
 
 const upsertCategory = asyncHandler(async (req, res) => {
-  const { name, description, serviceTypes = [], isActive = true } = req.body;
+  const {
+    name,
+    description,
+    serviceTypes = [],
+    isActive = true,
+    imageFile,
+    iconFile,
+  } = req.body;
+  let { imageUrl, iconUrl } = req.body;
 
   const categoryName = String(name || '').trim();
 
@@ -531,14 +559,21 @@ const upsertCategory = asyncHandler(async (req, res) => {
     throw new Error('Category name is required');
   }
 
+  if (imageFile?.dataUrl) imageUrl = saveCategoryImage(imageFile);
+  if (iconFile?.dataUrl) iconUrl = saveCategoryImage(iconFile);
+
+  const updates = {
+    name: categoryName,
+    description,
+    serviceTypes: normalizeSkills(serviceTypes),
+    isActive,
+  };
+  if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+  if (iconUrl !== undefined) updates.iconUrl = iconUrl;
+
   const category = await CategoryConfig.findOneAndUpdate(
     { name: categoryName },
-    {
-      name: categoryName,
-      description,
-      serviceTypes: normalizeSkills(serviceTypes),
-      isActive,
-    },
+    updates,
     { upsert: true, new: true, runValidators: true }
   );
 
@@ -572,9 +607,13 @@ const createAd = asyncHandler(async (req, res) => {
     imageUrl = saveAdImage(imageFile);
   }
 
-  if (!title || !imageUrl) {
+  if (!title) {
     res.status(400);
-    throw new Error('Ad title and image are required');
+    throw new Error('Ad title is required');
+  }
+
+  if (!imageUrl) {
+    imageUrl = buildDefaultAdImage(title, subtitle);
   }
 
   const normalizedPlacements = normalizePlacements(placements, placement);
@@ -599,69 +638,57 @@ const createAd = asyncHandler(async (req, res) => {
 });
 
 const saveAdImage = (imageFile) => {
-  const { dataUrl } = imageFile;
-  const match = typeof dataUrl === 'string' && dataUrl.match(/^data:([\w/+.-]+);base64,(.+)$/);
+  return saveImageUpload(imageFile, {
+    folder: 'ads',
+    label: 'Ad image',
+    maxSizeMb: 5,
+  });
+};
 
-  if (!match) {
-    const error = new Error('Invalid ad image upload');
-    error.statusCode = 400;
-    throw error;
-  }
+const saveCategoryImage = (imageFile) => {
+  return saveImageUpload(imageFile, {
+    folder: 'categories',
+    label: 'Category image',
+    maxSizeMb: 3,
+  });
+};
 
-  const allowedTypes = {
-    'image/jpeg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-  };
-  const extension = allowedTypes[match[1]];
-
-  if (!extension) {
-    const error = new Error('Only JPG, PNG, or WEBP ad images are allowed');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const buffer = Buffer.from(match[2], 'base64');
-  if (buffer.length > 5 * 1024 * 1024) {
-    const error = new Error('Ad image must be 5MB or smaller');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  return dataUrl;
+const buildDefaultAdImage = (title, subtitle = '') => {
+  const escapeXml = (value = '') => String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520">
+      <defs>
+        <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0" stop-color="#FF6B35"/>
+          <stop offset="0.55" stop-color="#E9562B"/>
+          <stop offset="1" stop-color="#1F2A44"/>
+        </linearGradient>
+        <pattern id="p" width="72" height="72" patternUnits="userSpaceOnUse">
+          <path d="M36 6 L66 36 L36 66 L6 36 Z" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3"/>
+        </pattern>
+      </defs>
+      <rect width="1200" height="520" rx="46" fill="url(#g)"/>
+      <rect width="1200" height="520" fill="url(#p)" opacity=".45"/>
+      <circle cx="1020" cy="110" r="120" fill="rgba(255,255,255,.16)"/>
+      <circle cx="1050" cy="390" r="170" fill="rgba(255,255,255,.1)"/>
+      <text x="82" y="210" fill="#fff" font-family="Arial, sans-serif" font-size="68" font-weight="800">${escapeXml(title).slice(0, 42)}</text>
+      <text x="86" y="286" fill="#FFEAD8" font-family="Arial, sans-serif" font-size="34" font-weight="700">${escapeXml(subtitle || 'Vipra Sewa Setu community update').slice(0, 72)}</text>
+      <rect x="86" y="340" width="210" height="64" rx="32" fill="#fff"/>
+      <text x="132" y="382" fill="#FF6B35" font-family="Arial, sans-serif" font-size="25" font-weight="800">Know More</text>
+    </svg>`;
+  return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
 };
 
 const saveProviderImage = (imageFile) => {
-  const { dataUrl } = imageFile;
-  const match = typeof dataUrl === 'string' && dataUrl.match(/^data:([\w/+.-]+);base64,(.+)$/);
-
-  if (!match) {
-    const error = new Error('Invalid provider image upload');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const allowedTypes = {
-    'image/jpeg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-  };
-  const extension = allowedTypes[match[1]];
-
-  if (!extension) {
-    const error = new Error('Only JPG, PNG, or WEBP provider images are allowed');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const buffer = Buffer.from(match[2], 'base64');
-  if (buffer.length > 5 * 1024 * 1024) {
-    const error = new Error('Provider image must be 5MB or smaller');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  return dataUrl;
+  return saveImageUpload(imageFile, {
+    folder: 'providers',
+    label: 'Provider image',
+    maxSizeMb: 5,
+  });
 };
 
 const updateAd = asyncHandler(async (req, res) => {
@@ -767,6 +794,7 @@ module.exports = {
   createServiceAdmin,
   moderateService,
   listRequests,
+  listContactLogs,
   updateRequestStatus,
   listReviewsAdmin,
   moderateReview,

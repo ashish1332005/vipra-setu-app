@@ -15,6 +15,8 @@ const {
   sendQuote,
   getBusinessAnalytics,
   listMyReviews,
+  listMyContactLogs,
+  updateMyLocation,
 } = require('../controllers/providerController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -32,6 +34,8 @@ router.get('/me/analytics', getBusinessAnalytics);
 router.get('/me/requests', listAssignedRequests);
 router.get('/me/open-requests', listOpenRequests);
 router.get('/me/reviews', listMyReviews);
+router.get('/me/contact-logs', listMyContactLogs);
+router.patch('/me/location', updateMyLocation);
 router.patch('/me/open-requests/:id/claim', claimRequest);
 router.patch('/me/requests/:id/status', updateAssignedRequestStatus);
 router.patch('/me/requests/:id/pipeline', updateLeadPipeline);

@@ -4,6 +4,7 @@ const ProviderProfile = require('../models/ProviderProfile');
 const SavedProvider = require('../models/SavedProvider');
 const Report = require('../models/Report');
 const Notification = require('../models/Notification');
+const ContactLog = require('../models/ContactLog');
 const asyncHandler = require('../utils/asyncHandler');
 const createNotification = require('../utils/createNotification');
 
@@ -283,6 +284,52 @@ const markNotificationRead = asyncHandler(async (req, res) => {
   res.json({ notification });
 });
 
+const createContactLog = asyncHandler(async (req, res) => {
+  const { provider, providerProfile, category, method, city = '', rateLabel = '', note = '' } = req.body;
+
+  if (!provider || !category || !['call', 'whatsapp'].includes(method)) {
+    res.status(400);
+    throw new Error('Provider, category, and contact method are required');
+  }
+
+  const log = await ContactLog.create({
+    serviceTaker: req.user._id,
+    provider,
+    providerProfile,
+    category,
+    method,
+    city,
+    rateLabel,
+    note,
+    source: 'mobile_app',
+  });
+
+  await createNotification({
+    user: provider,
+    title: method === 'call' ? 'New call lead' : 'New WhatsApp lead',
+    message: `${req.user.name} contacted you for ${category}.`,
+    type: 'request',
+    link: '/provider/requests',
+  });
+
+  const populatedLog = await ContactLog.findById(log._id)
+    .populate('serviceTaker', 'name phone')
+    .populate('provider', 'name phone')
+    .populate('providerProfile', 'businessName category city rate');
+
+  res.status(201).json({ contactLog: populatedLog });
+});
+
+const listMyContactLogs = asyncHandler(async (req, res) => {
+  const contactLogs = await ContactLog.find({ serviceTaker: req.user._id })
+    .populate('provider', 'name phone')
+    .populate('providerProfile', 'businessName category city rate')
+    .sort('-createdAt')
+    .limit(100);
+
+  res.json({ contactLogs });
+});
+
 module.exports = {
   createRequest,
   listMyRequests,
@@ -298,4 +345,6 @@ module.exports = {
   createReport,
   listMyNotifications,
   markNotificationRead,
+  createContactLog,
+  listMyContactLogs,
 };

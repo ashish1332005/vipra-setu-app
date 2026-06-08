@@ -8,10 +8,12 @@ const {
   reviewProviderKyc,
   listProviderProfiles,
   createProviderAccount,
+  updateProviderProfileAdmin,
   listServicesAdmin,
   createServiceAdmin,
   moderateService,
   listRequests,
+  listContactLogs,
   updateRequestStatus,
   listReviewsAdmin,
   moderateReview,
@@ -35,6 +37,7 @@ router.get('/users', listUsers);
 router.patch('/users/:id/status', updateUserStatus);
 router.get('/providers', listProviderProfiles);
 router.post('/providers', createProviderAccount);
+router.put('/providers/:id', updateProviderProfileAdmin);
 router.patch('/providers/:id/approve', approveProvider);
 router.patch('/providers/:id/reject', rejectProvider);
 router.patch('/providers/:id/kyc', reviewProviderKyc);
@@ -42,6 +45,7 @@ router.get('/services', listServicesAdmin);
 router.post('/services', createServiceAdmin);
 router.patch('/services/:id/moderation', moderateService);
 router.get('/requests', listRequests);
+router.get('/contact-logs', listContactLogs);
 router.patch('/requests/:id/status', updateRequestStatus);
 router.get('/reviews', listReviewsAdmin);
 router.patch('/reviews/:id/moderation', moderateReview);

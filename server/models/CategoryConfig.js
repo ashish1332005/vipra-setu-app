@@ -12,6 +12,16 @@ const categoryConfigSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    iconUrl: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     serviceTypes: [
       {
         type: String,

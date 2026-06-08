@@ -14,6 +14,8 @@ const {
   createReport,
   listMyNotifications,
   markNotificationRead,
+  createContactLog,
+  listMyContactLogs,
 } = require('../controllers/serviceTakerController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -35,5 +37,7 @@ router.delete('/me/saved-providers/:providerId', unsaveProvider);
 router.post('/me/reports', createReport);
 router.get('/me/notifications', listMyNotifications);
 router.patch('/me/notifications/:id/read', markNotificationRead);
+router.get('/me/contact-logs', listMyContactLogs);
+router.post('/me/contact-logs', createContactLog);
 
 module.exports = router;

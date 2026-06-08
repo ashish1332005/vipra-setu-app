@@ -7,7 +7,7 @@ const listActiveAds = asyncHandler(async (req, res) => {
   const placement = (req.query.placement || '').trim().toLowerCase();
   const categoryFilter = category && category !== 'all'
     ? { targetCategory: { $in: ['all', category] } }
-    : { targetCategory: 'all' };
+    : {};
   const placementFilter = placement && placement !== 'all'
     ? {
         $or: [

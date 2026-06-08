@@ -32,6 +32,14 @@ const providerProfileSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    profileImageUrl: {
+      type: String,
+      trim: true,
+    },
+    coverImageUrl: {
+      type: String,
+      trim: true,
+    },
     experienceYears: {
       type: Number,
       min: 0,
@@ -123,6 +131,16 @@ const providerProfileSchema = new mongoose.Schema(
     isApproved: {
       type: Boolean,
       default: false,
+    },
+    locationSharing: {
+      type: Boolean,
+      default: false,
+    },
+    currentLocation: {
+      lat: { type: Number, min: -90, max: 90 },
+      lng: { type: Number, min: -180, max: 180 },
+      accuracy: { type: Number, min: 0 },
+      updatedAt: Date,
     },
     approvalNote: {
       type: String,

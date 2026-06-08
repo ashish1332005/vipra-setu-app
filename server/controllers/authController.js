@@ -89,6 +89,111 @@ const getMe = asyncHandler(async (req, res) => {
   res.json({ user: sanitizeUser(req.user) });
 });
 
+const updateMe = asyncHandler(async (req, res) => {
+  const { name, phone } = req.body;
+  const normalizedPhone = normalizePhone(phone);
+
+  if (!name || !normalizedPhone) {
+    res.status(400);
+    throw new Error('Name and mobile number are required');
+  }
+
+  const existingUser = await User.findOne({
+    phone: normalizedPhone,
+    _id: { $ne: req.user._id },
+  });
+  if (existingUser) {
+    res.status(409);
+    throw new Error('Mobile number is already registered');
+  }
+
+  const user = await User.findById(req.user._id);
+  user.name = name.trim();
+  user.phone = normalizedPhone;
+  user.email = buildPhoneLoginEmail(normalizedPhone);
+  await user.save();
+
+  res.json({ user: sanitizeUser(user) });
+});
+
+const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword || String(newPassword).length < 6) {
+    res.status(400);
+    throw new Error('Current password and a new password of at least 6 characters are required');
+  }
+
+  const user = await User.findById(req.user._id).select('+password');
+  if (!user || !(await user.matchPassword(currentPassword))) {
+    res.status(401);
+    throw new Error('Current password is incorrect');
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.json({ message: 'Password changed successfully' });
+});
+
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { phone } = req.body;
+  const normalizedPhone = normalizePhone(phone);
+
+  if (!normalizedPhone) {
+    res.status(400);
+    throw new Error('Mobile number is required');
+  }
+
+  const user = await User.findOne({ phone: normalizedPhone }).select(
+    '+passwordResetToken +passwordResetExpires'
+  );
+
+  if (!user) {
+    res.json({ message: 'If the number is registered, reset instructions will be sent.' });
+    return;
+  }
+
+  const token = crypto.randomBytes(24).toString('hex');
+  user.passwordResetToken = hashToken(token);
+  user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000);
+  await user.save();
+
+  res.json({
+    message: 'Password reset token generated.',
+    expiresInMinutes: 15,
+    ...(env.nodeEnv === 'production' ? {} : { resetToken: token }),
+  });
+});
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { phone, token, newPassword } = req.body;
+  const normalizedPhone = normalizePhone(phone);
+
+  if (!normalizedPhone || !token || !newPassword || String(newPassword).length < 6) {
+    res.status(400);
+    throw new Error('Mobile number, reset token, and a new password of at least 6 characters are required');
+  }
+
+  const user = await User.findOne({
+    phone: normalizedPhone,
+    passwordResetToken: hashToken(token),
+    passwordResetExpires: { $gt: new Date() },
+  }).select('+password +passwordResetToken +passwordResetExpires');
+
+  if (!user) {
+    res.status(400);
+    throw new Error('Invalid or expired reset token');
+  }
+
+  user.password = newPassword;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  res.json({ message: 'Password reset successfully' });
+});
+
 const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.body;
 
@@ -207,4 +312,14 @@ const escapeHtml = (value = '') => String(value)
   .replace(/"/g, '&quot;')
   .replace(/'/g, '&#039;');
 
-module.exports = { register, login, getMe, verifyEmail, resendVerification };
+module.exports = {
+  register,
+  login,
+  getMe,
+  updateMe,
+  changePassword,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+  resendVerification,
+};

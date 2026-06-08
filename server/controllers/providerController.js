@@ -2,20 +2,38 @@ const ProviderProfile = require('../models/ProviderProfile');
 const Service = require('../models/Service');
 const ServiceRequest = require('../models/ServiceRequest');
 const Review = require('../models/Review');
+const ContactLog = require('../models/ContactLog');
 const asyncHandler = require('../utils/asyncHandler');
 const createNotification = require('../utils/createNotification');
+const saveImageUpload = require('../utils/saveImageUpload');
 const fs = require('fs');
 const path = require('path');
 
 const listProviders = asyncHandler(async (req, res) => {
-  const { category, city, approved = 'true' } = req.query;
+  const { category, city, approved = 'true', nearLat, nearLng } = req.query;
   const filter = {};
 
   if (category) filter.category = category;
   if (city) filter.city = city;
   if (approved !== 'all') filter.isApproved = approved === 'true';
 
-  const providers = await ProviderProfile.find(filter).populate('user', 'name email phone status');
+  let providers = await ProviderProfile.find(filter).populate('user', 'name email phone status');
+
+  const latitude = Number(nearLat);
+  const longitude = Number(nearLng);
+  if (Number.isFinite(latitude) && Number.isFinite(longitude)) {
+    providers = providers
+      .map((provider) => {
+        const data = provider.toObject();
+        const location = data.currentLocation || {};
+        data.distanceKm = Number.isFinite(location.lat) && Number.isFinite(location.lng)
+          ? calculateDistanceKm(latitude, longitude, location.lat, location.lng)
+          : null;
+        return data;
+      })
+      .sort((a, b) => (a.distanceKm ?? Number.MAX_VALUE) - (b.distanceKm ?? Number.MAX_VALUE));
+  }
+
   res.json({ providers });
 });
 
@@ -58,7 +76,10 @@ const updateMyProviderProfile = asyncHandler(async (req, res) => {
 
   const profile = await ProviderProfile.findOneAndUpdate(
     { user: req.user._id },
-    updates,
+    {
+      ...updates,
+      $setOnInsert: { user: req.user._id },
+    },
     { new: true, runValidators: true, upsert: true, setDefaultsOnInsert: true }
   );
 
@@ -135,36 +156,22 @@ const saveKycDocument = (userId, documentFile) => {
 };
 
 const saveProviderImage = (imageFile) => {
-  const { dataUrl } = imageFile;
-  const match = typeof dataUrl === 'string' && dataUrl.match(/^data:([\w/+.-]+);base64,(.+)$/);
+  return saveImageUpload(imageFile, {
+    folder: 'providers',
+    label: 'Provider image',
+    maxSizeMb: 5,
+  });
+};
 
-  if (!match) {
-    const error = new Error('Invalid provider image upload');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const allowedTypes = {
-    'image/jpeg': '.jpg',
-    'image/png': '.png',
-    'image/webp': '.webp',
-  };
-  const extension = allowedTypes[match[1]];
-
-  if (!extension) {
-    const error = new Error('Only JPG, PNG, or WEBP provider images are allowed');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  const buffer = Buffer.from(match[2], 'base64');
-  if (buffer.length > 5 * 1024 * 1024) {
-    const error = new Error('Provider image must be 5MB or smaller');
-    error.statusCode = 400;
-    throw error;
-  }
-
-  return dataUrl;
+const calculateDistanceKm = (lat1, lng1, lat2, lng2) => {
+  const toRad = (value) => (value * Math.PI) / 180;
+  const earthRadiusKm = 6371;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((earthRadiusKm * c).toFixed(1));
 };
 
 const createService = asyncHandler(async (req, res) => {
@@ -444,6 +451,53 @@ const listMyReviews = asyncHandler(async (req, res) => {
   res.json({ reviews });
 });
 
+const listMyContactLogs = asyncHandler(async (req, res) => {
+  const contactLogs = await ContactLog.find({ provider: req.user._id })
+    .populate('serviceTaker', 'name phone')
+    .populate('providerProfile', 'businessName category city rate')
+    .sort('-createdAt')
+    .limit(100);
+
+  res.json({ contactLogs });
+});
+
+const updateMyLocation = asyncHandler(async (req, res) => {
+  const { lat, lng, accuracy, locationSharing = true } = req.body;
+  const latitude = Number(lat);
+  const longitude = Number(lng);
+
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    res.status(400);
+    throw new Error('Latitude and longitude are required');
+  }
+
+  if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+    res.status(400);
+    throw new Error('Invalid location coordinates');
+  }
+
+  const profile = await ProviderProfile.findOneAndUpdate(
+    { user: req.user._id },
+    {
+      locationSharing: Boolean(locationSharing),
+      currentLocation: {
+        lat: latitude,
+        lng: longitude,
+        accuracy: Number.isFinite(Number(accuracy)) ? Number(accuracy) : undefined,
+        updatedAt: new Date(),
+      },
+    },
+    { new: true, runValidators: true }
+  ).populate('user', 'name email phone status');
+
+  if (!profile) {
+    res.status(404);
+    throw new Error('Provider profile not found');
+  }
+
+  res.json({ profile });
+});
+
 module.exports = {
   listProviders,
   getMyProviderProfile,
@@ -460,4 +514,6 @@ module.exports = {
   sendQuote,
   getBusinessAnalytics,
   listMyReviews,
+  listMyContactLogs,
+  updateMyLocation,
 };
