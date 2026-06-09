@@ -21,6 +21,9 @@ const categoryAliases = {
   cleaning: ['cleaning', 'cleaner', 'house cleaning'],
   pandit: ['pandit', 'pandit ji', 'pooja', 'puja'],
   'pandit ji': ['pandit', 'pandit ji', 'pooja', 'puja'],
+  event: ['event', 'events', 'event management', 'event manager'],
+  events: ['event', 'events', 'event management', 'event manager'],
+  'event management': ['event', 'events', 'event management', 'event manager'],
 };
 
 const buildCategoryRegexes = (category) => {
@@ -43,6 +46,11 @@ const buildCategoryRegexes = (category) => {
   return [...terms].map((term) => new RegExp(escapeRegex(term), 'i'));
 };
 
+const getProviderUserId = (provider) => {
+  const user = provider?.user;
+  return (user?._id || user || '').toString();
+};
+
 const listProviders = asyncHandler(async (req, res) => {
   const { category, city, approved = 'true', nearLat, nearLng } = req.query;
   const filter = {};
@@ -59,6 +67,43 @@ const listProviders = asyncHandler(async (req, res) => {
   if (approved !== 'all') filter.isApproved = approved === 'true';
 
   let providers = await ProviderProfile.find(filter).populate('user', 'name email phone status');
+
+  if (categoryRegexes.length) {
+    const serviceMatches = await Service.find({
+      isActive: true,
+      moderationStatus: { $ne: 'rejected' },
+      $or: [
+        { category: { $in: categoryRegexes } },
+        { title: { $in: categoryRegexes } },
+        { description: { $in: categoryRegexes } },
+      ],
+    }).distinct('provider');
+
+    const seenProviderIds = new Set(providers.map(getProviderUserId));
+    const missingProviderIds = serviceMatches
+      .map((provider) => provider?.toString())
+      .filter((providerId) => providerId && !seenProviderIds.has(providerId));
+
+    if (missingProviderIds.length) {
+      const serviceProviderFilter = {
+        user: { $in: missingProviderIds },
+      };
+      if (city) serviceProviderFilter.city = city;
+      if (approved !== 'all') serviceProviderFilter.isApproved = approved === 'true';
+
+      const serviceProviders = await ProviderProfile.find(serviceProviderFilter)
+        .populate('user', 'name email phone status');
+      providers = [...providers, ...serviceProviders];
+    }
+  }
+
+  if (approved !== 'all') {
+    providers = providers.filter((provider) =>
+      approved === 'true'
+        ? provider.user?.status !== 'blocked'
+        : true
+    );
+  }
 
   const latitude = Number(nearLat);
   const longitude = Number(nearLng);
@@ -244,7 +289,16 @@ const listMyServices = asyncHandler(async (req, res) => {
 
 const updateMyService = asyncHandler(async (req, res) => {
   const updates = {};
-  ['title', 'category', 'description', 'priceLabel', 'isActive'].forEach((field) => {
+  [
+    'title',
+    'category',
+    'description',
+    'priceLabel',
+    'durationLabel',
+    'packageType',
+    'includes',
+    'isActive',
+  ].forEach((field) => {
     if (req.body[field] !== undefined) updates[field] = req.body[field];
   });
 
@@ -262,6 +316,20 @@ const updateMyService = asyncHandler(async (req, res) => {
   res.json({ service });
 });
 
+const deleteMyService = asyncHandler(async (req, res) => {
+  const service = await Service.findOneAndDelete({
+    _id: req.params.id,
+    provider: req.user._id,
+  });
+
+  if (!service) {
+    res.status(404);
+    throw new Error('Service not found');
+  }
+
+  res.json({ message: 'Service deleted' });
+});
+
 const listAssignedRequests = asyncHandler(async (req, res) => {
   const requests = await ServiceRequest.find({ provider: req.user._id }).populate('serviceTaker', 'name email phone');
   res.json({ requests });
@@ -271,7 +339,8 @@ const listOpenRequests = asyncHandler(async (req, res) => {
   const profile = await ProviderProfile.findOne({ user: req.user._id });
   const filter = { status: 'open' };
 
-  if (profile?.category) filter.category = profile.category;
+  const categoryRegexes = buildCategoryRegexes(profile?.category);
+  if (categoryRegexes.length) filter.category = { $in: categoryRegexes };
   if (profile?.city) filter.city = profile.city;
 
   const requests = await ServiceRequest.find(filter)
@@ -547,6 +616,7 @@ module.exports = {
   createService,
   listMyServices,
   updateMyService,
+  deleteMyService,
   listAssignedRequests,
   listOpenRequests,
   claimRequest,

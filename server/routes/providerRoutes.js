@@ -7,6 +7,7 @@ const {
   createService,
   listMyServices,
   updateMyService,
+  deleteMyService,
   listAssignedRequests,
   listOpenRequests,
   claimRequest,
@@ -30,6 +31,7 @@ router.post('/me/kyc', submitMyKyc);
 router.get('/me/services', listMyServices);
 router.post('/me/services', createService);
 router.patch('/me/services/:id', updateMyService);
+router.delete('/me/services/:id', deleteMyService);
 router.get('/me/analytics', getBusinessAnalytics);
 router.get('/me/requests', listAssignedRequests);
 router.get('/me/open-requests', listOpenRequests);
