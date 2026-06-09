@@ -309,6 +309,23 @@ const updateProviderProfileAdmin = asyncHandler(async (req, res) => {
   res.json({ profile: updatedProfile });
 });
 
+const deleteProviderProfileAdmin = asyncHandler(async (req, res) => {
+  const profile = await ProviderProfile.findById(req.params.id);
+
+  if (!profile) {
+    res.status(404);
+    throw new Error('Provider profile not found');
+  }
+
+  const userId = profile.user;
+  await ProviderProfile.findByIdAndDelete(profile._id);
+  if (userId) {
+    await User.findByIdAndDelete(userId);
+  }
+
+  res.json({ message: 'Provider account deleted' });
+});
+
 const listServicesAdmin = asyncHandler(async (req, res) => {
   const services = await Service.find()
     .populate('provider', 'name email phone status')
@@ -790,6 +807,7 @@ module.exports = {
   listProviderProfiles,
   createProviderAccount,
   updateProviderProfileAdmin,
+  deleteProviderProfileAdmin,
   listServicesAdmin,
   createServiceAdmin,
   moderateService,
