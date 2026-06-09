@@ -58,6 +58,15 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Service Worker API is running' });
 });
 
+app.get('/api/version', (req, res) => {
+  res.json({
+    status: 'ok',
+    commit: process.env.RENDER_GIT_COMMIT || process.env.GIT_COMMIT || 'local',
+    branch: process.env.RENDER_GIT_BRANCH || process.env.GIT_BRANCH || 'local',
+    deployedAt: process.env.RENDER_SERVICE_ID ? new Date().toISOString() : 'local',
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/providers', providerRoutes);
