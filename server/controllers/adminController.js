@@ -597,6 +597,68 @@ const upsertCategory = asyncHandler(async (req, res) => {
   res.json({ category });
 });
 
+const updateCategory = asyncHandler(async (req, res) => {
+  const {
+    name,
+    description,
+    serviceTypes,
+    isActive,
+    imageFile,
+    iconFile,
+  } = req.body;
+  let { imageUrl, iconUrl } = req.body;
+
+  const updates = {};
+  const categoryName = String(name || '').trim();
+  if (categoryName) updates.name = categoryName;
+  if (description !== undefined) updates.description = description;
+  if (serviceTypes !== undefined) updates.serviceTypes = normalizeSkills(serviceTypes);
+  if (isActive !== undefined) updates.isActive = isActive;
+  if (imageFile?.dataUrl) imageUrl = saveCategoryImage(imageFile);
+  if (iconFile?.dataUrl) iconUrl = saveCategoryImage(iconFile);
+  if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+  if (iconUrl !== undefined) updates.iconUrl = iconUrl;
+
+  if (updates.name) {
+    const duplicate = await CategoryConfig.findOne({
+      name: updates.name,
+      _id: { $ne: req.params.id },
+    });
+    if (duplicate) {
+      res.status(409);
+      throw new Error('Category name already exists');
+    }
+  }
+
+  const category = await CategoryConfig.findByIdAndUpdate(
+    req.params.id,
+    updates,
+    { new: true, runValidators: true }
+  );
+
+  if (!category) {
+    res.status(404);
+    throw new Error('Category not found');
+  }
+
+  res.json({ category });
+});
+
+const deleteCategory = asyncHandler(async (req, res) => {
+  const category = await CategoryConfig.findByIdAndUpdate(
+    req.params.id,
+    { isActive: false },
+    { new: true }
+  );
+
+  if (!category) {
+    res.status(404);
+    throw new Error('Category not found');
+  }
+
+  res.json({ message: 'Category disabled', category });
+});
+
 const listAds = asyncHandler(async (req, res) => {
   const ads = await getPopulatedAds();
   res.json({ ads });
@@ -833,6 +895,8 @@ module.exports = {
   updateReport,
   listCategories,
   upsertCategory,
+  updateCategory,
+  deleteCategory,
   listAds,
   createAd,
   updateAd,

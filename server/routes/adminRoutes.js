@@ -22,6 +22,8 @@ const {
   updateReport,
   listCategories,
   upsertCategory,
+  updateCategory,
+  deleteCategory,
   listAds,
   createAd,
   updateAd,
@@ -55,6 +57,8 @@ router.get('/reports', listReports);
 router.patch('/reports/:id', updateReport);
 router.get('/categories', listCategories);
 router.post('/categories', upsertCategory);
+router.put('/categories/:id', updateCategory);
+router.delete('/categories/:id', deleteCategory);
 router.get('/ads', listAds);
 router.post('/ads', createAd);
 router.patch('/ads/:id', updateAd);

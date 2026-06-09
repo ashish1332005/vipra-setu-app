@@ -9,11 +9,52 @@ const saveImageUpload = require('../utils/saveImageUpload');
 const fs = require('fs');
 const path = require('path');
 
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const categoryAliases = {
+  electrician: ['electrician', 'electrical', 'electrical repair', 'electric'],
+  'electrical repair': ['electrician', 'electrical', 'electrical repair', 'electric'],
+  plumber: ['plumber', 'plumbing', 'plumbing service'],
+  'ac repair': ['ac repair', 'air conditioner', 'air conditioning', 'cooling'],
+  carpenter: ['carpenter', 'carpentry', 'woodwork'],
+  painter: ['painter', 'painting', 'painting service'],
+  cleaning: ['cleaning', 'cleaner', 'house cleaning'],
+  pandit: ['pandit', 'pandit ji', 'pooja', 'puja'],
+  'pandit ji': ['pandit', 'pandit ji', 'pooja', 'puja'],
+};
+
+const buildCategoryRegexes = (category) => {
+  const normalized = String(category || '').trim().toLowerCase();
+  if (!normalized || normalized === 'all') return [];
+
+  const terms = new Set([normalized]);
+  Object.entries(categoryAliases).forEach(([key, values]) => {
+    if (normalized.includes(key) || key.includes(normalized)) {
+      values.forEach((value) => terms.add(value));
+    }
+  });
+
+  normalized
+    .split(/[\s/&,-]+/)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 2)
+    .forEach((part) => terms.add(part));
+
+  return [...terms].map((term) => new RegExp(escapeRegex(term), 'i'));
+};
+
 const listProviders = asyncHandler(async (req, res) => {
   const { category, city, approved = 'true', nearLat, nearLng } = req.query;
   const filter = {};
 
-  if (category) filter.category = category;
+  const categoryRegexes = buildCategoryRegexes(category);
+  if (categoryRegexes.length) {
+    filter.$or = [
+      { category: { $in: categoryRegexes } },
+      { skills: { $in: categoryRegexes } },
+      { businessName: { $in: categoryRegexes } },
+    ];
+  }
   if (city) filter.city = city;
   if (approved !== 'all') filter.isApproved = approved === 'true';
 
