@@ -620,9 +620,7 @@ const createAd = asyncHandler(async (req, res) => {
   let { imageUrl = '' } = req.body;
   const providerUser = await resolveProviderUser(providerProfile);
 
-  if (imageFile?.dataUrl) {
-    imageUrl = saveAdImage(imageFile);
-  }
+  imageUrl = normalizeUploadedAdImage(imageUrl, imageFile);
 
   if (!title) {
     res.status(400);
@@ -660,6 +658,21 @@ const saveAdImage = (imageFile) => {
     label: 'Ad image',
     maxSizeMb: 5,
   });
+};
+
+const normalizeUploadedAdImage = (imageUrl = '', imageFile) => {
+  if (imageFile?.dataUrl) return saveAdImage(imageFile);
+  if (
+    typeof imageUrl === 'string' &&
+    imageUrl.startsWith('data:image/') &&
+    !imageUrl.startsWith('data:image/svg')
+  ) {
+    return saveAdImage({
+      name: 'ad-image',
+      dataUrl: imageUrl,
+    });
+  }
+  return imageUrl;
 };
 
 const saveCategoryImage = (imageFile) => {
@@ -716,8 +729,8 @@ const updateAd = asyncHandler(async (req, res) => {
     return data;
   }, {});
 
-  if (imageFile?.dataUrl) {
-    updates.imageUrl = saveAdImage(imageFile);
+  if (imageFile?.dataUrl || String(req.body.imageUrl || '').startsWith('data:image/')) {
+    updates.imageUrl = normalizeUploadedAdImage(req.body.imageUrl, imageFile);
   }
 
   if (req.body.placements !== undefined || req.body.placement !== undefined) {
