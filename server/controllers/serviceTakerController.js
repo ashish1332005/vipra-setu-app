@@ -7,14 +7,18 @@ const Notification = require('../models/Notification');
 const ContactLog = require('../models/ContactLog');
 const asyncHandler = require('../utils/asyncHandler');
 const createNotification = require('../utils/createNotification');
+const saveImageUpload = require('../utils/saveImageUpload');
 
 const createRequest = asyncHandler(async (req, res) => {
-  const { provider, category, title, description, city, address, preferredDate, preferredTimeSlot, budgetLabel, sourceService } = req.body;
+  const { provider, category, title, description, city, address, preferredDate, preferredTimeSlot, budgetLabel, sourceService, imageFile } = req.body;
+  let { imageUrl = '' } = req.body;
 
   if (!category || !title || !description || !city) {
     res.status(400);
     throw new Error('Category, title, description, and city are required');
   }
+
+  if (imageFile?.dataUrl) imageUrl = saveRequestImage(imageFile);
 
   const request = await ServiceRequest.create({
     serviceTaker: req.user._id,
@@ -27,6 +31,8 @@ const createRequest = asyncHandler(async (req, res) => {
     preferredDate,
     preferredTimeSlot,
     budgetLabel,
+    imageUrl,
+    issueImages: imageUrl ? [imageUrl] : [],
     sourceService,
     status: provider ? 'assigned' : 'open',
   });
@@ -55,9 +61,14 @@ const listMyRequests = asyncHandler(async (req, res) => {
 
 const updateMyRequest = asyncHandler(async (req, res) => {
   const updates = {};
-  ['provider', 'category', 'title', 'description', 'city', 'address', 'preferredDate', 'preferredTimeSlot', 'budgetLabel', 'status'].forEach((field) => {
+  ['provider', 'category', 'title', 'description', 'city', 'address', 'preferredDate', 'preferredTimeSlot', 'budgetLabel', 'status', 'imageUrl'].forEach((field) => {
     if (req.body[field] !== undefined) updates[field] = req.body[field];
   });
+
+  if (req.body.imageFile?.dataUrl) {
+    updates.imageUrl = saveRequestImage(req.body.imageFile);
+    updates.$addToSet = { issueImages: updates.imageUrl };
+  }
 
   if (req.body.status) {
     updates.$push = {
@@ -328,6 +339,12 @@ const listMyContactLogs = asyncHandler(async (req, res) => {
     .limit(100);
 
   res.json({ contactLogs });
+});
+
+const saveRequestImage = (imageFile) => saveImageUpload(imageFile, {
+  folder: 'requests',
+  label: 'Request image',
+  maxSizeMb: 5,
 });
 
 module.exports = {

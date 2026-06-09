@@ -46,6 +46,17 @@ const serviceRequestSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    imageUrl: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    issueImages: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
     sourceService: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Service',
