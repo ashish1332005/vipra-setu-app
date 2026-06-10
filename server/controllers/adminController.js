@@ -245,8 +245,17 @@ const updateProviderProfileAdmin = asyncHandler(async (req, res) => {
     throw new Error('Provider profile not found');
   }
 
-  const userUpdates = {};
-  if (req.body.name !== undefined) userUpdates.name = req.body.name;
+  const user = await User.findById(profile.user?._id || profile.user).select('+password');
+  if (!user) {
+    res.status(404);
+    throw new Error('Provider user account not found');
+  }
+
+  let shouldSaveUser = false;
+  if (req.body.name !== undefined) {
+    user.name = req.body.name;
+    shouldSaveUser = true;
+  }
   if (req.body.phone !== undefined) {
     const normalizedPhone = normalizePhone(req.body.phone);
     if (!normalizedPhone) {
@@ -263,12 +272,17 @@ const updateProviderProfileAdmin = asyncHandler(async (req, res) => {
       throw new Error('Mobile number is already registered');
     }
 
-    userUpdates.phone = normalizedPhone;
-    userUpdates.email = buildPhoneLoginEmail(normalizedPhone);
+    user.phone = normalizedPhone;
+    user.email = buildPhoneLoginEmail(normalizedPhone);
+    shouldSaveUser = true;
   }
-  if (req.body.password) userUpdates.password = req.body.password;
+  if (req.body.password) {
+    user.password = req.body.password;
+    shouldSaveUser = true;
+  }
   if (req.body.isApproved !== undefined) {
-    userUpdates.status = req.body.isApproved ? 'active' : 'pending';
+    user.status = req.body.isApproved ? 'active' : 'pending';
+    shouldSaveUser = true;
   }
 
   const allowedFields = [
@@ -296,9 +310,7 @@ const updateProviderProfileAdmin = asyncHandler(async (req, res) => {
     profileUpdates.coverImageUrl = saveProviderImage(req.body.coverImageFile);
   }
 
-  if (Object.keys(userUpdates).length) {
-    await User.findByIdAndUpdate(profile.user?._id, userUpdates, { runValidators: true });
-  }
+  if (shouldSaveUser) await user.save();
 
   const updatedProfile = await ProviderProfile.findByIdAndUpdate(
     profile._id,
@@ -523,8 +535,26 @@ const moderateReview = asyncHandler(async (req, res) => {
     throw new Error('Review not found');
   }
 
+  await refreshProviderRating(review.provider);
+
   res.json({ review });
 });
+
+const refreshProviderRating = async (provider) => {
+  if (!provider) return;
+  const aggregate = await Review.aggregate([
+    { $match: { provider, status: 'approved' } },
+    { $group: { _id: '$provider', rating: { $avg: '$rating' }, reviewCount: { $sum: 1 } } },
+  ]);
+
+  await ProviderProfile.findOneAndUpdate(
+    { user: provider },
+    {
+      rating: aggregate[0] ? Number(aggregate[0].rating.toFixed(1)) : 0,
+      reviewCount: aggregate[0]?.reviewCount || 0,
+    }
+  );
+};
 
 const listReports = asyncHandler(async (req, res) => {
   const reports = await Report.find()

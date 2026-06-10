@@ -160,9 +160,9 @@ const forgotPassword = asyncHandler(async (req, res) => {
   await user.save();
 
   res.json({
-    message: 'Password reset token generated.',
+    message: 'Password reset token generated. Use this code within 15 minutes.',
     expiresInMinutes: 15,
-    ...(env.nodeEnv === 'production' ? {} : { resetToken: token }),
+    resetToken: token,
   });
 });
 

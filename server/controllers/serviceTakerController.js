@@ -166,28 +166,20 @@ const createReview = asyncHandler(async (req, res) => {
     throw new Error('Only completed assigned requests can be reviewed');
   }
 
-  const review = await Review.create({
-    request,
-    provider: serviceRequest.provider,
-    serviceTaker: req.user._id,
-    rating,
-    comment,
-  });
+  const review = await Review.findOneAndUpdate(
+    { request, serviceTaker: req.user._id },
+    {
+      request,
+      provider: serviceRequest.provider,
+      serviceTaker: req.user._id,
+      rating,
+      comment,
+      status: 'approved',
+    },
+    { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+  );
 
-  const aggregate = await Review.aggregate([
-    { $match: { provider: serviceRequest.provider, status: 'approved' } },
-    { $group: { _id: '$provider', rating: { $avg: '$rating' }, reviewCount: { $sum: 1 } } },
-  ]);
-
-  if (aggregate[0]) {
-    await ProviderProfile.findOneAndUpdate(
-      { user: serviceRequest.provider },
-      {
-        rating: Number(aggregate[0].rating.toFixed(1)),
-        reviewCount: aggregate[0].reviewCount,
-      }
-    );
-  }
+  await refreshProviderRating(serviceRequest.provider);
 
   await createNotification({
     user: serviceRequest.provider,
@@ -297,18 +289,31 @@ const markNotificationRead = asyncHandler(async (req, res) => {
 
 const createContactLog = asyncHandler(async (req, res) => {
   const { provider, providerProfile, category, method, city = '', rateLabel = '', note = '' } = req.body;
+  const normalizedMethod = String(method || '').trim().toLowerCase();
+  let providerUser = provider;
+  let profileId = providerProfile;
 
-  if (!provider || !category || !['call', 'whatsapp'].includes(method)) {
+  if (!providerUser && profileId) {
+    const profile = await ProviderProfile.findById(profileId);
+    providerUser = profile?.user;
+  }
+
+  if (!providerUser || !category || !['call', 'whatsapp'].includes(normalizedMethod)) {
     res.status(400);
     throw new Error('Provider, category, and contact method are required');
   }
 
+  if (!profileId) {
+    const profile = await ProviderProfile.findOne({ user: providerUser });
+    profileId = profile?._id;
+  }
+
   const log = await ContactLog.create({
     serviceTaker: req.user._id,
-    provider,
-    providerProfile,
+    provider: providerUser,
+    providerProfile: profileId,
     category,
-    method,
+    method: normalizedMethod,
     city,
     rateLabel,
     note,
@@ -316,8 +321,8 @@ const createContactLog = asyncHandler(async (req, res) => {
   });
 
   await createNotification({
-    user: provider,
-    title: method === 'call' ? 'New call lead' : 'New WhatsApp lead',
+    user: providerUser,
+    title: normalizedMethod === 'call' ? 'New call lead' : 'New WhatsApp lead',
     message: `${req.user.name} contacted you for ${category}.`,
     type: 'request',
     link: '/provider/requests',
@@ -346,6 +351,22 @@ const saveRequestImage = (imageFile) => saveImageUpload(imageFile, {
   label: 'Request image',
   maxSizeMb: 5,
 });
+
+const refreshProviderRating = async (provider) => {
+  if (!provider) return;
+  const aggregate = await Review.aggregate([
+    { $match: { provider, status: 'approved' } },
+    { $group: { _id: '$provider', rating: { $avg: '$rating' }, reviewCount: { $sum: 1 } } },
+  ]);
+
+  await ProviderProfile.findOneAndUpdate(
+    { user: provider },
+    {
+      rating: aggregate[0] ? Number(aggregate[0].rating.toFixed(1)) : 0,
+      reviewCount: aggregate[0]?.reviewCount || 0,
+    }
+  );
+};
 
 module.exports = {
   createRequest,
